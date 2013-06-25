@@ -160,7 +160,7 @@ fcatdec()
 					clear
 					cat "$DIRR""$KEYDS""/""$DECDIR""/""$DECCAT"
 					echo
-					read -p " [>] Press Enter to return to main menu:" SMF
+					read -p " [>] Press Enter to return to main menu" SMF
 					fmenu
 				else
 					clear
@@ -245,12 +245,13 @@ fimport()
 fimportcus()
 {
 	clear
+	DONPS="0"
 	while [ $DONPS != "1" ]
 		do
 			clear
-			echo " [>] Please Enter the password:"
+			echo " [>] Please Enter the password"
 			read -s RPASS
-			echo " [>] Enter one more time:"
+			echo " [>] Enter one more time"
 			read -s SPASS
 			if [ $RPASS != $SPASS ]
 				then
@@ -261,9 +262,11 @@ fimportcus()
 					DONPS="1"
 			fi
 		done
-						
-	openssl enc -d -camellia-256-cbc -salt -in "$KEYLOC" -out "$KEYLOC".zip -k "$RPASS"
+	BASEK=$(dirname $KEYLOC)
+	cat "$KEYLOC" | base64 -d > "$BASEK""/"0004					
+	openssl enc -d -camellia-256-cbc -salt -in "$BASEK""/"0004 -out "$KEYLOC".zip -k "$RPASS"
 	unzip -P "cPHQ0bkM2zEUZY245h9ZwgS7l98Hi0WqIeamJVhow1osQ" "$KEYLOC".zip -d "$DIRR"
+	shred -fuzn 3 "$BASEK""/"0004
 	shred -fuzn 3 "$KEYLOC".zip
 	shred -fuzn 3 "$KEYLOC"
 	chown -hR $USER "$DIRR""$KEYFILE"
@@ -350,9 +353,9 @@ fexportcus()
 	while [ $PASSDON != "1" ]
 		do
 			clear
-			echo " [>] Please Enter your password:"
+			echo " [>] Please Enter your password"
 			read -s  TPASS
-			echo " [>] Enter once more:"
+			echo " [>] Enter once more"
 			read -s ZPASS
 			if [ $TPASS != $ZPASS ]
 				then
@@ -362,7 +365,9 @@ fexportcus()
 				else
 					PASSDON="1"
 					(cd "$DIRR"; zip -reP "cPHQ0bkM2zEUZY245h9ZwgS7l98Hi0WqIeamJVhow1osQ" "$DIRR"$KEYEX.zip $KEYEX)
-					openssl enc -camellia-256-cbc -salt -in "$DIRR"$KEYEX.zip -out "$WHSAV""/"$KEYEX -k "$ZPASS"
+					openssl enc -camellia-256-cbc -salt -in "$DIRR"$KEYEX.zip -out "$WHSAV""/"0003 -k "$ZPASS"
+					cat "$WHSAV""/"0003 | base64 > "$WHSAV""/"$KEYEX
+					shred -fuzn 3 "$WHSAV""/"0003
 			fi
 		done
 	}
@@ -493,7 +498,7 @@ fencryptmsg()
 			fkeygen
 	fi
 
-	echo " [>] Please choose your key:"
+	echo " [>] Please choose your key"
 	ls "$DIRR"
 	echo
 	read -p " >" KEYCH
@@ -567,6 +572,7 @@ fencryptmsg()
 	echo $(tr '\n' ' ' < "$DIRR"tmp2 | sed -e 's/\s//g') > "$DIRR"tmp3
 	PASS=$(cat "$DIRR""$KEYCH"/meta/meta)
 	openssl enc -camellia-256-cbc -salt -in "$DIRR"tmp3 -out "$DIRR""$KEYCH""/""$ENCCDIR""/"0001 -k $PASS
+	openssl enc -aes-256-ecb -salt -in test2 -out
 	cat "$DIRR""$KEYCH""/""$ENCCDIR""/"0001 | base64 > "$DIRR""$KEYCH""/""$ENCCDIR""/""$ENCCMSGF"
 	shred -fuzn 3 "$DIRR""$KEYCH""/""$ENCCDIR""/"0001
 	shred -fuzn 3 "$DIRR"tmp1
@@ -627,7 +633,7 @@ fdecryptmsg()
 	while [ $SHDON = "0" ]
 		do
 			clear
-			echo " [>] Please choose your message file:"
+			echo " [>] Please choose your message file"
 			ls "$DIRR""$KEYDE""/""$ENCCDIR"
 			echo
 			read -p " >" ENCCMSGF
@@ -709,19 +715,22 @@ fdecryptmsg()
 			clear
 			cat "$DIRR""$KEYDE""/""$DECDIR""/""$ENCCMSGF"
 			echo
-			read -p " [>] Press Enter to return to main menu" SMF
+			read -p " [>] Press Enter to exit" SMF
+			fexit
 	;;
 	"")
 			clear
 			cat "$DIRR""$KEYDE""/""$DECDIR""/""$ENCCMSGF"
 			echo
-			read -p " [>] Press Enter to return to main menu" SMF
+			read -p " [>] Press Enter to exit" SMF
+			fexit
 	;;
 	"Y")
 			clear
 			cat "$DIRR""$KEYDE""/""$DECDIR""/""$ENCCMSGF"
 			echo
-			read -p " [>] Press Enter to return to main menu" SMF
+			read -p " [>] Press Enter to exit" SMF
+			fexit
 	esac
 	
 	fmenu
@@ -761,7 +770,7 @@ fdecryptfile()
 	echo
 	file "$DIRR""$KEYDS""/""$DECDIR""/""0_Decrypted_Files""/""$DECMSGT"
 	echo
-	read -p " [>] Press Enter to exit:"
+	read -p " [>] Press Enter to exit"
 	fexit
 }
 
@@ -797,7 +806,7 @@ fencryptfile()
 	clear
 	echo " [*] File saved to "$DIRR""$KEYDS"/"$ENCCDIR"/"0_Encrypted_Files"/"$ENCCMSGF""
 	echo
-	read -p " [>] Press Enter to return to main menu:"
+	read -p " [>] Press Enter to return to main menu"
 	fmenu
 }
 
@@ -817,7 +826,12 @@ flistgen()
 	
 	if [ $(which xclip) -z ]
 		then
-			sudo apt-get install xclip
+			echo " [*] It looks like xclip is not installed on your system, it is needed for copying the messages out of the program and to the clipboad. Do you want to install it? [Y/n]" INSTXCLIP
+			case $INSTXCLIP in
+			"y") sudo apt-get install xclip;;
+			"Y") sudo apt-get install xclip;;
+			"") sudo apt-get install xclip;;
+			esac
 	fi
 	clear
 	echo
