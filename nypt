@@ -650,7 +650,6 @@ fdecryptmsg()
 	PASS=$(cat "$DIRR""$KEYDE"/meta/meta)
 	cat "$DIRR""$KEYDE""/""$ENCCDIR""/""$ENCCMSGF" | base64 -d > "$DIRR""$KEYDE""/""$ENCCDIR""/"0001
 	openssl enc -d -camellia-256-cbc -salt -in "$DIRR""$KEYDE""/""$ENCCDIR""/"0001 -out "$DIRR"temp04 -k $PASS	
-	shred -vfuzn 3 "$DIRR""$KEYDE""/""$ENCCDIR""/"0001
 	ENCCLEN=$(wc -c "$DIRR"temp04)
   	CHARCNT="0"
   	CHAR="0"
@@ -679,13 +678,8 @@ fdecryptmsg()
 	STPCNT=$(wc -l "$DIRR"temp01)
 	
 	while read LINE
-		do
-			if [ $LINECNT = $STPCNT ]
-				then
-					break
-			fi
-			
-			LONGLET=$(grep -rl $LINE "$DIRR""$KEYDE"*/)
+		do			
+			LONGLET=$(grep -rl $LINE "$DIRR"*/)
 			echo ${LONGLET: -2} >> "$DIRR"temp02 
 		done <"$FILE"	
 	FILE="$DIRR"temp02
@@ -701,6 +695,7 @@ fdecryptmsg()
 		
 	DEKD=$(cat "$DIRR"temp03)
 	echo "${DEKD%?}" > "$DIRR""$KEYDE""/""$DECDIR""/""$ENCCMSGF"
+	shred -fuzn 3 "$DIRR""$KEYDE""/""$ENCCDIR""/"0001
 	shred -fuzn 3 "$DIRR"temp01
 	shred -fuzn 3 "$DIRR"temp02
 	shred -fuzn 3 "$DIRR"temp03
@@ -830,7 +825,7 @@ flistgen()
 			case $INSTXCLIP in
 			"y") sudo apt-get install xclip;;
 			"Y") sudo apt-get install xclip;;
-			"") sudo apt-get install xclip;;
+			"") sudo apt-get install xclip
 			esac
 	fi
 	clear
