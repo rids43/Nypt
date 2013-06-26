@@ -923,6 +923,16 @@ fstart()
 			"Y") apt-get install xclip;clear;sudo apt-get install xclip;;
 			"") apt-get install xclip;clear;sudo apt-get install xclip
 			esac
+	elif [ $(which openssl) -z ]
+		then
+			read -p " [*] It looks like openssl is not installed on your system, it is needed for cryptography. Do you want to install it? [Y/n]" INSTOPNSSL
+			case $INSTOPNSSL in
+			"y") apt-get install openssl;clear;sudo apt-get install openssl;;
+			"Y") apt-get install openssl;clear;sudo apt-get install openssl;;
+			"") apt-get install openssl;clear;sudo apt-get install openssl;;
+			"n") clear; echo " [*] Program cannot run without openssl, exitting"; fexit;;
+			"N") clear; echo " [*] Program cannot run without openssl, exitting"; fexit
+			esac
 	fi
 
 	if [ ! -d "$DIRR" ]
