@@ -913,7 +913,7 @@ fstart()
 {
 	ENCCDIR="0_Encrypted_Messages"
 	DECDIR="0_Decrypted_Messages"
-	DIRR="$HOME""/Desktop/crypt/"
+	DIRR="$HOME""/Desktop/nypt/"
 	trap fexit 2
 	if [ $(which xclip) -z ]
 		then
