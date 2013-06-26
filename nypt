@@ -132,7 +132,7 @@ fcatenc()
 					clear
 					echo " [*] There does not appear to be any file at "$DIRR""$KEYDS""/""$ENCCDIR""/""$ENCCCAT", try again.."
 					sleep 2
-					fcatenc
+					fmenu
 			fi
 	fi
 }
@@ -166,7 +166,7 @@ fcatdec()
 					clear
 					echo " [*] There does not appear to be any file at "$DIRR""$KEYDS""/""$DECDIR""/""$DECCAT", try again.."
 					sleep 2
-					fcatdec
+					fmenu
 			fi
 	fi
 }
@@ -678,7 +678,7 @@ fdecryptmsg()
 	
 	while read LINE
 		do			
-			LONGLET=$(grep -rl $LINE "$DIRR"*/)
+			LONGLET=$(grep -rl $LINE "$DIRR""$KEYDE"/)
 			echo ${LONGLET: -2} >> "$DIRR"temp02 
 		done <"$FILE"	
 	FILE="$DIRR"temp02
