@@ -601,6 +601,15 @@ fencryptmsg()
 
 	}
 
+fdecpaste()
+{
+	DATER=$(date +%Y-%d-%m--%H:%M:%S)
+	touch "$DIRR""$KEYDE""/""$ENCCDIR""/""$DATER"
+	DATEFILE="$DIRR""$KEYDE""/""$ENCCDIR""/"$DATER
+	xclip -sel clip -o > $DATEFILE
+	SHDON="1"
+}
+
 fdecryptmsg()
 {
 	clear
@@ -632,8 +641,22 @@ fdecryptmsg()
 	while [ $SHDON = "0" ]
 		do
 			clear
-			echo " [>] Please choose your message file"
-			ls "$DIRR""$KEYDE""/""$ENCCDIR"
+			read -p " [>] Paste your message from clipboard or read message file from 0_Encrypted_Messages? [P/f]" DODEC
+			case $DODEC in
+			"P") fdecpaste;;
+			"p") fdecpaste;;
+			"") fdecpaste;;
+			"f") ls "$DIRR""$KEYDE""/""$ENCCDIR"
+			echo
+			read -p " >" ENCCMSGF
+			if [ ! -f "$DIRR""$KEYDE""/""$ENCCDIR""/""$ENCCMSGF" ]
+				then
+					echo " [*] $ENCCMSGF is not a valid file, try again."
+					sleep 2
+				else
+					SHDON="1"
+			fi;;
+			"F") ls "$DIRR""$KEYDE""/""$ENCCDIR"
 			echo
 			read -p " >" ENCCMSGF
 			if [ ! -f "$DIRR""$KEYDE""/""$ENCCDIR""/""$ENCCMSGF" ]
@@ -643,11 +666,20 @@ fdecryptmsg()
 				else
 					SHDON="1"
 			fi
+			esac
 		done
 		
 	clear
 	PASS=$(cat "$DIRR""$KEYDE"/meta/meta)
-	cat "$DIRR""$KEYDE""/""$ENCCDIR""/""$ENCCMSGF" | base64 -d > "$DIRR""$KEYDE""/""$ENCCDIR""/"0001
+	
+	case $DODEC in
+		"P") cat $DATEFILE | base64 -d > "$DIRR""$KEYDE""/""$ENCCDIR""/"0001;ENCCMSGF=$DATER;;
+		"p") cat $DATEFILE | base64 -d > "$DIRR""$KEYDE""/""$ENCCDIR""/"0001;ENCCMSGF=$DATER;;
+		"") cat $DATEFILE | base64 -d > "$DIRR""$KEYDE""/""$ENCCDIR""/"0001;ENCCMSGF=$DATER;;
+		"f") cat "$DIRR""$KEYDE""/""$ENCCDIR""/""$ENCCMSGF" | base64 -d > "$DIRR""$KEYDE""/""$ENCCDIR""/"0001;;
+		"F") cat "$DIRR""$KEYDE""/""$ENCCDIR""/""$ENCCMSGF" | base64 -d > "$DIRR""$KEYDE""/""$ENCCDIR""/"0001
+	esac
+	
 	openssl enc -d -camellia-256-cbc -salt -in "$DIRR""$KEYDE""/""$ENCCDIR""/"0001 -out "$DIRR"temp04 -k $PASS	
 	ENCCLEN=$(wc -c "$DIRR"temp04)
   	CHARCNT="0"
@@ -727,7 +759,7 @@ fdecryptmsg()
 			fexit
 	esac
 	
-	fmenu
+	fexit
 }
 
 fdecryptfile()
@@ -818,15 +850,6 @@ flistgen()
 			STARTNUM=$(( STARTNUM + 1 ))
 		done
 	
-	if [ $(which xclip) -z ]
-		then
-			echo " [*] It looks like xclip is not installed on your system, it is needed for copying the messages out of the program and to the clipboad. Do you want to install it? [Y/n]" INSTXCLIP
-			case $INSTXCLIP in
-			"y") sudo apt-get install xclip;;
-			"Y") sudo apt-get install xclip;;
-			"") sudo apt-get install xclip
-			esac
-	fi
 	clear
 	echo
 	echo " [*] Setup complete!"
@@ -892,6 +915,15 @@ fstart()
 	DECDIR="0_Decrypted_Messages"
 	DIRR="$HOME""/Desktop/crypt/"
 	trap fexit 2
+	if [ $(which xclip) -z ]
+		then
+			read -p " [*] It looks like xclip is not installed on your system, it is needed for copying and pasteing the messages out and in to the program and to the clipboad. Do you want to install it? [Y/n]" INSTXCLIP
+			case $INSTXCLIP in
+			"y") apt-get install xclip;clear;sudo apt-get install xclip;;
+			"Y") apt-get install xclip;clear;sudo apt-get install xclip;;
+			"") apt-get install xclip;clear;sudo apt-get install xclip
+			esac
+	fi
 
 	if [ ! -d "$DIRR" ]
 		then
