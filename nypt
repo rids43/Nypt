@@ -572,7 +572,6 @@ fencryptmsg()
 	echo $(tr '\n' ' ' < "$DIRR"tmp2 | sed -e 's/\s//g') > "$DIRR"tmp3
 	PASS=$(cat "$DIRR""$KEYCH"/meta/meta)
 	openssl enc -camellia-256-cbc -salt -in "$DIRR"tmp3 -out "$DIRR""$KEYCH""/""$ENCCDIR""/"0001 -k $PASS
-	openssl enc -aes-256-ecb -salt -in test2 -out
 	cat "$DIRR""$KEYCH""/""$ENCCDIR""/"0001 | base64 > "$DIRR""$KEYCH""/""$ENCCDIR""/""$ENCCMSGF"
 	shred -fuzn 3 "$DIRR""$KEYCH""/""$ENCCDIR""/"0001
 	shred -fuzn 3 "$DIRR"tmp1
