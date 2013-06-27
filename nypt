@@ -4,7 +4,7 @@
 fmenu()
 {
 	clear
-	read -p """ [*] Crypt 1.26
+	read -p """ [*] Nypt 1.27
       ~~~~~~~~
  [1] Encryption
  [2] Decryption
@@ -14,7 +14,8 @@ fmenu()
   
 		case $MENU in
 	1)	clear
-		read -p """ [*] Encryption Menu:		
+		read -p """ [*] Encryption Menu
+      ~~~~~~~~
  [1] Encrypt a message.
  [2] Encrypt a file.
  [3] Browse Encryption folder.
@@ -25,7 +26,8 @@ fmenu()
 		case $ENCCMENU in 1)fencryptmsg;;2)fencryptfile;;3)fopenenc;;4)fcatenc;;5)fsecuredelenc;;6)fmenu;esac
 	;;
 	2)	clear
-		read -p """ [*] Decryption Menu:		
+		read -p """ [*] Decryption Menu
+      ~~~~~~~~
  [1] Decrypt a message.
  [2] Decrypt a file.
  [3] Browse Decryption folder.
@@ -36,7 +38,8 @@ fmenu()
 		case $DECMENU in 1)fdecryptmsg;;2)fdecryptfile;;3)fopendec;;4)fcatdec;;5)fsecuredeldec;;6)fmenu;esac
 	;;
 	3)	clear
-		read -p """ [*] Key Menu:	
+		read -p """ [*] Key Menu
+      ~~~~~~~~
  [1] Generate a new Key.
  [2] Export a Key.
  [3] Import a Key.
@@ -80,6 +83,7 @@ fexit()
 		then
 			(shred -fuzn 3 "$DIRR"temp04)
 	fi
+	echo
 	exit
 }
 
@@ -264,7 +268,7 @@ fimportcus()
 		done
 	BASEK=$(dirname $KEYLOC)
 	cat "$KEYLOC" | base64 -d > "$BASEK""/"0004					
-	openssl enc -d -camellia-256-cbc -salt -in "$BASEK""/"0004 -out "$KEYLOC".zip -k "$RPASS"
+	openssl enc -d -aes-256-gcm -salt -in "$BASEK""/"0004 -out "$KEYLOC".zip -k "$RPASS"
 	unzip -P "cPHQ0bkM2zEUZY245h9ZwgS7l98Hi0WqIeamJVhow1osQ" "$KEYLOC".zip -d "$DIRR"
 	shred -fuzn 3 "$BASEK""/"0004
 	shred -fuzn 3 "$KEYLOC".zip
@@ -274,13 +278,13 @@ fimportcus()
 	echo " [*] $KEYFILE imported."
 	sleep 2
 	fmenu
-	}
+}
 
 fimportdef()
 {
 	PATHN=$(dirname $KEYLOC)
 	cat $KEYLOC | base64 -d > "$PATHN""/"003
-	openssl enc -d -camellia-256-cbc -salt -in "$PATHN""/"003 -out "$KEYLOC".zip -k "FQhs2UOb6UfY6h4h20hf49LTS9EnkSuQP66357693hahal0l286501EfOoWCvjScbanpDrJ3sWXupryAQLj71Qt"
+	openssl enc -d -aes-256-gcm -salt -in "$PATHN""/"003 -out "$KEYLOC".zip -k "FQhs2UOb6UfY6h4h20hf49LTS9EnkSuQP66357693hahal0l286501EfOoWCvjScbanpDrJ3sWXupryAQLj71Qt"
 	shred -fuzn 3 "$PATHN""/"003
 	unzip -P "cPHQ0bkM2zEUZY245h9ZwgS7l98Hi0WqIeamJVhow1osQ" "$KEYLOC".zip -d "$DIRR"
 	shred -fuzn 3 "$KEYLOC".zip
@@ -290,7 +294,7 @@ fimportdef()
 	echo " [*] $KEYFILE imported."
 	sleep 2
 	fmenu
-	}
+}
 
 fexport()
 {
@@ -341,10 +345,10 @@ fexport()
 fexportdef()
 {
 	(cd "$DIRR"; zip -reP "cPHQ0bkM2zEUZY245h9ZwgS7l98Hi0WqIeamJVhow1osQ" "$DIRR"$KEYEX.zip $KEYEX)
-	openssl enc -camellia-256-cbc -salt -in "$DIRR"$KEYEX.zip -out "$WHSAV""/"0002 -k "FQhs2UOb6UfY6h4h20hf49LTS9EnkSuQP66357693hahal0l286501EfOoWCvjScbanpDrJ3sWXupryAQLj71Qt"
+	openssl enc -aes-256-gcm -salt -in "$DIRR"$KEYEX.zip -out "$WHSAV""/"0002 -k "FQhs2UOb6UfY6h4h20hf49LTS9EnkSuQP66357693hahal0l286501EfOoWCvjScbanpDrJ3sWXupryAQLj71Qt"
 	cat "$WHSAV""/"0002 | base64 > "$WHSAV""/"$KEYEX
 	shred -fuzn 3 "$WHSAV""/"0002
-	}
+}
 
 fexportcus()
 {
@@ -365,12 +369,12 @@ fexportcus()
 				else
 					PASSDON="1"
 					(cd "$DIRR"; zip -reP "cPHQ0bkM2zEUZY245h9ZwgS7l98Hi0WqIeamJVhow1osQ" "$DIRR"$KEYEX.zip $KEYEX)
-					openssl enc -camellia-256-cbc -salt -in "$DIRR"$KEYEX.zip -out "$WHSAV""/"0003 -k "$ZPASS"
+					openssl enc -aes-256-gcm -salt -in "$DIRR"$KEYEX.zip -out "$WHSAV""/"0003 -k "$ZPASS"
 					cat "$WHSAV""/"0003 | base64 > "$WHSAV""/"$KEYEX
 					shred -fuzn 3 "$WHSAV""/"0003
 			fi
 		done
-	}
+}
 
 fsecuredelkey()
 {
@@ -509,7 +513,7 @@ fencryptmsg()
 			sleep 1
 			fencryptmsg
 	
-	elif [ $KEYCH -z ]
+	elif [ $KEYCH -z ] 2> /dev/null
 		then
 			echo " [*] You must choose a key, try again"
 			sleep 1
@@ -550,7 +554,7 @@ fencryptmsg()
 					echo " [*] $ENCCMSGF already exists, Try again.."
 					sleep 1
 					clear
-			elif [ $ENCCMSGF -z ]
+			elif [ $ENCCMSGF -z ] 2> /dev/null
 				then
 					echo " [*] You must Enter a filename, try again."
 					sleep 1
@@ -571,7 +575,7 @@ fencryptmsg()
 		
 	echo $(tr '\n' ' ' < "$DIRR"tmp2 | sed -e 's/\s//g') > "$DIRR"tmp3
 	PASS=$(cat "$DIRR""$KEYCH"/meta/meta)
-	openssl enc -camellia-256-cbc -salt -in "$DIRR"tmp3 -out "$DIRR""$KEYCH""/""$ENCCDIR""/"0001 -k $PASS
+	openssl enc -aes-256-gcm -salt -in "$DIRR"tmp3 -out "$DIRR""$KEYCH""/""$ENCCDIR""/"0001 -k $PASS
 	cat "$DIRR""$KEYCH""/""$ENCCDIR""/"0001 | base64 > "$DIRR""$KEYCH""/""$ENCCDIR""/""$ENCCMSGF"
 	shred -fuzn 3 "$DIRR""$KEYCH""/""$ENCCDIR""/"0001
 	shred -fuzn 3 "$DIRR"tmp1
@@ -599,7 +603,7 @@ fencryptmsg()
 					"") fexit
 					esac
 
-	}
+}
 
 fdecpaste()
 {
@@ -624,7 +628,7 @@ fdecryptmsg()
 			sleep 1
 			fdecryptmsg
 	
-	elif [ $KEYDE -z ]
+	elif [ $KEYDE -z ] 2> /dev/null
 		then
 			echo " [*] You must choose a key, try again."
 			sleep 1
@@ -641,7 +645,9 @@ fdecryptmsg()
 	while [ $SHDON = "0" ]
 		do
 			clear
-			read -p " [>] Paste your message from clipboard or read message file from 0_Encrypted_Messages? [P/f]" DODEC
+			read -p """ [>] Paste your message from clipboard or read message file from 0_Encrypted_Messages? [P/f]
+			
+ >" DODEC
 			case $DODEC in
 			"P") fdecpaste;;
 			"p") fdecpaste;;
@@ -680,14 +686,14 @@ fdecryptmsg()
 		"F") cat "$DIRR""$KEYDE""/""$ENCCDIR""/""$ENCCMSGF" | base64 -d > "$DIRR""$KEYDE""/""$ENCCDIR""/"0001
 	esac
 	
-	openssl enc -d -camellia-256-cbc -salt -in "$DIRR""$KEYDE""/""$ENCCDIR""/"0001 -out "$DIRR"temp04 -k $PASS	
+	openssl enc -d -aes-256-gcm -salt -in "$DIRR""$KEYDE""/""$ENCCDIR""/"0001 -out "$DIRR"temp04 -k $PASS	
 	ENCCLEN=$(wc -c "$DIRR"temp04)
   	CHARCNT="0"
   	CHAR="0"
   	ENCCMSG=$(cat "$DIRR"temp04)
   	DECCNT="0"
 
-  	while [ $CHAR != " " ]
+  	while [ $CHAR != " " ] 2> /dev/null
 		do
 			CHAR=${ENCCLEN:$CHARCNT:1}
 			CHARCNT=$(( CHARCNT + 1 ))
@@ -790,7 +796,7 @@ fdecryptfile()
 		then
 			mkdir "$DIRR""$KEYDS""/""$DECDIR""/""0_Decrypted_Files"
 	fi
-	openssl enc -d -camellia-256-cbc -salt -in "$IFIL" -out "$DIRR""$KEYDS""/""$DECDIR""/""0_Decrypted_Files""/""$DECMSGT" -k $PASS
+	openssl enc -d -aes-256-gcm -salt -in "$IFIL" -out "$DIRR""$KEYDS""/""$DECDIR""/""0_Decrypted_Files""/""$DECMSGT" -k $PASS
 	clear
 	echo " [*] File saved to "$DIRR""$KEYDS""/""$DECDIR""/""0_Decrypted_Files""/""$DECMSGT""
 	echo
@@ -828,7 +834,7 @@ fencryptfile()
 		then
 			mkdir "$DIRR""$KEYDS""/""$ENCCDIR""/""0_Encrypted_Files"
 	fi
-	openssl enc -camellia-256-cbc -salt -in "$IFIL" -out "$DIRR""$KEYDS""/""$ENCCDIR""/""0_Encrypted_Files""/""$ENCCMSGF" -k $PASS
+	openssl enc -aes-256-gcm -salt -in "$IFIL" -out "$DIRR""$KEYDS""/""$ENCCDIR""/""0_Encrypted_Files""/""$ENCCMSGF" -k $PASS
 	clear
 	echo " [*] File saved to "$DIRR""$KEYDS"/"$ENCCDIR"/"0_Encrypted_Files"/"$ENCCMSGF""
 	echo
@@ -915,7 +921,19 @@ fstart()
 	DECDIR="0_Decrypted_Messages"
 	DIRR="$HOME""/Desktop/nypt/"
 	trap fexit 2
-	if [ $(which xclip) -z ]
+	if [ $(which shred) -z ] 2> /dev/null
+		then
+			read -p " [*] It looks like shred is not installed on your system, it is needed for secure deletion of messages and keys. Do you want to install it? [Y/n]" INSTSHRED
+			case $INSTSHRED in
+			"y") apt-get install shred;clear;sudo apt-get install shred;;
+			"Y") apt-get install shred;clear;sudo apt-get install shred;;
+			"") apt-get install shred;clear;sudo apt-get install shred
+			esac
+		else 
+			echo " [*] shred found"
+	fi
+	
+	if [ $(which xclip) -z ] 2> /dev/null
 		then
 			read -p " [*] It looks like xclip is not installed on your system, it is needed for copying and pasteing the messages out and in to the program and to the clipboad. Do you want to install it? [Y/n]" INSTXCLIP
 			case $INSTXCLIP in
@@ -923,7 +941,11 @@ fstart()
 			"Y") apt-get install xclip;clear;sudo apt-get install xclip;;
 			"") apt-get install xclip;clear;sudo apt-get install xclip
 			esac
-	elif [ $(which openssl) -z ]
+		else 
+			echo " [*] xclip found"
+	fi	
+		
+	if [ $(which openssl) -z ] 2> /dev/null
 		then
 			read -p " [*] It looks like openssl is not installed on your system, it is needed for cryptography. Do you want to install it? [Y/n]" INSTOPNSSL
 			case $INSTOPNSSL in
@@ -933,6 +955,8 @@ fstart()
 			"n") clear; echo " [*] Program cannot run without openssl, exitting"; fexit;;
 			"N") clear; echo " [*] Program cannot run without openssl, exitting"; fexit
 			esac
+		else echo " [*] openssl found"
+				
 	fi
 
 	if [ ! -d "$DIRR" ]
