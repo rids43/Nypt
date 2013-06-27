@@ -3,8 +3,8 @@
 
 fmenu()
 {
-	clear
-	read -p """ [*] Nypt 1.27
+	clear																				#This is the main menu
+	read -e -p """ [*] Nypt 1.27											
       ~~~~~~~~
  [1] Encryption
  [2] Decryption
@@ -14,7 +14,7 @@ fmenu()
   
 		case $MENU in
 	1)	clear
-		read -p """ [*] Encryption Menu
+		read -e -p """ [*] Encryption Menu
       ~~~~~~~~
  [1] Encrypt a message.
  [2] Encrypt a file.
@@ -26,7 +26,7 @@ fmenu()
 		case $ENCCMENU in 1)fencryptmsg;;2)fencryptfile;;3)fopenenc;;4)fcatenc;;5)fsecuredelenc;;6)fmenu;esac
 	;;
 	2)	clear
-		read -p """ [*] Decryption Menu
+		read -e -p """ [*] Decryption Menu
       ~~~~~~~~
  [1] Decrypt a message.
  [2] Decrypt a file.
@@ -38,7 +38,7 @@ fmenu()
 		case $DECMENU in 1)fdecryptmsg;;2)fdecryptfile;;3)fopendec;;4)fcatdec;;5)fsecuredeldec;;6)fmenu;esac
 	;;
 	3)	clear
-		read -p """ [*] Key Menu
+		read -e -p """ [*] Key Menu
       ~~~~~~~~
  [1] Generate a new Key.
  [2] Export a Key.
@@ -53,7 +53,7 @@ fmenu()
 	fmenu
 }
 
-fexit()
+fexit()																					#Delete left over tempory files when exitting
 {
 	if [ -f "$DIRR"tmp1 ]
 		then
@@ -87,12 +87,12 @@ fexit()
 	exit
 }
 
-fcatenc()
+fcatenc()																				#Read encrypted messages from the 0_Encrypted_Messages Directory
 {
 	clear
 	echo " [>] Which key?"
 	ls "$DIRR"	
-	read -p " >" KEYDS
+	read -e -p " >" KEYDS
 	if [ ! -d "$DIRR""$KEYDS" ]
 		then
 			clear
@@ -103,7 +103,7 @@ fcatenc()
 			clear
 			echo " [>] Which file do you want to read?"
 			ls "$DIRR""$KEYDS""/""$ENCCDIR"
-			read -p " >" ENCCCAT
+			read -e -p " >" ENCCCAT
 			if [ -f "$DIRR""$KEYDS""/""$ENCCDIR""/""$ENCCCAT" ]
 				then
 					clear
@@ -123,7 +123,7 @@ fcatenc()
 					
 					DLENT=$((DLENT - 1))
 					RLEN=${DLEN:0:$DLENT}
-					read -p """ [*] Message is $RLEN lines long and stored at "$DIRR""$KEYDS""/""$ENCCDIR""/""$ENCCCAT"
+					read -e -p """ [*] Message is $RLEN lines long and stored at "$DIRR""$KEYDS""/""$ENCCDIR""/""$ENCCCAT"
  [>] Press c and Enter to copy to clipboard
  [>] Press Enter to return to menu
  >""" SMF
@@ -142,12 +142,12 @@ fcatenc()
 }
 
 
-fcatdec()
+fcatdec()																				#Read decrypted messages from the 0_Decrypted_Messages Directory
 {
 	clear
 	echo " [>] Which key?"
 	ls "$DIRR"	
-	read -p " >" KEYDS
+	read -e -p " >" KEYDS
 	if [ ! -d "$DIRR""$KEYDS" ]
 		then
 			clear
@@ -158,13 +158,13 @@ fcatdec()
 			clear
 			echo " [>] Which file do you want to read?"
 			ls "$DIRR""$KEYDS""/""$DECDIR"
-			read -p " >" DECCAT
+			read -e -p " >" DECCAT
 			if [ -f "$DIRR""$KEYDS""/""$DECDIR""/""$DECCAT" ]
 				then
 					clear
 					cat "$DIRR""$KEYDS""/""$DECDIR""/""$DECCAT"
 					echo
-					read -p " [>] Press Enter to return to main menu" SMF
+					read -e -p " [>] Press Enter to return to main menu" SMF
 					fmenu
 				else
 					clear
@@ -180,7 +180,7 @@ fopenenc()
 	clear
 	echo " [>] Which key?"
 	ls "$DIRR"	
-	read -p " >" KEYRE
+	read -e -p " >" KEYRE
 			
 	if [ ! -d "$DIRR""$KEYRE""/""$ENCCDIR" ]
 		then
@@ -200,7 +200,7 @@ fopendec()
 	clear
 	echo " [>] Which key?"
 	ls "$DIRR"
-	read -p " >" KEYRE
+	read -e -p " >" KEYRE
 			
 	if [ ! -d "$DIRR""$KEYRE""/""$DECDIR" ]
 		then
@@ -217,13 +217,13 @@ fopendec()
 fimport()
 {
 	clear
-	read -p """ [>] Please Enter the location of the key file eg. $HOME/Desktop/key
+	read -e -p """ [>] Please Enter the location of the key file eg. $HOME/Desktop/key
  >""" KEYLOC
 	KEYFILE=$(basename $KEYLOC)
 	clear
 	if [ -f "$KEYLOC" ]
 		then
-			read -p " [>] Do you have a custom key password? [y/N]: " CUSTP
+			read -e -p " [>] Do you have a custom key password? [y/N]: " CUSTP
 			
 			case $CUSTP in
 			
@@ -246,7 +246,7 @@ fimport()
 	fi
 }
 
-fimportcus()
+fimportcus()																			#Import key using custom password
 {
 	clear
 	DONPS="0"
@@ -280,7 +280,7 @@ fimportcus()
 	fmenu
 }
 
-fimportdef()
+fimportdef()																			#Import key using default password
 {
 	PATHN=$(dirname $KEYLOC)
 	cat $KEYLOC | base64 -d > "$PATHN""/"003
@@ -301,7 +301,7 @@ fexport()
 	clear
 	echo " [>] Which key?"
 	ls "$DIRR"
-	read -p " >" KEYEX
+	read -e -p " >" KEYEX
 			
 	if [ ! -d "$DIRR""$KEYEX" ]
 		then
@@ -320,7 +320,7 @@ fexport()
 			PASSCHI=""
 			echo " [*] Please note it is NOT safe to export keys over untrusted networks using the default password."
 			echo
-			read -p " [>] Do you want to use the default or a custom password? [D/c]: " PASSCHI
+			read -e -p " [>] Do you want to use the default or a custom password? [D/c]: " PASSCHI
 
 			case $PASSCHI in
 				"")fexportdef;;
@@ -342,7 +342,7 @@ fexport()
 	fi
 }
 
-fexportdef()
+fexportdef()          																	#Export key using default password
 {
 	(cd "$DIRR"; zip -reP "cPHQ0bkM2zEUZY245h9ZwgS7l98Hi0WqIeamJVhow1osQ" "$DIRR"$KEYEX.zip $KEYEX)
 	openssl enc -aes-256-gcm -salt -in "$DIRR"$KEYEX.zip -out "$WHSAV""/"0002 -k "FQhs2UOb6UfY6h4h20hf49LTS9EnkSuQP66357693hahal0l286501EfOoWCvjScbanpDrJ3sWXupryAQLj71Qt"
@@ -350,7 +350,7 @@ fexportdef()
 	shred -fuzn 3 "$WHSAV""/"0002
 }
 
-fexportcus()
+fexportcus()																			#Export key using custom password
 {
 	clear
 	PASSDON="0"
@@ -376,12 +376,12 @@ fexportcus()
 		done
 }
 
-fsecuredelkey()
+fsecuredelkey()																			#Shred key
 {
 	clear
 	echo " [>] Which key?"
 	ls "$DIRR"
-	read -p " >" KEYDEL
+	read -e -p " >" KEYDEL
 			
 	if [ ! -d "$DIRR""$KEYDEL" ]
 		then
@@ -391,7 +391,7 @@ fsecuredelkey()
 			fsecuredelkey
 		else
 			clear
-			read -p " [>] Warning, this will securely delete $KEYDEL and all of its messages, are you sure? [Y/n]: " DODEL
+			read -e -p " [>] Warning, this will securely delete $KEYDEL and all of its messages, are you sure? [Y/n]: " DODEL
 			clear
 			case $DODEL in
 			"Y")	fdoseckey;;
@@ -415,12 +415,12 @@ fdoseckey()
 	sleep 2
 }
 
-fsecuredelenc()
+fsecuredelenc()																			#Shred encrypted messages
 {
 	clear
 	echo " [>] Which key?"
 	ls "$DIRR"
-	read -p " >" KEYDEL
+	read -e -p " >" KEYDEL
 			
 	if [ ! -d "$DIRR""$KEYDEL" ]
 		then
@@ -430,7 +430,7 @@ fsecuredelenc()
 			fsecuredelenc
 		else
 			clear
-			read -p " [>] Warning, this will securely delete all of "$KEYDEL"'s encrypted messages, are you sure? [Y/n]: " DODEL
+			read -e -p " [>] Warning, this will securely delete all of "$KEYDEL"'s encrypted messages, are you sure? [Y/n]: " DODEL
 			clear
 		
 			case $DODEL in
@@ -464,12 +464,12 @@ fdosecdec()
 	sleep 2
 }
 
-fsecuredeldec()
+fsecuredeldec()																			#Shred decrypted messages  
 {
 	clear
 	echo " [>] Which key?"
 	ls "$DIRR"
-	read -p " >" KEYDEL
+	read -e -p " >" KEYDEL
 			
 	if [ ! -d "$DIRR""$KEYDEL" ]
 		then
@@ -479,7 +479,7 @@ fsecuredeldec()
 			fsecuredeldec
 		else
 			clear
-			read -p " [>] Warning, this will securely delete all of "$KEYDEL"'s decrypted messages, are you sure? [Y/n]: " DODEL
+			read -e -p " [>] Warning, this will securely delete all of "$KEYDEL"'s decrypted messages, are you sure? [Y/n]: " DODEL
 			clear
 		
 			case $DODEL in
@@ -493,7 +493,7 @@ fsecuredeldec()
 	fi
 }
 
-fencryptmsg()
+fencryptmsg()																			#Encrypt messages
 {
 	clear
 	
@@ -505,7 +505,7 @@ fencryptmsg()
 	echo " [>] Please choose your key"
 	ls "$DIRR"
 	echo
-	read -p " >" KEYCH
+	read -e -p " >" KEYCH
 
 	if [ ! -d "$DIRR""$KEYCH" ]
 		then
@@ -521,7 +521,7 @@ fencryptmsg()
 	fi
 	
 	clear
-	read -p """ [>] Please Enter your message:
+	read -e -p """ [>] Please Enter your message:
 
  >""" MSG
 	MSGLEN=${#MSG}
@@ -546,7 +546,7 @@ fencryptmsg()
 	clear
 	while [ $MSGNAME = "0" ]
 		do
-			read -p """ [>] Please Enter a filename for your message:
+			read -e -p """ [>] Please Enter a filename for your message:
 		
  >""" ENCCMSGF
 			if [ -f "$DIRR""$KEYCH"""/"$ENCCDIR""/""$ENCCMSGF" ]
@@ -594,7 +594,7 @@ fencryptmsg()
 					RLEN=${RLEN:0:$DLENT}
 					cat "$DIRR""$KEYCH""/""$ENCCDIR""/""$ENCCMSGF"
 					echo
-					read -p """ [*] Message is $RLEN lines long and stored at "$DIRR""$KEYCH""/""$ENCCDIR""/""$ENCCMSGF"
+					read -e -p """ [*] Message is $RLEN lines long and stored at "$DIRR""$KEYCH""/""$ENCCDIR""/""$ENCCMSGF"
  [>] Press c and Enter to copy to clipboard
  [>] Press Enter to exit
  >""" SMF
@@ -614,13 +614,13 @@ fdecpaste()
 	SHDON="1"
 }
 
-fdecryptmsg()
+fdecryptmsg()																			#Decrypt messages
 {
 	clear
 	echo " [>]  Which key?"
 	ls "$DIRR"
 	echo
-	read -p " >" KEYDE
+	read -e -p " >" KEYDE
 	
 	if [ ! -d "$DIRR""$KEYDE" ]
 		then
@@ -645,7 +645,7 @@ fdecryptmsg()
 	while [ $SHDON = "0" ]
 		do
 			clear
-			read -p """ [>] Paste your message from clipboard or read message file from 0_Encrypted_Messages? [P/f]
+			read -e -p """ [>] Paste your message from clipboard or read message file from 0_Encrypted_Messages? [P/f]
 			
  >" DODEC
 			case $DODEC in
@@ -654,7 +654,7 @@ fdecryptmsg()
 			"") fdecpaste;;
 			"f") ls "$DIRR""$KEYDE""/""$ENCCDIR"
 			echo
-			read -p " >" ENCCMSGF
+			read -e -p " >" ENCCMSGF
 			if [ ! -f "$DIRR""$KEYDE""/""$ENCCDIR""/""$ENCCMSGF" ]
 				then
 					echo " [*] $ENCCMSGF is not a valid file, try again."
@@ -664,7 +664,7 @@ fdecryptmsg()
 			fi;;
 			"F") ls "$DIRR""$KEYDE""/""$ENCCDIR"
 			echo
-			read -p " >" ENCCMSGF
+			read -e -p " >" ENCCMSGF
 			if [ ! -f "$DIRR""$KEYDE""/""$ENCCDIR""/""$ENCCMSGF" ]
 				then
 					echo " [*] $ENCCMSGF is not a valid file, try again."
@@ -740,28 +740,28 @@ fdecryptmsg()
 	clear
 	echo " [*] Message saved to "$DIRR""$KEYDE""/""$DECDIR""/""$ENCCMSGF""
 	echo
-	read -p " [>] Do you want to display message? [Y/n]: " DISP
+	read -e -p " [>] Do you want to display message? [Y/n]: " DISP
 	
 	case $DISP in
 	"y")
 			clear
 			cat "$DIRR""$KEYDE""/""$DECDIR""/""$ENCCMSGF"
 			echo
-			read -p " [>] Press Enter to exit" SMF
+			read -e -p " [>] Press Enter to exit" SMF
 			fexit
 	;;
 	"")
 			clear
 			cat "$DIRR""$KEYDE""/""$DECDIR""/""$ENCCMSGF"
 			echo
-			read -p " [>] Press Enter to exit" SMF
+			read -e -p " [>] Press Enter to exit" SMF
 			fexit
 	;;
 	"Y")
 			clear
 			cat "$DIRR""$KEYDE""/""$DECDIR""/""$ENCCMSGF"
 			echo
-			read -p " [>] Press Enter to exit" SMF
+			read -e -p " [>] Press Enter to exit" SMF
 			fexit
 	esac
 	
@@ -773,7 +773,7 @@ fdecryptfile()
 	clear
 	echo " [>] Which key?"
 	ls "$DIRR"	
-	read -p " >" KEYDS
+	read -e -p " >" KEYDS
 	if [ ! -d "$DIRR""$KEYDS" ]
 		then
 			clear
@@ -783,7 +783,7 @@ fdecryptfile()
 	fi
 	clear
 	echo " [>] Please Enter the location of the file: e.g. "$HOME"/file"
-	read -p " >" IFIL
+	read -e -p " >" IFIL
 	if [ ! -f "$IFIL" ]
 		then
 			echo " [*] There does not appear to be any file at $IFIL, try again.."
@@ -802,7 +802,7 @@ fdecryptfile()
 	echo
 	file "$DIRR""$KEYDS""/""$DECDIR""/""0_Decrypted_Files""/""$DECMSGT"
 	echo
-	read -p " [>] Press Enter to exit"
+	read -e -p " [>] Press Enter to exit"
 	fexit
 }
 
@@ -811,7 +811,7 @@ fencryptfile()
 	clear
 	echo " [>] Which key?"
 	ls "$DIRR"	
-	read -p " >" KEYDS
+	read -e -p " >" KEYDS
 	if [ ! -d "$DIRR""$KEYDS" ]
 		then
 			clear
@@ -821,7 +821,7 @@ fencryptfile()
 	fi
 	clear
 	echo " [>] Please Enter the location of the file: e.g. "$HOME"/file"
-	read -p " >" IFIL
+	read -e -p " >" IFIL
 	if [ ! -f "$IFIL" ]
 		then
 			echo " [*] There does not appear to be any file at $IFIL, try again.."
@@ -838,11 +838,11 @@ fencryptfile()
 	clear
 	echo " [*] File saved to "$DIRR""$KEYDS"/"$ENCCDIR"/"0_Encrypted_Files"/"$ENCCMSGF""
 	echo
-	read -p " [>] Press Enter to return to main menu"
+	read -e -p " [>] Press Enter to return to main menu"
 	fmenu
 }
 
-flistgen()
+flistgen()																				#Generate full list of 6 digit numbers to use for random number crypto 
 {
 	touch "$DIRR"list
 	clear
@@ -862,10 +862,10 @@ flistgen()
 	sleep 1
 }
 
-fkeygen()
+fkeygen()																				#Generate keys
 {
 	clear
-	read -p """ [>] What shall we name your key?
+	read -e -p """ [>] What shall we name your key?
 
  >""" KEYN
 	if [ -d "$DIRR""$KEYN" ]
@@ -915,7 +915,7 @@ fkeygen()
 	fi
 }
 
-fstart()
+fstart()																				#Startup function
 {
 	ENCCDIR="0_Encrypted_Messages"
 	DECDIR="0_Decrypted_Messages"
@@ -923,7 +923,7 @@ fstart()
 	trap fexit 2
 	if [ $(which shred) -z ] 2> /dev/null
 		then
-			read -p " [*] It looks like shred is not installed on your system, it is needed for secure deletion of messages and keys. Do you want to install it? [Y/n]" INSTSHRED
+			read -e -p " [*] It looks like shred is not installed on your system, it is needed for secure deletion of messages and keys. Do you want to install it? [Y/n]" INSTSHRED
 			case $INSTSHRED in
 			"y") apt-get install shred;clear;sudo apt-get install shred;;
 			"Y") apt-get install shred;clear;sudo apt-get install shred;;
@@ -935,7 +935,7 @@ fstart()
 	
 	if [ $(which xclip) -z ] 2> /dev/null
 		then
-			read -p " [*] It looks like xclip is not installed on your system, it is needed for copying and pasteing the messages out and in to the program and to the clipboad. Do you want to install it? [Y/n]" INSTXCLIP
+			read -e -p " [*] It looks like xclip is not installed on your system, it is needed for copying and pasteing the messages out and in to the program and to the clipboad. Do you want to install it? [Y/n]" INSTXCLIP
 			case $INSTXCLIP in
 			"y") apt-get install xclip;clear;sudo apt-get install xclip;;
 			"Y") apt-get install xclip;clear;sudo apt-get install xclip;;
@@ -947,7 +947,7 @@ fstart()
 		
 	if [ $(which openssl) -z ] 2> /dev/null
 		then
-			read -p " [*] It looks like openssl is not installed on your system, it is needed for cryptography. Do you want to install it? [Y/n]" INSTOPNSSL
+			read -e -p " [*] It looks like openssl is not installed on your system, it is needed for cryptography. Do you want to install it? [Y/n]" INSTOPNSSL
 			case $INSTOPNSSL in
 			"y") apt-get install openssl;clear;sudo apt-get install openssl;;
 			"Y") apt-get install openssl;clear;sudo apt-get install openssl;;
