@@ -105,6 +105,10 @@ fcatenc()																				#Read encrypted messages from the 0_Encrypted_Messa
 	echo " [>] Which key?"
 	cd "$DIRR";ls "$DIRR"	
 	read -e -p " >" KEYDS
+	if [ "${KEYDS: -1}" = "/" ] 2> /dev/null
+		then
+			KEYDS="${KEYDS%?}"
+	fi
 	if [ ! -d "$DIRR""$KEYDS" ]
 		then
 			clear
@@ -160,6 +164,10 @@ fcatdec()																				#Read decrypted messages from the 0_Decrypted_Messa
 	echo " [>] Which key?"
 	cd "$DIRR";ls "$DIRR"	
 	read -e -p " >" KEYDS
+	if [ "${KEYDS: -1}" = "/" ] 2> /dev/null
+		then
+			KEYDS="${KEYDS%?}"
+	fi
 	if [ ! -d "$DIRR""$KEYDS" ]
 		then
 			clear
@@ -193,6 +201,10 @@ fopenenc()
 	echo " [>] Which key?"
 	cd "$DIRR";ls "$DIRR"	
 	read -e -p " >" KEYRE
+	if [ "${KEYRE: -1}" = "/" ] 2> /dev/null
+		then
+			KEYRE="${KEYRE%?}"
+	fi
 			
 	if [ ! -d "$DIRR""$KEYRE""/""$ENCCDIR" ]
 		then
@@ -213,6 +225,10 @@ fopendec()
 	echo " [>] Which key?"
 	cd "$DIRR";ls "$DIRR"
 	read -e -p " >" KEYRE
+	if [ "${KEYRE: -1}" = "/" ] 2> /dev/null
+		then
+			KEYRE="${KEYRE%?}"
+	fi
 			
 	if [ ! -d "$DIRR""$KEYRE""/""$DECDIR" ]
 		then
@@ -314,7 +330,11 @@ fexport()
 	echo " [>] Which key?"
 	cd "$DIRR";ls "$DIRR"
 	read -e -p " >" KEYEX
-			
+	
+	if [ "${KEYEX: -1}" = "/" ] 2> /dev/null
+		then
+			KEYEX="${KEYEX%?}"
+	fi
 	if [ ! -d "$DIRR""$KEYEX" ]
 		then
 			clear
@@ -394,6 +414,10 @@ fsecuredelkey()																			#Shred key
 	echo " [>] Which key?"
 	cd "$DIRR";ls "$DIRR"
 	read -e -p " >" KEYDEL
+	if [ "${KEYDEL: -1}" = "/" ] 2> /dev/null
+		then
+			KEYDEL="${KEYDEL%?}"
+	fi
 			
 	if [ ! -d "$DIRR""$KEYDEL" ]
 		then
@@ -433,6 +457,10 @@ fsecuredelenc()																			#Shred encrypted messages
 	echo " [>] Which key?"
 	cd "$DIRR";ls "$DIRR"
 	read -e -p " >" KEYDEL
+	if [ "${KEYDEL: -1}" = "/" ] 2> /dev/null
+		then
+			KEYDEL="${KEYDEL%?}"
+	fi
 			
 	if [ ! -d "$DIRR""$KEYDEL" ]
 		then
@@ -482,6 +510,10 @@ fsecuredeldec()																			#Shred decrypted messages
 	echo " [>] Which key?"
 	cd "$DIRR";ls "$DIRR"
 	read -e -p " >" KEYDEL
+	if [ "${KEYDEL: -1}" = "/" ] 2> /dev/null
+		then
+			KEYDEL="${KEYDEL%?}"
+	fi
 			
 	if [ ! -d "$DIRR""$KEYDEL" ]
 		then
@@ -530,6 +562,9 @@ fencryptmsg()																			#Encrypt messages
 			echo " [*] You must choose a key, try again"
 			sleep 1
 			fencryptmsg
+	elif [ "${KEYCH: -1}" = "/" ] 2> /dev/null
+		then
+			KEYCH="${KEYCH%?}"
 	fi
 	
 	clear
@@ -645,6 +680,9 @@ fdecryptmsg()																			#Decrypt messages
 			echo " [*] You must choose a key, try again."
 			sleep 1
 			fdecryptmsg
+	elif [ "${KEYDE: -1}" = "/" ] 2> /dev/null
+		then
+			KEYDE="${KEYDE%?}"
 	fi
 	
 	touch "$DIRR"temp01
@@ -792,6 +830,9 @@ fdecryptfile()
 			echo " [*] $KEYDS is not a valid key, try again.."
 			sleep 1
 			fencryptfile
+	elif [ "${KEYDS: -1}" = "/" ] 2> /dev/null
+		then
+			KEYDS="${KEYDS%?}"
 	fi
 	clear
 	echo " [>] Please Enter the location of the file: e.g. "$HOME"/file"
@@ -830,6 +871,9 @@ fencryptfile()
 			echo " [*] $KEYDS is not a valid key, try again.."
 			sleep 1
 			fencryptfile
+	elif [ "${KEYDS: -1}" = "/" ] 2> /dev/null
+		then
+			KEYDS="${KEYDS%?}"
 	fi
 	clear
 	echo " [>] Please Enter the location of the file: e.g. "$HOME"/file"
@@ -880,6 +924,10 @@ fkeygen()																				#Generate keys
 	read -p """ [>] What shall we name your key?
 
  >""" KEYN
+	if [ "${KEYN: -1}" = "/" ] 2> /dev/null
+		then
+			KEYN="${KEYN%?}"
+	fi
 	if [ -d "$DIRR""$KEYN" ]
 		then
 			clear
