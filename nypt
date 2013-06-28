@@ -104,29 +104,29 @@ fcatenc()																				#Read encrypted messages from the 0_Encrypted_Messa
 	clear
 	echo " [>] Which key?"
 	cd "$DIRR";ls "$DIRR"	
-	read -e -p " >" KEYDS
-	if [ "${KEYDS: -1}" = "/" ] 2> /dev/null
+	read -e -p " >" KEY
+	if [ "${KEY: -1}" = "/" ] 2> /dev/null
 		then
-			KEYDS="${KEYDS%?}"
+			KEY="${KEY%?}"
 	fi
-	if [ ! -d "$DIRR""$KEYDS" ]
+	if [ ! -d "$DIRR""$KEY" ]
 		then
 			clear
-			echo " [*] $KEYDS is not a valid key, try again.."
+			echo " [*] $KEY is not a valid key, try again.."
 			sleep 1
 			fcatenc
 		else
 			clear
 			echo " [>] Which file do you want to read?"
-			cd "$DIRR""$KEYDS""/""$ENCCDIR";ls "$DIRR""$KEYDS""/""$ENCCDIR"
+			cd "$DIRR""$KEY""/""$ENCCDIR";ls "$DIRR""$KEY""/""$ENCCDIR"
 			read -e -p " >" ENCCCAT
-			if [ -f "$DIRR""$KEYDS""/""$ENCCDIR""/""$ENCCCAT" ]
+			if [ -f "$DIRR""$KEY""/""$ENCCDIR""/""$ENCCCAT" ]
 				then
 					clear
 					clear
-					cat "$DIRR""$KEYDS""/""$ENCCDIR""/""$ENCCCAT"
+					cat "$DIRR""$KEY""/""$ENCCDIR""/""$ENCCCAT"
 					echo
-					DLEN=$(wc -l "$DIRR""$KEYDS""/""$ENCCDIR""/""$ENCCCAT")
+					DLEN=$(wc -l "$DIRR""$KEY""/""$ENCCDIR""/""$ENCCCAT")
 					DLENT="7"
 					RLEN=${DLEN:0:$DLENT}
 					SLASH="/"
@@ -139,18 +139,18 @@ fcatenc()																				#Read encrypted messages from the 0_Encrypted_Messa
 					
 					DLENT=$((DLENT - 1))
 					RLEN=${DLEN:0:$DLENT}
-					read -p """ [*] Message is $RLEN lines long and stored at "$DIRR""$KEYDS""/""$ENCCDIR""/""$ENCCCAT"
+					read -p """ [*] Message is $RLEN lines long and stored at "$DIRR""$KEY""/""$ENCCDIR""/""$ENCCCAT"
  [>] Press c and Enter to copy to clipboard
  [>] Press Enter to return to menu
  >""" SMF
 					case $SMF in
-					"c") cat "$DIRR""$KEYDS""/""$ENCCDIR""/""$ENCCCAT" | xclip -sel clip; echo " [*] Message copied to clipboard";fexit;;
+					"c") cat "$DIRR""$KEY""/""$ENCCDIR""/""$ENCCCAT" | xclip -sel clip; echo " [*] Message copied to clipboard";fexit;;
 					"") fmenu
 					esac
 					
 				else
 					clear
-					echo " [*] There does not appear to be any file at "$DIRR""$KEYDS""/""$ENCCDIR""/""$ENCCCAT", try again.."
+					echo " [*] There does not appear to be any file at "$DIRR""$KEY""/""$ENCCDIR""/""$ENCCCAT", try again.."
 					sleep 2
 					fmenu
 			fi
@@ -163,32 +163,32 @@ fcatdec()																				#Read decrypted messages from the 0_Decrypted_Messa
 	clear
 	echo " [>] Which key?"
 	cd "$DIRR";ls "$DIRR"	
-	read -e -p " >" KEYDS
-	if [ "${KEYDS: -1}" = "/" ] 2> /dev/null
+	read -e -p " >" KEY
+	if [ "${KEY: -1}" = "/" ] 2> /dev/null
 		then
-			KEYDS="${KEYDS%?}"
+			KEY="${KEY%?}"
 	fi
-	if [ ! -d "$DIRR""$KEYDS" ]
+	if [ ! -d "$DIRR""$KEY" ]
 		then
 			clear
-			echo " [*] $KEYDS is not a valid key, try again.."
+			echo " [*] $KEY is not a valid key, try again.."
 			sleep 1
 			fcatdec
 		else
 			clear
 			echo " [>] Which file do you want to read?"
-			cd "$DIRR""$KEYDS""/""$DECDIR"; ls "$DIRR""$KEYDS""/""$DECDIR"
+			cd "$DIRR""$KEY""/""$DECDIR"; ls "$DIRR""$KEY""/""$DECDIR"
 			read -e -p " >" DECCAT
-			if [ -f "$DIRR""$KEYDS""/""$DECDIR""/""$DECCAT" ]
+			if [ -f "$DIRR""$KEY""/""$DECDIR""/""$DECCAT" ]
 				then
 					clear
-					cat "$DIRR""$KEYDS""/""$DECDIR""/""$DECCAT"
+					cat "$DIRR""$KEY""/""$DECDIR""/""$DECCAT"
 					echo
 					read -p " [>] Press Enter to return to main menu" SMF
 					fmenu
 				else
 					clear
-					echo " [*] There does not appear to be any file at "$DIRR""$KEYDS""/""$DECDIR""/""$DECCAT", try again.."
+					echo " [*] There does not appear to be any file at "$DIRR""$KEY""/""$DECDIR""/""$DECCAT", try again.."
 					sleep 2
 					fmenu
 			fi
@@ -200,20 +200,20 @@ fopenenc()
 	clear
 	echo " [>] Which key?"
 	cd "$DIRR";ls "$DIRR"	
-	read -e -p " >" KEYRE
-	if [ "${KEYRE: -1}" = "/" ] 2> /dev/null
+	read -e -p " >" KEY
+	if [ "${KEY: -1}" = "/" ] 2> /dev/null
 		then
-			KEYRE="${KEYRE%?}"
+			KEY="${KEY%?}"
 	fi
 			
-	if [ ! -d "$DIRR""$KEYRE""/""$ENCCDIR" ]
+	if [ ! -d "$DIRR""$KEY""/""$ENCCDIR" ]
 		then
 			clear
-			echo " [*] $KEYRE is not a valid key, try again.."
+			echo " [*] $KEY is not a valid key, try again.."
 			sleep 2
 			fopenenc
 		else
-			nautilus "$DIRR""$KEYRE""/""$ENCCDIR"
+			nautilus "$DIRR""$KEY""/""$ENCCDIR"
 	fi
 
 	fmenu	
@@ -224,20 +224,20 @@ fopendec()
 	clear
 	echo " [>] Which key?"
 	cd "$DIRR";ls "$DIRR"
-	read -e -p " >" KEYRE
-	if [ "${KEYRE: -1}" = "/" ] 2> /dev/null
+	read -e -p " >" KEY
+	if [ "${KEY: -1}" = "/" ] 2> /dev/null
 		then
-			KEYRE="${KEYRE%?}"
+			KEY="${KEY%?}"
 	fi
 			
-	if [ ! -d "$DIRR""$KEYRE""/""$DECDIR" ]
+	if [ ! -d "$DIRR""$KEY""/""$DECDIR" ]
 		then
 			clear
-			echo " [*] $KEYRE is not a valid key, try again.."
+			echo " [*] $KEY is not a valid key, try again.."
 			sleep 2
 			fopendec
 		else
-			nautilus "$DIRR""$KEYRE""/""$DECDIR"
+			nautilus "$DIRR""$KEY""/""$DECDIR"
 	fi
 	fmenu
 }
@@ -246,10 +246,10 @@ fimport()
 {
 	clear
 	read -e -p """ [>] Please Enter the location of the key file eg. $HOME/Desktop/key
- >""" KEYLOC
-	KEYFILE=$(basename $KEYLOC)
+ >""" KEYOC
+	KEYFILE=$(basename $KEYOC)
 	clear
-	if [ -f "$KEYLOC" ]
+	if [ -f "$KEYOC" ]
 		then
 			read -p " [>] Do you have a custom key password? [y/N]: " CUSTP
 			
@@ -268,7 +268,7 @@ fimport()
 			esac
 		else
 				clear
-				echo " [*] There does not appear to be any file at $KEYLOC, try again."
+				echo " [*] There does not appear to be any file at $KEYOC, try again."
 				sleep 2
 				fimport
 	fi
@@ -294,13 +294,13 @@ fimportcus()																			#Import key using custom password
 					DONPS="1"
 			fi
 		done
-	BASEK=$(dirname $KEYLOC)
-	cat "$KEYLOC" | base64 -d > "$BASEK""/"0004					
-	openssl enc -d -aes-256-gcm -salt -in "$BASEK""/"0004 -out "$KEYLOC".zip -k "$RPASS"
-	unzip -P "cPHQ0bkM2zEUZY245h9ZwgS7l98Hi0WqIeamJVhow1osQ" "$KEYLOC".zip -d "$DIRR"
+	BASEK=$(dirname $KEYOC)
+	cat "$KEYOC" | base64 -d > "$BASEK""/"0004					
+	openssl enc -d -aes-256-gcm -salt -in "$BASEK""/"0004 -out "$KEYOC".zip -k "$RPASS" 2> /dev/null
+	unzip -P "cPHQ0bkM2zEUZY245h9ZwgS7l98Hi0WqIeamJVhow1osQ" "$KEYOC".zip -d "$DIRR"
 	shred -fuzn 3 "$BASEK""/"0004
-	shred -fuzn 3 "$KEYLOC".zip
-	shred -fuzn 3 "$KEYLOC"
+	shred -fuzn 3 "$KEYOC".zip
+	shred -fuzn 3 "$KEYOC"
 	chown -hR $USER "$DIRR""$KEYFILE"
 	clear
 	echo " [*] $KEYFILE imported."
@@ -310,13 +310,13 @@ fimportcus()																			#Import key using custom password
 
 fimportdef()																			#Import key using default password
 {
-	PATHN=$(dirname $KEYLOC)
-	cat $KEYLOC | base64 -d > "$PATHN""/"003
-	openssl enc -d -aes-256-gcm -salt -in "$PATHN""/"003 -out "$KEYLOC".zip -k "FQhs2UOb6UfY6h4h20hf49LTS9EnkSuQP66357693hahal0l286501EfOoWCvjScbanpDrJ3sWXupryAQLj71Qt"
+	PATHN=$(dirname $KEYOC)
+	cat $KEYOC | base64 -d > "$PATHN""/"003
+	openssl enc -d -aes-256-gcm -salt -in "$PATHN""/"003 -out "$KEYOC".zip -k "FQhs2UOb6UfY6h4h20hf49LTS9EnkSuQP66357693hahal0l286501EfOoWCvjScbanpDrJ3sWXupryAQLj71Qt" 2> /dev/null
 	shred -fuzn 3 "$PATHN""/"003
-	unzip -P "cPHQ0bkM2zEUZY245h9ZwgS7l98Hi0WqIeamJVhow1osQ" "$KEYLOC".zip -d "$DIRR"
-	shred -fuzn 3 "$KEYLOC".zip
-	shred -fuzn 3 "$KEYLOC"
+	unzip -P "cPHQ0bkM2zEUZY245h9ZwgS7l98Hi0WqIeamJVhow1osQ" "$KEYOC".zip -d "$DIRR"
+	shred -fuzn 3 "$KEYOC".zip
+	shred -fuzn 3 "$KEYOC"
 	chown -hR $USER "$DIRR""$KEYFILE"
 	clear
 	echo " [*] $KEYFILE imported."
@@ -329,25 +329,25 @@ fexport()
 	clear
 	echo " [>] Which key?"
 	cd "$DIRR";ls "$DIRR"
-	read -e -p " >" KEYEX
+	read -e -p " >" KEY
 	
-	if [ "${KEYEX: -1}" = "/" ] 2> /dev/null
+	if [ "${KEY: -1}" = "/" ] 2> /dev/null
 		then
-			KEYEX="${KEYEX%?}"
+			KEY="${KEY%?}"
 	fi
-	if [ ! -d "$DIRR""$KEYEX" ]
+	if [ ! -d "$DIRR""$KEY" ]
 		then
 			clear
-			echo " [*] $KEYEX is not a valid key, try again.."
+			echo " [*] $KEY is not a valid key, try again.."
 			sleep 1
 			fexport
 		else
-			if [ ! -d "$DIRR""$KEYEX""/""0_Exported_Keys" ]
+			if [ ! -d "$DIRR""$KEY""/""0_Exported_Keys" ]
 				then
-					mkdir "$DIRR""$KEYEX""/""0_Exported_Keys"
+					mkdir "$DIRR""$KEY""/""0_Exported_Keys"
 
 			fi			
-			WHSAV="$DIRR""$KEYEX""/""0_Exported_Keys"
+			WHSAV="$DIRR""$KEY""/""0_Exported_Keys"
 			clear
 			PASSCHI=""
 			echo " [*] Please note it is NOT safe to export keys over untrusted networks using the default password."
@@ -366,9 +366,9 @@ fexport()
 				"C")fexportcus;;
 			esac
 
-	shred -fuzn 3 "$DIRR"$KEYEX.zip
+	shred -fuzn 3 "$DIRR"$KEY.zip
 	clear
-	echo " [*] $KEYEX exported to "$WHSAV""/"$KEYEX"
+	echo " [*] $KEY exported to "$WHSAV""/"$KEY"
 	sleep 2.5
 	fmenu
 	fi
@@ -376,9 +376,9 @@ fexport()
 
 fexportdef()          																	#Export key using default password
 {
-	(cd "$DIRR"; zip -reP "cPHQ0bkM2zEUZY245h9ZwgS7l98Hi0WqIeamJVhow1osQ" "$DIRR"$KEYEX.zip $KEYEX)
-	openssl enc -aes-256-gcm -salt -in "$DIRR"$KEYEX.zip -out "$WHSAV""/"0002 -k "FQhs2UOb6UfY6h4h20hf49LTS9EnkSuQP66357693hahal0l286501EfOoWCvjScbanpDrJ3sWXupryAQLj71Qt"
-	cat "$WHSAV""/"0002 | base64 > "$WHSAV""/"$KEYEX
+	(cd "$DIRR"; zip -reP "cPHQ0bkM2zEUZY245h9ZwgS7l98Hi0WqIeamJVhow1osQ" "$DIRR"$KEY.zip $KEY)
+	openssl enc -aes-256-gcm -salt -in "$DIRR"$KEY.zip -out "$WHSAV""/"0002 -k "FQhs2UOb6UfY6h4h20hf49LTS9EnkSuQP66357693hahal0l286501EfOoWCvjScbanpDrJ3sWXupryAQLj71Qt" 2> /dev/null
+	cat "$WHSAV""/"0002 | base64 > "$WHSAV""/"$KEY
 	shred -fuzn 3 "$WHSAV""/"0002
 }
 
@@ -400,9 +400,9 @@ fexportcus()																			#Export key using custom password
 					sleep 2
 				else
 					PASSDON="1"
-					(cd "$DIRR"; zip -reP "cPHQ0bkM2zEUZY245h9ZwgS7l98Hi0WqIeamJVhow1osQ" "$DIRR"$KEYEX.zip $KEYEX)
-					openssl enc -aes-256-gcm -salt -in "$DIRR"$KEYEX.zip -out "$WHSAV""/"0003 -k "$ZPASS"
-					cat "$WHSAV""/"0003 | base64 > "$WHSAV""/"$KEYEX
+					(cd "$DIRR"; zip -reP "cPHQ0bkM2zEUZY245h9ZwgS7l98Hi0WqIeamJVhow1osQ" "$DIRR"$KEY.zip $KEY)
+					openssl enc -aes-256-gcm -salt -in "$DIRR"$KEY.zip -out "$WHSAV""/"0003 -k "$ZPASS" 2> /dev/null
+					cat "$WHSAV""/"0003 | base64 > "$WHSAV""/"$KEY
 					shred -fuzn 3 "$WHSAV""/"0003
 			fi
 		done
@@ -413,21 +413,21 @@ fsecuredelkey()																			#Shred key
 	clear
 	echo " [>] Which key?"
 	cd "$DIRR";ls "$DIRR"
-	read -e -p " >" KEYDEL
-	if [ "${KEYDEL: -1}" = "/" ] 2> /dev/null
+	read -e -p " >" KEY
+	if [ "${KEY: -1}" = "/" ] 2> /dev/null
 		then
-			KEYDEL="${KEYDEL%?}"
+			KEY="${KEY%?}"
 	fi
 			
-	if [ ! -d "$DIRR""$KEYDEL" ]
+	if [ ! -d "$DIRR""$KEY" ]
 		then
 			clear
-			echo " [*] $KEYDEL is not a valid key, try again.."
+			echo " [*] $KEY is not a valid key, try again.."
 			sleep 1
 			fsecuredelkey
 		else
 			clear
-			read -p " [>] Warning, this will securely delete $KEYDEL and all of its messages, are you sure? [Y/n]: " DODEL
+			read -p " [>] Warning, this will securely delete $KEY and all of its messages, are you sure? [Y/n]: " DODEL
 			clear
 			case $DODEL in
 			"Y")	fdoseckey;;
@@ -443,11 +443,11 @@ fsecuredelkey()																			#Shred key
 fdoseckey()
 {
 	clear
-	echo " [*] Securely deleting $KEYDEL, please wait.."
-	find "$DIRR""$KEYDEL""/" -type f -exec shred -fuzn 3 {} \;
-	rm -rf "$DIRR""$KEYDEL"
+	echo " [*] Securely deleting $KEY, please wait.."
+	find "$DIRR""$KEY""/" -type f -exec shred -fuzn 3 {} \;
+	rm -rf "$DIRR""$KEY"
 	clear
-	echo " [*] $KEYDEL and all its messages securely deleted."
+	echo " [*] $KEY and all its messages securely deleted."
 	sleep 2
 }
 
@@ -456,21 +456,21 @@ fsecuredelenc()																			#Shred encrypted messages
 	clear
 	echo " [>] Which key?"
 	cd "$DIRR";ls "$DIRR"
-	read -e -p " >" KEYDEL
-	if [ "${KEYDEL: -1}" = "/" ] 2> /dev/null
+	read -e -p " >" KEY
+	if [ "${KEY: -1}" = "/" ] 2> /dev/null
 		then
-			KEYDEL="${KEYDEL%?}"
+			KEY="${KEY%?}"
 	fi
 			
-	if [ ! -d "$DIRR""$KEYDEL" ]
+	if [ ! -d "$DIRR""$KEY" ]
 		then
 			clear
-			echo " [*] $KEYDEL is not a valid key, try again.."
+			echo " [*] $KEY is not a valid key, try again.."
 			sleep 1
 			fsecuredelenc
 		else
 			clear
-			read -p " [>] Warning, this will securely delete all of "$KEYDEL"'s encrypted messages, are you sure? [Y/n]: " DODEL
+			read -p " [>] Warning, this will securely delete all of "$KEY"'s encrypted messages, are you sure? [Y/n]: " DODEL
 			clear
 		
 			case $DODEL in
@@ -487,20 +487,20 @@ fsecuredelenc()																			#Shred encrypted messages
 fdosecenc()
 {
 	clear
-	echo " [*] Securely deleting "$KEYDEL"'s encrypted messages, please wait.."
-	find "$DIRR""$KEYDEL""/""$ENCCDIR" -type f -exec shred -fuzn 3 {} \;
+	echo " [*] Securely deleting "$KEY"'s encrypted messages, please wait.."
+	find "$DIRR""$KEY""/""$ENCCDIR" -type f -exec shred -fuzn 3 {} \;
 	clear
-	echo " [*] "$KEYDEL"'s encrypted messages securely deleted."
+	echo " [*] "$KEY"'s encrypted messages securely deleted."
 	sleep 2
 }
 
 fdosecdec()
 {
 	clear
-	echo " [*] Securely deleting "$KEYDEL"'s decrypted messages, please wait.."
-	find "$DIRR""$KEYDEL""/""$DECDIR" -type f -exec shred -fuzn 3 {} \;
+	echo " [*] Securely deleting "$KEY"'s decrypted messages, please wait.."
+	find "$DIRR""$KEY""/""$DECDIR" -type f -exec shred -fuzn 3 {} \;
 	clear
-	echo " [*] "$KEYDEL"'s decrypted messages securely deleted."
+	echo " [*] "$KEY"'s decrypted messages securely deleted."
 	sleep 2
 }
 
@@ -509,21 +509,21 @@ fsecuredeldec()																			#Shred decrypted messages
 	clear
 	echo " [>] Which key?"
 	cd "$DIRR";ls "$DIRR"
-	read -e -p " >" KEYDEL
-	if [ "${KEYDEL: -1}" = "/" ] 2> /dev/null
+	read -e -p " >" KEY
+	if [ "${KEY: -1}" = "/" ] 2> /dev/null
 		then
-			KEYDEL="${KEYDEL%?}"
+			KEY="${KEY%?}"
 	fi
 			
-	if [ ! -d "$DIRR""$KEYDEL" ]
+	if [ ! -d "$DIRR""$KEY" ]
 		then
 			clear
-			echo " [*] $KEYDEL is not a valid key, try again.."
+			echo " [*] $KEY is not a valid key, try again.."
 			sleep 1
 			fsecuredeldec
 		else
 			clear
-			read -p " [>] Warning, this will securely delete all of "$KEYDEL"'s decrypted messages, are you sure? [Y/n]: " DODEL
+			read -p " [>] Warning, this will securely delete all of "$KEY"'s decrypted messages, are you sure? [Y/n]: " DODEL
 			clear
 		
 			case $DODEL in
@@ -549,22 +549,22 @@ fencryptmsg()																			#Encrypt messages
 	echo " [>] Please choose your key"
 	cd "$DIRR";ls "$DIRR"
 	echo
-	read -e -p " >" KEYCH
+	read -e -p " >" KEY
 
-	if [ ! -d "$DIRR""$KEYCH" ]
+	if [ ! -d "$DIRR""$KEY" ]
 		then
-			echo " [*] $KEYCH is not a valid key, try again."
+			echo " [*] $KEY is not a valid key, try again."
 			sleep 1
 			fencryptmsg
 	
-	elif [ $KEYCH -z ] 2> /dev/null
+	elif [ $KEY -z ] 2> /dev/null
 		then
 			echo " [*] You must choose a key, try again"
 			sleep 1
 			fencryptmsg
-	elif [ "${KEYCH: -1}" = "/" ] 2> /dev/null
+	elif [ "${KEY: -1}" = "/" ] 2> /dev/null
 		then
-			KEYCH="${KEYCH%?}"
+			KEY="${KEY%?}"
 	fi
 	
 	clear
@@ -596,7 +596,7 @@ fencryptmsg()																			#Encrypt messages
 			read -p """ [>] Please Enter a filename for your message:
 		
  >""" ENCCMSGF
-			if [ -f "$DIRR""$KEYCH"""/"$ENCCDIR""/""$ENCCMSGF" ]
+			if [ -f "$DIRR""$KEY"""/"$ENCCDIR""/""$ENCCMSGF" ]
 				then
 					echo " [*] $ENCCMSGF already exists, Try again.."
 					sleep 1
@@ -607,7 +607,7 @@ fencryptmsg()																			#Encrypt messages
 					sleep 1
 					clear
 			else
-				touch "$DIRR""$KEYCH""/""$ENCCDIR""/""$ENCCMSGF"
+				touch "$DIRR""$KEY""/""$ENCCDIR""/""$ENCCMSGF"
 				MSGNAME="1"
 			fi
 		done
@@ -617,20 +617,44 @@ fencryptmsg()																			#Encrypt messages
 		
 	while read LINE
 		do
-			echo $(cat "$DIRR""$KEYCH""/""$LINE""/""$LINE" | sort -R | head -n 1) >>"$DIRR"tmp2
+			echo $(cat "$DIRR""$KEY""/""$LINE""/""$LINE" | sort -R | head -n 1) >>"$DIRR"tmp2
 		done <"$FILE"
 		
 	echo $(tr '\n' ' ' < "$DIRR"tmp2 | sed -e 's/\s//g') > "$DIRR"tmp3
-	PASS=$(cat "$DIRR""$KEYCH"/meta/meta)
-	openssl enc -aes-256-gcm -salt -in "$DIRR"tmp3 -out "$DIRR""$KEYCH""/""$ENCCDIR""/"0001 -k $PASS
-	cat "$DIRR""$KEYCH""/""$ENCCDIR""/"0001 | base64 > "$DIRR""$KEYCH""/""$ENCCDIR""/""$ENCCMSGF"
-	shred -fuzn 3 "$DIRR""$KEYCH""/""$ENCCDIR""/"0001
+		
+	FILE="$DIRR""$KEY""/"meta/meta
+	PNUM="1"
+	while read LINE
+		do
+		
+			if [ $PNUM = "1" ]
+				then
+					PASS1=$LINE
+			fi
+			if [ $PNUM = "2" ]
+				then
+					PASS2=$LINE
+			fi
+			if  [ $PNUM = "3" ]
+				then
+					PASS3=$LINE
+			fi
+			
+		PNUM=$(( PNUM + 1 ))
+		done <"$FILE"
+
+	openssl enc -aes-256-gcm -a -salt -in "$DIRR"tmp3 -out "$DIRR""$KEY""/""$ENCCDIR""/"0001 -k $PASS1 2> /dev/null
+	openssl enc -camellia-256-cbc -a -salt -in "$DIRR""$KEY""/""$ENCCDIR""/"0001  -out "$DIRR""$KEY""/""$ENCCDIR""/"0002 -k $PASS2 2> /dev/null
+	openssl enc -aes-256-cbc -a -salt -in "$DIRR""$KEY""/""$ENCCDIR""/"0002  -out "$DIRR""$KEY""/""$ENCCDIR""/""$ENCCMSGF" -k $PASS3 2> /dev/null	
+	
+	shred -fuzn 3 "$DIRR""$KEY""/""$ENCCDIR""/"0001
+	shred -fuzn 3 "$DIRR""$KEY""/""$ENCCDIR""/"0002
 	shred -fuzn 3 "$DIRR"tmp1
 	shred -fuzn 3 "$DIRR"tmp2
 	shred -fuzn 3 "$DIRR"tmp3
 	clear
 	SLASH="/"
-	RLEN=$(wc -l "$DIRR""$KEYCH""/""$ENCCDIR""/""$ENCCMSGF")
+	RLEN=$(wc -l "$DIRR""$KEY""/""$ENCCDIR""/""$ENCCMSGF")
 	DLENT="7"
 	while [[ "$RLEN" ==  *"$SLASH"* ]]
 						do
@@ -639,14 +663,14 @@ fencryptmsg()																			#Encrypt messages
 						done
 					DLENT=$((DLENT - 1))
 					RLEN=${RLEN:0:$DLENT}
-					cat "$DIRR""$KEYCH""/""$ENCCDIR""/""$ENCCMSGF"
+					cat "$DIRR""$KEY""/""$ENCCDIR""/""$ENCCMSGF"
 					echo
-					read -p """ [*] Message is $RLEN lines long and stored at "$DIRR""$KEYCH""/""$ENCCDIR""/""$ENCCMSGF"
+					read -p """ [*] Message is $RLEN lines long and stored at "$DIRR""$KEY""/""$ENCCDIR""/""$ENCCMSGF"
  [>] Press c and Enter to copy to clipboard
  [>] Press Enter to exit
  >""" SMF
 					case $SMF in
-					"c") cat "$DIRR""$KEYCH""/""$ENCCDIR""/""$ENCCMSGF" | xclip -sel clip; echo " [*] Message copied to clipboard";fexit;;
+					"c") cat "$DIRR""$KEY""/""$ENCCDIR""/""$ENCCMSGF" | xclip -sel clip; echo " [*] Message copied to clipboard";fexit;;
 					"") fexit
 					esac
 
@@ -655,8 +679,8 @@ fencryptmsg()																			#Encrypt messages
 fdecpaste()
 {
 	DATER=$(date +%Y-%d-%m--%H:%M:%S)
-	touch "$DIRR""$KEYDE""/""$ENCCDIR""/""$DATER"
-	DATEFILE="$DIRR""$KEYDE""/""$ENCCDIR""/"$DATER
+	touch "$DIRR""$KEY""/""$ENCCDIR""/""$DATER"
+	DATEFILE="$DIRR""$KEY""/""$ENCCDIR""/"$DATER
 	xclip -sel clip -o > $DATEFILE
 	SHDON="1"
 }
@@ -667,22 +691,22 @@ fdecryptmsg()																			#Decrypt messages
 	echo " [>]  Which key?"
 	cd "$DIRR";ls "$DIRR"
 	echo
-	read -e -p " >" KEYDE
+	read -e -p " >" KEY
 	
-	if [ ! -d "$DIRR""$KEYDE" ]
+	if [ ! -d "$DIRR""$KEY" ]
 		then
-			echo " [*] $KEYDE is not a valid key, try again."
+			echo " [*] $KEY is not a valid key, try again."
 			sleep 1
 			fdecryptmsg
 	
-	elif [ $KEYDE -z ] 2> /dev/null
+	elif [ $KEY -z ] 2> /dev/null
 		then
 			echo " [*] You must choose a key, try again."
 			sleep 1
 			fdecryptmsg
-	elif [ "${KEYDE: -1}" = "/" ] 2> /dev/null
+	elif [ "${KEY: -1}" = "/" ] 2> /dev/null
 		then
-			KEYDE="${KEYDE%?}"
+			KEY="${KEY%?}"
 	fi
 	
 	touch "$DIRR"temp01
@@ -702,20 +726,20 @@ fdecryptmsg()																			#Decrypt messages
 			"P") fdecpaste;;
 			"p") fdecpaste;;
 			"") fdecpaste;;
-			"f") cd "$DIRR""$KEYDE""/""$ENCCDIR"; ls "$DIRR""$KEYDE""/""$ENCCDIR"
+			"f") cd "$DIRR""$KEY""/""$ENCCDIR"; ls "$DIRR""$KEY""/""$ENCCDIR"
 			echo
 			read -e -p " >" ENCCMSGF
-			if [ ! -f "$DIRR""$KEYDE""/""$ENCCDIR""/""$ENCCMSGF" ]
+			if [ ! -f "$DIRR""$KEY""/""$ENCCDIR""/""$ENCCMSGF" ]
 				then
 					echo " [*] $ENCCMSGF is not a valid file, try again."
 					sleep 2
 				else
 					SHDON="1"
 			fi;;
-			"F") cd "$DIRR""$KEYDE""/""$ENCCDIR";ls "$DIRR""$KEYDE""/""$ENCCDIR"
+			"F") cd "$DIRR""$KEY""/""$ENCCDIR";ls "$DIRR""$KEY""/""$ENCCDIR"
 			echo
 			read -e -p " >" ENCCMSGF
-			if [ ! -f "$DIRR""$KEYDE""/""$ENCCDIR""/""$ENCCMSGF" ]
+			if [ ! -f "$DIRR""$KEY""/""$ENCCDIR""/""$ENCCMSGF" ]
 				then
 					echo " [*] $ENCCMSGF is not a valid file, try again."
 					sleep 2
@@ -726,17 +750,44 @@ fdecryptmsg()																			#Decrypt messages
 		done
 		
 	clear
-	PASS=$(cat "$DIRR""$KEYDE"/meta/meta)
 	
 	case $DODEC in
-		"P") cat $DATEFILE | base64 -d > "$DIRR""$KEYDE""/""$ENCCDIR""/"0001;ENCCMSGF=$DATER;;
-		"p") cat $DATEFILE | base64 -d > "$DIRR""$KEYDE""/""$ENCCDIR""/"0001;ENCCMSGF=$DATER;;
-		"") cat $DATEFILE | base64 -d > "$DIRR""$KEYDE""/""$ENCCDIR""/"0001;ENCCMSGF=$DATER;;
-		"f") cat "$DIRR""$KEYDE""/""$ENCCDIR""/""$ENCCMSGF" | base64 -d > "$DIRR""$KEYDE""/""$ENCCDIR""/"0001;;
-		"F") cat "$DIRR""$KEYDE""/""$ENCCDIR""/""$ENCCMSGF" | base64 -d > "$DIRR""$KEYDE""/""$ENCCDIR""/"0001
+		"P") cat $DATEFILE  > "$DIRR""$KEY""/""$ENCCDIR""/"0001;ENCCMSGF=$DATER;;
+		"p") cat $DATEFILE  > "$DIRR""$KEY""/""$ENCCDIR""/"0001;ENCCMSGF=$DATER;;
+		"") cat $DATEFILE  > "$DIRR""$KEY""/""$ENCCDIR""/"0001;ENCCMSGF=$DATER;;
+		"f") cat "$DIRR""$KEY""/""$ENCCDIR""/""$ENCCMSGF"  > "$DIRR""$KEY""/""$ENCCDIR""/"0001;;
+		"F") cat "$DIRR""$KEY""/""$ENCCDIR""/""$ENCCMSGF"  > "$DIRR""$KEY""/""$ENCCDIR""/"0001
 	esac
 	
-	openssl enc -d -aes-256-gcm -salt -in "$DIRR""$KEYDE""/""$ENCCDIR""/"0001 -out "$DIRR"temp04 -k $PASS	
+	FILE="$DIRR""$KEY""/"meta/meta
+	PNUM="1"
+	while read LINE
+		do
+		
+			if [ $PNUM = "1" ]
+				then
+					PASS1=$LINE
+			fi
+			if [ $PNUM = "2" ]
+				then
+					PASS2=$LINE
+			fi
+			if  [ $PNUM = "3" ]
+				then
+					PASS3=$LINE
+			fi
+			
+		PNUM=$(( PNUM + 1 ))
+		done <"$FILE"
+
+	openssl enc -aes-256-cbc -d -a -salt -in "$DIRR""$KEY""/""$ENCCDIR""/"0001  -out "$DIRR""$KEY""/""$ENCCDIR""/"0002 -k $PASS3 2> /dev/null	
+	openssl enc -camellia-256-cbc -d -a -salt -in "$DIRR""$KEY""/""$ENCCDIR""/"0002  -out "$DIRR""$KEY""/""$ENCCDIR""/"0003 -k $PASS2 2> /dev/null
+	openssl enc -aes-256-gcm -d -a -salt -in "$DIRR""$KEY""/""$ENCCDIR""/"0003 -out "$DIRR"temp04 -k $PASS1 2> /dev/null
+	
+	shred -fuzn 3 "$DIRR""$KEY""/""$ENCCDIR""/"0001
+	shred -fuzn 3 "$DIRR""$KEY""/""$ENCCDIR""/"0002
+	shred -fuzn 3 "$DIRR""$KEY""/""$ENCCDIR""/"0003
+	
 	ENCCLEN=$(wc -c "$DIRR"temp04)
   	CHARCNT="0"
   	CHAR="0"
@@ -766,7 +817,7 @@ fdecryptmsg()																			#Decrypt messages
 	
 	while read LINE
 		do			
-			LONGLET=$(grep -rl $LINE "$DIRR""$KEYDE"/)
+			LONGLET=$(grep -rl $LINE "$DIRR""$KEY"/)
 			echo ${LONGLET: -2} >> "$DIRR"temp02 
 		done <"$FILE"	
 	FILE="$DIRR"temp02
@@ -781,35 +832,34 @@ fdecryptmsg()																			#Decrypt messages
 		done <"$FILE"
 		
 	DEKD=$(cat "$DIRR"temp03)
-	echo "${DEKD%?}" > "$DIRR""$KEYDE""/""$DECDIR""/""$ENCCMSGF"
-	shred -fuzn 3 "$DIRR""$KEYDE""/""$ENCCDIR""/"0001
+	echo "${DEKD%?}" > "$DIRR""$KEY""/""$DECDIR""/""$ENCCMSGF"
 	shred -fuzn 3 "$DIRR"temp01
 	shred -fuzn 3 "$DIRR"temp02
 	shred -fuzn 3 "$DIRR"temp03
 	shred -fuzn 3 "$DIRR"temp04
 	clear
-	echo " [*] Message saved to "$DIRR""$KEYDE""/""$DECDIR""/""$ENCCMSGF""
+	echo " [*] Message saved to "$DIRR""$KEY""/""$DECDIR""/""$ENCCMSGF""
 	echo
 	read -p " [>] Do you want to display message? [Y/n]: " DISP
 	
 	case $DISP in
 	"y")
 			clear
-			cat "$DIRR""$KEYDE""/""$DECDIR""/""$ENCCMSGF"
+			cat "$DIRR""$KEY""/""$DECDIR""/""$ENCCMSGF"
 			echo
 			read -p " [>] Press Enter to exit" SMF
 			fexit
 	;;
 	"")
 			clear
-			cat "$DIRR""$KEYDE""/""$DECDIR""/""$ENCCMSGF"
+			cat "$DIRR""$KEY""/""$DECDIR""/""$ENCCMSGF"
 			echo
 			read -p " [>] Press Enter to exit" SMF
 			fexit
 	;;
 	"Y")
 			clear
-			cat "$DIRR""$KEYDE""/""$DECDIR""/""$ENCCMSGF"
+			cat "$DIRR""$KEY""/""$DECDIR""/""$ENCCMSGF"
 			echo
 			read -p " [>] Press Enter to exit" SMF
 			fexit
@@ -823,16 +873,16 @@ fdecryptfile()
 	clear
 	echo " [>] Which key?"
 	cd "$DIRR";ls "$DIRR"	
-	read -e -p " >" KEYDS
-	if [ ! -d "$DIRR""$KEYDS" ]
+	read -e -p " >" KEY
+	if [ ! -d "$DIRR""$KEY" ]
 		then
 			clear
-			echo " [*] $KEYDS is not a valid key, try again.."
+			echo " [*] $KEY is not a valid key, try again.."
 			sleep 1
 			fencryptfile
-	elif [ "${KEYDS: -1}" = "/" ] 2> /dev/null
+	elif [ "${KEY: -1}" = "/" ] 2> /dev/null
 		then
-			KEYDS="${KEYDS%?}"
+			KEY="${KEY%?}"
 	fi
 	clear
 	echo " [>] Please Enter the location of the file: e.g. "$HOME"/file"
@@ -843,17 +893,42 @@ fdecryptfile()
 			sleep 2
 			fdecryptfile
 	fi
-	PASS=$(cat "$DIRR""$KEYDS"/meta/meta)
+	PASS=$(cat "$DIRR""$KEY"/meta/meta)
 	DECMSGT=$(basename $IFIL)
-	if [ ! -d "$DIRR""$KEYDS""/""$DECDIR""/""0_Decrypted_Files" ]
+	if [ ! -d "$DIRR""$KEY""/""$DECDIR""/""0_Decrypted_Files" ]
 		then
-			mkdir "$DIRR""$KEYDS""/""$DECDIR""/""0_Decrypted_Files"
+			mkdir "$DIRR""$KEY""/""$DECDIR""/""0_Decrypted_Files"
 	fi
-	openssl enc -d -aes-256-gcm -salt -in "$IFIL" -out "$DIRR""$KEYDS""/""$DECDIR""/""0_Decrypted_Files""/""$DECMSGT" -k $PASS
+	FILE="$DIRR""$KEY""/"meta/meta
+	PNUM="1"
+	while read LINE
+		do
+		
+			if [ $PNUM = "1" ]
+				then
+					PASS1=$LINE
+			fi
+			if [ $PNUM = "2" ]
+				then
+					PASS2=$LINE
+			fi
+			if  [ $PNUM = "3" ]
+				then
+					PASS3=$LINE
+			fi
+			
+		PNUM=$(( PNUM + 1 ))
+		done <"$FILE"
+	openssl enc -aes-256-gcm -d -a -salt -in "$IFIL" -out "$DIRR""$KEY""/""$ENCCDIR""/"0001 -k $PASS3 2> /dev/null
+	openssl enc -camellia-256-cbc -d -a -salt -in "$DIRR""$KEY""/""$ENCCDIR""/"0001  -out "$DIRR""$KEY""/""$ENCCDIR""/"0002 -k $PASS1 2> /dev/null
+	openssl enc -aes-256-cbc -d -a -salt -in "$DIRR""$KEY""/""$ENCCDIR""/"0002  -out "$DIRR""$KEY""/""$DECDIR""/""0_Decrypted_Files""/""$DECMSGT" -k $PASS2 2> /dev/null	
+
+	shred -fuzn 3 "$DIRR""$KEY""/""$ENCCDIR""/"0001
+	shred -fuzn 3 "$DIRR""$KEY""/""$ENCCDIR""/"0002
 	clear
-	echo " [*] File saved to "$DIRR""$KEYDS""/""$DECDIR""/""0_Decrypted_Files""/""$DECMSGT""
+	echo " [*] File saved to "$DIRR""$KEY""/""$DECDIR""/""0_Decrypted_Files""/""$DECMSGT""
 	echo
-	file "$DIRR""$KEYDS""/""$DECDIR""/""0_Decrypted_Files""/""$DECMSGT"
+	file "$DIRR""$KEY""/""$DECDIR""/""0_Decrypted_Files""/""$DECMSGT"
 	echo
 	read -p " [>] Press Enter to exit"
 	fexit
@@ -864,16 +939,16 @@ fencryptfile()
 	clear
 	echo " [>] Which key?"
 	cd "$DIRR";ls "$DIRR"	
-	read -e -p " >" KEYDS
-	if [ ! -d "$DIRR""$KEYDS" ]
+	read -e -p " >" KEY
+	if [ ! -d "$DIRR""$KEY" ]
 		then
 			clear
-			echo " [*] $KEYDS is not a valid key, try again.."
+			echo " [*] $KEY is not a valid key, try again.."
 			sleep 1
 			fencryptfile
-	elif [ "${KEYDS: -1}" = "/" ] 2> /dev/null
+	elif [ "${KEY: -1}" = "/" ] 2> /dev/null
 		then
-			KEYDS="${KEYDS%?}"
+			KEY="${KEY%?}"
 	fi
 	clear
 	echo " [>] Please Enter the location of the file: e.g. "$HOME"/file"
@@ -884,15 +959,40 @@ fencryptfile()
 			sleep 2
 			fencryptfile
 	fi
-	PASS=$(cat "$DIRR""$KEYDS"/meta/meta)
+	PASS=$(cat "$DIRR""$KEY"/meta/meta)
 	ENCCMSGF=$(basename $IFIL)
-	if [ ! -d "$DIRR""$KEYDS""/""$ENCCDIR""/""0_Encrypted_Files" ]
+	if [ ! -d "$DIRR""$KEY""/""$ENCCDIR""/""0_Encrypted_Files" ]
 		then
-			mkdir "$DIRR""$KEYDS""/""$ENCCDIR""/""0_Encrypted_Files"
+			mkdir "$DIRR""$KEY""/""$ENCCDIR""/""0_Encrypted_Files"
 	fi
-	openssl enc -aes-256-gcm -salt -in "$IFIL" -out "$DIRR""$KEYDS""/""$ENCCDIR""/""0_Encrypted_Files""/""$ENCCMSGF" -k $PASS
+	
+	FILE="$DIRR""$KEY""/"meta/meta
+	PNUM="1"
+	while read LINE
+		do
+		
+			if [ $PNUM = "1" ]
+				then
+					PASS1=$LINE
+			fi
+			if [ $PNUM = "2" ]
+				then
+					PASS2=$LINE
+			fi
+			if  [ $PNUM = "3" ]
+				then
+					PASS3=$LINE
+			fi
+			
+		PNUM=$(( PNUM + 1 ))
+		done <"$FILE"
+
+	openssl enc -aes-256-cbc -d -a -salt -in "$IFIL"  -out "$DIRR""$KEY""/""$ENCCDIR""/"0001 -k $PASS2 2> /dev/null	
+	openssl enc -camellia-256-cbc -d -a -salt -in "$DIRR""$KEY""/""$ENCCDIR""/"0001  -out "$DIRR""$KEY""/""$ENCCDIR""/"0002 -k $PASS1 2> /dev/null
+	openssl enc -aes-256-gcm -d -a -salt -in "$DIRR""$KEY""/""$ENCCDIR""/"0002 -out "$DIRR""$KEY""/""$ENCCDIR""/""0_Encrypted_Files""/""$ENCCMSGF" -k $PASS3 2> /dev/null
+
 	clear
-	echo " [*] File saved to "$DIRR""$KEYDS"/"$ENCCDIR"/"0_Encrypted_Files"/"$ENCCMSGF""
+	echo " [*] File saved to "$DIRR""$KEY"/"$ENCCDIR"/"0_Encrypted_Files"/"$ENCCMSGF""
 	echo
 	read -p " [>] Press Enter to return to main menu"
 	fmenu
@@ -923,29 +1023,29 @@ fkeygen()																				#Generate keys
 	clear
 	read -p """ [>] What shall we name your key?
 
- >""" KEYN
-	if [ "${KEYN: -1}" = "/" ] 2> /dev/null
+ >""" KEY
+	if [ "${KEY: -1}" = "/" ] 2> /dev/null
 		then
-			KEYN="${KEYN%?}"
+			KEY="${KEY%?}"
 	fi
-	if [ -d "$DIRR""$KEYN" ]
+	if [ -d "$DIRR""$KEY" ]
 		then
 			clear
-			echo " [*] $KEYN already exists, try again."
+			echo " [*] $KEY already exists, try again."
 			sleep 2
 			fkeygen
 		else
 			clear
-			echo " [*] Generating $KEYN, please wait..."
-			mkdir "$DIRR""$KEYN"
-			mkdir "$DIRR""$KEYN""/""$ENCCDIR"
-			mkdir "$DIRR""$KEYN""/""$DECDIR"
-			sort -R "$DIRR"list > "$DIRR""$KEYN""/"list
+			echo " [*] Generating $KEY, please wait..."
+			mkdir "$DIRR""$KEY"
+			mkdir "$DIRR""$KEY""/""$ENCCDIR"
+			mkdir "$DIRR""$KEY""/""$DECDIR"
+			sort -R "$DIRR"list > "$DIRR""$KEY""/"list
 			DIRNUM="10"
 			
 			while [ $DIRNUM -le 99 ]
 				do
-					mkdir "$DIRR""$KEYN""/""$DIRNUM"
+					mkdir "$DIRR""$KEY""/""$DIRNUM"
 					DIRNUM=$(( DIRNUM + 1 ))
 				done
 				
@@ -955,21 +1055,38 @@ fkeygen()																				#Generate keys
 	
 			while [ $CODLINE -le 900000 ]
 				do 
-					echo -n $(head -"$CODLINE" "$DIRR""$KEYN""/"list | tail -10110) > "$DIRR""$KEYN""/""$LISTNUM""/""$LISTNUM"
-					sed -e 's/\s/\n/g' "$DIRR""$KEYN""/""$LISTNUM""/""$LISTNUM" > "$DIRR""$KEYN""/""$LISTNUM""/""$LISTNUMB"	
-					shred -fuzn 3 "$DIRR""$KEYN""/""$LISTNUM""/""$LISTNUM"
-					mv "$DIRR""$KEYN""/""$LISTNUM""/""$LISTNUMB" "$DIRR""$KEYN""/""$LISTNUM""/""$LISTNUM"
+					echo -n $(head -"$CODLINE" "$DIRR""$KEY""/"list | tail -10110) > "$DIRR""$KEY""/""$LISTNUM""/""$LISTNUM"
+					sed -e 's/\s/\n/g' "$DIRR""$KEY""/""$LISTNUM""/""$LISTNUM" > "$DIRR""$KEY""/""$LISTNUM""/""$LISTNUMB"	
+					shred -fuzn 3 "$DIRR""$KEY""/""$LISTNUM""/""$LISTNUM"
+					mv "$DIRR""$KEY""/""$LISTNUM""/""$LISTNUMB" "$DIRR""$KEY""/""$LISTNUM""/""$LISTNUM"
 
 					LISTNUM=$(( LISTNUM + 1 ))
 					LISTNUMB=$(( LISTNUMB + 1 ))
 					CODLINE=$(( CODLINE + 10110 ))
 				done
 			
-			mkdir "$DIRR""$KEYN""/"""meta/
-			echo $(date +%s | sha256sum | base64 | head -c 70) > "$DIRR""$KEYN""/"""meta/meta
-			shred -fuzn 3 "$DIRR""$KEYN""/"list
+			RAND1=${RANDOM:0:2}
+			RAND2=${RANDOM:0:2}
+			RAND3=${RANDOM:0:2}
+			if [ $RAND1 -le 50 ]
+				then
+					RAND1=$(( RAND1 + 35 ))
+			fi
+			if [ $RAND2 -le 50 ]
+				then
+					RAND2=$(( RAND2 + 35 ))
+			fi
+			if [ $RAND3 -le 50 ]
+				then
+					RAND3=$(( RAND3 + 35 ))
+			fi
+			mkdir "$DIRR""$KEY""/"""meta/
+			echo $(strings /dev/urandom | grep -o '[[:alnum:]]' | head -n $RAND1 | tr -d '\n'; echo) > "$DIRR""$KEY""/"""meta/meta
+			echo $(strings /dev/urandom | grep -o '[[:alnum:]]' | head -n $RAND2 | tr -d '\n'; echo) >> "$DIRR""$KEY""/"""meta/meta
+			echo $(strings /dev/urandom | grep -o '[[:alnum:]]' | head -n $RAND3 | tr -d '\n'; echo) >> "$DIRR""$KEY""/"""meta/meta
+			shred -fuzn 3 "$DIRR""$KEY""/"list
 			echo
-			echo " [*] $KEYN Complete!"
+			echo " [*] $KEY Complete!"
 			sleep 1
 			fmenu
 	fi
@@ -983,6 +1100,7 @@ fstart()																				#Startup function
 	trap fexit 2
 	if [ $(which shred) -z ] 2> /dev/null
 		then
+			clear
 			read -p " [*] It looks like shred is not installed on your system, it is needed for secure deletion of messages and keys. Do you want to install it? [Y/n]" INSTSHRED
 			case $INSTSHRED in
 			"y") apt-get install shred;clear;sudo apt-get install shred;;
@@ -995,6 +1113,7 @@ fstart()																				#Startup function
 	
 	if [ $(which xclip) -z ] 2> /dev/null
 		then
+			clear
 			read -p " [*] It looks like xclip is not installed on your system, it is needed for copying and pasteing the messages out and in to the program and to the clipboad. Do you want to install it? [Y/n]" INSTXCLIP
 			case $INSTXCLIP in
 			"y") apt-get install xclip;clear;sudo apt-get install xclip;;
@@ -1007,6 +1126,7 @@ fstart()																				#Startup function
 		
 	if [ $(which openssl) -z ] 2> /dev/null
 		then
+			clear
 			read -p " [*] It looks like openssl is not installed on your system, it is needed for cryptography. Do you want to install it? [Y/n]" INSTOPNSSL
 			case $INSTOPNSSL in
 			"y") apt-get install openssl;clear;sudo apt-get install openssl;;
