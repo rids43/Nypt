@@ -35,4 +35,9 @@ the 0_Encrypted_Messages directory in the directory of the key that you will use
 and menu based. Nypt is designed to be as user friendly as possible, thereby allowing new users of encryption to get access
 to it as quickly as possible.
 
+Programmers:
+Customizing certain parameters in this script is highly reccommended to make it more secure, just remember that the other
+party must have a copy of the edited script for it to work. This is another problem that must be solved by sending the edited
+script using secure encrypted communication methods.
+
 please direct any questions or comments to rids@tormail.org 
