@@ -83,6 +83,18 @@ fexit()																					#Delete left over tempory files when exitting
 		then
 			(shred -fuzn 3 "$DIRR"temp04)
 	fi
+	if [ -f "$DIRR"0 ]
+		then
+			(shred -fuzn 3 "$DIRR"0)
+	fi
+	if [ -f "$DIRR"000 ]
+		then
+			(shred -fuzn 3 "$DIRR"000)
+	fi
+	if [ -f "$DIRR"001 ]
+		then
+			(shred -fuzn 3 "$DIRR"001)
+	fi
 	echo
 	exit
 }
@@ -91,8 +103,8 @@ fcatenc()																				#Read encrypted messages from the 0_Encrypted_Messa
 {
 	clear
 	echo " [>] Which key?"
-	ls "$DIRR"	
-	read -p " >" KEYDS
+	cd "$DIRR";ls "$DIRR"	
+	read -e -p " >" KEYDS
 	if [ ! -d "$DIRR""$KEYDS" ]
 		then
 			clear
@@ -102,8 +114,8 @@ fcatenc()																				#Read encrypted messages from the 0_Encrypted_Messa
 		else
 			clear
 			echo " [>] Which file do you want to read?"
-			ls "$DIRR""$KEYDS""/""$ENCCDIR"
-			read -p " >" ENCCCAT
+			cd "$DIRR""$KEYDS""/""$ENCCDIR";ls "$DIRR""$KEYDS""/""$ENCCDIR"
+			read -e -p " >" ENCCCAT
 			if [ -f "$DIRR""$KEYDS""/""$ENCCDIR""/""$ENCCCAT" ]
 				then
 					clear
@@ -146,8 +158,8 @@ fcatdec()																				#Read decrypted messages from the 0_Decrypted_Messa
 {
 	clear
 	echo " [>] Which key?"
-	ls "$DIRR"	
-	read -p " >" KEYDS
+	cd "$DIRR";ls "$DIRR"	
+	read -e -p " >" KEYDS
 	if [ ! -d "$DIRR""$KEYDS" ]
 		then
 			clear
@@ -157,8 +169,8 @@ fcatdec()																				#Read decrypted messages from the 0_Decrypted_Messa
 		else
 			clear
 			echo " [>] Which file do you want to read?"
-			ls "$DIRR""$KEYDS""/""$DECDIR"
-			read -p " >" DECCAT
+			cd "$DIRR""$KEYDS""/""$DECDIR"; ls "$DIRR""$KEYDS""/""$DECDIR"
+			read -e -p " >" DECCAT
 			if [ -f "$DIRR""$KEYDS""/""$DECDIR""/""$DECCAT" ]
 				then
 					clear
@@ -179,8 +191,8 @@ fopenenc()
 {
 	clear
 	echo " [>] Which key?"
-	ls "$DIRR"	
-	read -p " >" KEYRE
+	cd "$DIRR";ls "$DIRR"	
+	read -e -p " >" KEYRE
 			
 	if [ ! -d "$DIRR""$KEYRE""/""$ENCCDIR" ]
 		then
@@ -199,8 +211,8 @@ fopendec()
 {
 	clear
 	echo " [>] Which key?"
-	ls "$DIRR"
-	read -p " >" KEYRE
+	cd "$DIRR";ls "$DIRR"
+	read -e -p " >" KEYRE
 			
 	if [ ! -d "$DIRR""$KEYRE""/""$DECDIR" ]
 		then
@@ -300,8 +312,8 @@ fexport()
 {
 	clear
 	echo " [>] Which key?"
-	ls "$DIRR"
-	read -p " >" KEYEX
+	cd "$DIRR";ls "$DIRR"
+	read -e -p " >" KEYEX
 			
 	if [ ! -d "$DIRR""$KEYEX" ]
 		then
@@ -380,8 +392,8 @@ fsecuredelkey()																			#Shred key
 {
 	clear
 	echo " [>] Which key?"
-	ls "$DIRR"
-	read -p " >" KEYDEL
+	cd "$DIRR";ls "$DIRR"
+	read -e -p " >" KEYDEL
 			
 	if [ ! -d "$DIRR""$KEYDEL" ]
 		then
@@ -419,8 +431,8 @@ fsecuredelenc()																			#Shred encrypted messages
 {
 	clear
 	echo " [>] Which key?"
-	ls "$DIRR"
-	read -p " >" KEYDEL
+	cd "$DIRR";ls "$DIRR"
+	read -e -p " >" KEYDEL
 			
 	if [ ! -d "$DIRR""$KEYDEL" ]
 		then
@@ -468,8 +480,8 @@ fsecuredeldec()																			#Shred decrypted messages
 {
 	clear
 	echo " [>] Which key?"
-	ls "$DIRR"
-	read -p " >" KEYDEL
+	cd "$DIRR";ls "$DIRR"
+	read -e -p " >" KEYDEL
 			
 	if [ ! -d "$DIRR""$KEYDEL" ]
 		then
@@ -503,9 +515,9 @@ fencryptmsg()																			#Encrypt messages
 	fi
 
 	echo " [>] Please choose your key"
-	ls "$DIRR"
+	cd "$DIRR";ls "$DIRR"
 	echo
-	read -p " >" KEYCH
+	read -e -p " >" KEYCH
 
 	if [ ! -d "$DIRR""$KEYCH" ]
 		then
@@ -618,9 +630,9 @@ fdecryptmsg()																			#Decrypt messages
 {
 	clear
 	echo " [>]  Which key?"
-	ls "$DIRR"
+	cd "$DIRR";ls "$DIRR"
 	echo
-	read -p " >" KEYDE
+	read -e -p " >" KEYDE
 	
 	if [ ! -d "$DIRR""$KEYDE" ]
 		then
@@ -652,9 +664,9 @@ fdecryptmsg()																			#Decrypt messages
 			"P") fdecpaste;;
 			"p") fdecpaste;;
 			"") fdecpaste;;
-			"f") ls "$DIRR""$KEYDE""/""$ENCCDIR"
+			"f") cd "$DIRR""$KEYDE""/""$ENCCDIR"; ls "$DIRR""$KEYDE""/""$ENCCDIR"
 			echo
-			read -p " >" ENCCMSGF
+			read -e -p " >" ENCCMSGF
 			if [ ! -f "$DIRR""$KEYDE""/""$ENCCDIR""/""$ENCCMSGF" ]
 				then
 					echo " [*] $ENCCMSGF is not a valid file, try again."
@@ -662,9 +674,9 @@ fdecryptmsg()																			#Decrypt messages
 				else
 					SHDON="1"
 			fi;;
-			"F") ls "$DIRR""$KEYDE""/""$ENCCDIR"
+			"F") cd "$DIRR""$KEYDE""/""$ENCCDIR";ls "$DIRR""$KEYDE""/""$ENCCDIR"
 			echo
-			read -p " >" ENCCMSGF
+			read -e -p " >" ENCCMSGF
 			if [ ! -f "$DIRR""$KEYDE""/""$ENCCDIR""/""$ENCCMSGF" ]
 				then
 					echo " [*] $ENCCMSGF is not a valid file, try again."
@@ -772,8 +784,8 @@ fdecryptfile()
 {
 	clear
 	echo " [>] Which key?"
-	ls "$DIRR"	
-	read -p " >" KEYDS
+	cd "$DIRR";ls "$DIRR"	
+	read -e -p " >" KEYDS
 	if [ ! -d "$DIRR""$KEYDS" ]
 		then
 			clear
@@ -810,8 +822,8 @@ fencryptfile()
 {
 	clear
 	echo " [>] Which key?"
-	ls "$DIRR"	
-	read -p " >" KEYDS
+	cd "$DIRR";ls "$DIRR"	
+	read -e -p " >" KEYDS
 	if [ ! -d "$DIRR""$KEYDS" ]
 		then
 			clear
