@@ -144,8 +144,8 @@ fcatenc()																				#Read encrypted messages from the 0_Encrypted_Messa
  [>] Press Enter to return to menu
  >""" SMF
 					case $SMF in
-					"c") cat "$DIRR""$KEY""/""$ENCCDIR""/""$ENCCCAT" | xclip -sel clip; echo " [*] Message copied to clipboard";fexit;;
-					"") fmenu
+						"c") cat "$DIRR""$KEY""/""$ENCCDIR""/""$ENCCCAT" | xclip -sel clip; echo " [*] Message copied to clipboard";fexit;;
+						"") fmenu
 					esac
 					
 				else
@@ -430,9 +430,9 @@ fsecuredelkey()																			#Shred key
 			read -p " [>] Warning, this will securely delete $KEY and all of its messages, are you sure? [Y/n]: " DODEL
 			clear
 			case $DODEL in
-			"Y")	fdoseckey;;
-			"y")	fdoseckey;;
-			"")		fdoseckey
+				"Y")	fdoseckey;;
+				"y")	fdoseckey;;
+				"")		fdoseckey
 					
 			esac
 		fmenu
@@ -474,9 +474,9 @@ fsecuredelenc()																			#Shred encrypted messages
 			clear
 		
 			case $DODEL in
-			"Y")	fdosecenc;;
-			"y")	fdosecenc;;
-			"")		fdosecenc
+				"Y")	fdosecenc;;
+				"y")	fdosecenc;;
+				"")		fdosecenc
 			esac
 
 		fmenu
@@ -527,9 +527,9 @@ fsecuredeldec()																			#Shred decrypted messages
 			clear
 		
 			case $DODEL in
-			"Y")	fdosecdec;;
-			"y")	fdosecdec;;
-			"")		fdosecdec
+				"Y")	fdosecdec;;
+				"y")	fdosecdec;;
+				"")		fdosecdec
 			esac
 
 		fmenu
@@ -580,9 +580,9 @@ fencryptmsg()																			#Encrypt messages
 	while [ $MSGCNT -lt $MSGLEN ]
 		do
 		CHAR=${MSG:$MSGCNT:1}
-			case $CHAR in
-				"a")ENCC="11";;"b")ENCC="12";;"c")ENCC="13";;"d")ENCC="14";;"e")ENCC="15";;"f")ENCC="16";;"g")ENCC="17";;"h")ENCC="18";;"i")ENCC="19";;"j")ENCC="20";;"k")ENCC="21";;"l")ENCC="22";;"m")ENCC="23";;"n")ENCC="24";;"o")ENCC="25";;"p")ENCC="26";;"q")ENCC="27";;"r")ENCC="28";;"s")ENCC="29";;"t")ENCC="30";;"u")ENCC="31";;"v")ENCC="32";;"w")ENCC="33";;"x")ENCC="34";;"y")ENCC="35";;"z")ENCC="36";;1)ENCC="37";;2)ENCC="38";;3)ENCC="39";;4)ENCC="40";;5)ENCC="41";;6)ENCC="42";;7)ENCC="43";;8)ENCC="44";;9)ENCC="45";;0)ENCC="10";;" ")ENCC="46";;"A")ENCC="47";;"B")ENCC="48";;"C")ENCC="49";;"D")ENCC="50";;"E")ENCC="51";;"F")ENCC="52";;"G")ENCC="53";;"H")ENCC="54";;"I")ENCC="55";;"J")ENCC="56";;"K")ENCC="57";;"L")ENCC="58";;"M")ENCC="59";;"N")ENCC="60";;"O")ENCC="61";;"P")ENCC="62";;"Q")ENCC="63";;"R")ENCC="64";;"S")ENCC="65";;"T")ENCC="66";;"U")ENCC="67";;"V")ENCC="68";;"W")ENCC="69";;"X")ENCC="70";;"Y")ENCC="71";;"Z")ENCC="72";;".")ENCC="73";;"?")ENCC="74";;",")ENCC="75";;"!")ENCC="76"		
-			esac
+		case $CHAR in
+			"a")ENCC="11";;"b")ENCC="12";;"c")ENCC="13";;"d")ENCC="14";;"e")ENCC="15";;"f")ENCC="16";;"g")ENCC="17";;"h")ENCC="18";;"i")ENCC="19";;"j")ENCC="20";;"k")ENCC="21";;"l")ENCC="22";;"m")ENCC="23";;"n")ENCC="24";;"o")ENCC="25";;"p")ENCC="26";;"q")ENCC="27";;"r")ENCC="28";;"s")ENCC="29";;"t")ENCC="30";;"u")ENCC="31";;"v")ENCC="32";;"w")ENCC="33";;"x")ENCC="34";;"y")ENCC="35";;"z")ENCC="36";;1)ENCC="37";;2)ENCC="38";;3)ENCC="39";;4)ENCC="40";;5)ENCC="41";;6)ENCC="42";;7)ENCC="43";;8)ENCC="44";;9)ENCC="45";;0)ENCC="10";;" ")ENCC="46";;"A")ENCC="47";;"B")ENCC="48";;"C")ENCC="49";;"D")ENCC="50";;"E")ENCC="51";;"F")ENCC="52";;"G")ENCC="53";;"H")ENCC="54";;"I")ENCC="55";;"J")ENCC="56";;"K")ENCC="57";;"L")ENCC="58";;"M")ENCC="59";;"N")ENCC="60";;"O")ENCC="61";;"P")ENCC="62";;"Q")ENCC="63";;"R")ENCC="64";;"S")ENCC="65";;"T")ENCC="66";;"U")ENCC="67";;"V")ENCC="68";;"W")ENCC="69";;"X")ENCC="70";;"Y")ENCC="71";;"Z")ENCC="72";;".")ENCC="73";;"?")ENCC="74";;",")ENCC="75";;"!")ENCC="76"		
+		esac
 		
 		echo $ENCC >> "$DIRR"tmp1
 		MSGCNT=$(( MSGCNT +1 ))
@@ -624,7 +624,7 @@ fencryptmsg()																			#Encrypt messages
 		
 	FILE="$DIRR""$KEY""/"meta/meta
 	PNUM="1"
-while read LINE
+	while read LINE
 		do
 		
 			case $PNUM in
@@ -650,23 +650,22 @@ while read LINE
 	RLEN=$(wc -l "$DIRR""$KEY""/""$ENCCDIR""/""$ENCCMSGF")
 	DLENT="7"
 	while [[ "$RLEN" ==  *"$SLASH"* ]]
-						do
-							DLENT=$((DLENT - 1))							
-							RLEN=${RLEN:0:$DLENT}
-						done
-					DLENT=$((DLENT - 1))
-					RLEN=${RLEN:0:$DLENT}
-					cat "$DIRR""$KEY""/""$ENCCDIR""/""$ENCCMSGF"
-					echo
-					read -p """ [*] Message is $RLEN lines long and stored at "$DIRR""$KEY""/""$ENCCDIR""/""$ENCCMSGF"
+			do
+				DLENT=$((DLENT - 1))							
+				RLEN=${RLEN:0:$DLENT}
+			done
+	DLENT=$((DLENT - 1))
+	RLEN=${RLEN:0:$DLENT}
+	cat "$DIRR""$KEY""/""$ENCCDIR""/""$ENCCMSGF"
+	echo
+	read -p """ [*] Message is $RLEN lines long and stored at "$DIRR""$KEY""/""$ENCCDIR""/""$ENCCMSGF"
  [>] Press c and Enter to copy to clipboard
  [>] Press Enter to exit
  >""" SMF
-					case $SMF in
-					"c") cat "$DIRR""$KEY""/""$ENCCDIR""/""$ENCCMSGF" | xclip -sel clip; echo " [*] Message copied to clipboard";fexit;;
-					"") fexit
-					esac
-
+	case $SMF in
+		"c") cat "$DIRR""$KEY""/""$ENCCDIR""/""$ENCCMSGF" | xclip -sel clip; echo " [*] Message copied to clipboard";fexit;;
+		"") fexit
+	esac
 }
 
 fdecpaste()
@@ -675,7 +674,7 @@ fdecpaste()
 	touch "$DIRR""$KEY""/""$ENCCDIR""/""$DATER"
 	DATEFILE="$DIRR""$KEY""/""$ENCCDIR""/"$DATER
 	xclip -sel clip -o > $DATEFILE
-	SHDON="1"
+	ISDONE="1"
 }
 
 fdecryptmsg()																			#Decrypt messages
@@ -697,6 +696,7 @@ fdecryptmsg()																			#Decrypt messages
 			echo " [*] You must choose a key, try again."
 			sleep 1
 			fdecryptmsg
+	
 	elif [ "${KEY: -1}" = "/" ] 2> /dev/null
 		then
 			KEY="${KEY%?}"
@@ -706,39 +706,40 @@ fdecryptmsg()																			#Decrypt messages
   	touch "$DIRR"temp02
   	touch "$DIRR"temp03
 	touch "$DIRR"temp04
-	SHDON="0"
+	ISDONE="0"
 	TMPCHK="0"
 	
-	while [ $SHDON = "0" ]
+	while [ $ISDONE = "0" ]
 		do
 			clear
 			read -p """ [>] Paste your message from clipboard or read message file from 0_Encrypted_Messages? [P/f]
 			
  >" DODEC
 			case $DODEC in
-			"P") fdecpaste;;
-			"p") fdecpaste;;
-			"") fdecpaste;;
-			"f") cd "$DIRR""$KEY""/""$ENCCDIR"; ls "$DIRR""$KEY""/""$ENCCDIR"
-			echo
-			read -e -p " >" ENCCMSGF
-			if [ ! -f "$DIRR""$KEY""/""$ENCCDIR""/""$ENCCMSGF" ]
-				then
-					echo " [*] $ENCCMSGF is not a valid file, try again."
-					sleep 2
+				"P") fdecpaste;;
+				"p") fdecpaste;;
+				"") fdecpaste;;
+				"f") cd "$DIRR""$KEY""/""$ENCCDIR"; ls "$DIRR""$KEY""/""$ENCCDIR"
+				echo
+				read -e -p " >" ENCCMSGF
+			
+				if [ ! -f "$DIRR""$KEY""/""$ENCCDIR""/""$ENCCMSGF" ]
+					then
+						echo " [*] $ENCCMSGF is not a valid file, try again."
+						sleep 2
 				else
-					SHDON="1"
-			fi;;
-			"F") cd "$DIRR""$KEY""/""$ENCCDIR";ls "$DIRR""$KEY""/""$ENCCDIR"
-			echo
-			read -e -p " >" ENCCMSGF
-			if [ ! -f "$DIRR""$KEY""/""$ENCCDIR""/""$ENCCMSGF" ]
-				then
-					echo " [*] $ENCCMSGF is not a valid file, try again."
-					sleep 2
-				else
-					SHDON="1"
-			fi
+					ISDONE="1"
+				fi;;
+				"F") cd "$DIRR""$KEY""/""$ENCCDIR";ls "$DIRR""$KEY""/""$ENCCDIR"
+				echo
+				read -e -p " >" ENCCMSGF
+				if [ ! -f "$DIRR""$KEY""/""$ENCCDIR""/""$ENCCMSGF" ]
+					then
+						echo " [*] $ENCCMSGF is not a valid file, try again."
+						sleep 2
+					else
+						ISDONE="1"
+				fi
 			esac
 		done
 		
@@ -754,17 +755,18 @@ fdecryptmsg()																			#Decrypt messages
 	
 	FILE="$DIRR""$KEY""/"meta/meta
 	PNUM="1"
-while read LINE
+	while read LINE
 		do
-		
 			case $PNUM in
 					1)PASS1=$LINE;;
 					2)PASS2=$LINE;;
 					3)PASS3=$LINE
 			esac
 		
-		PNUM=$(( PNUM + 1 ))
+			PNUM=$(( PNUM + 1 ))
 		done <"$FILE"
+		
+		
 		
 
 	openssl enc -aes-256-cbc -d -a -salt -in "$DIRR""$KEY""/""$ENCCDIR""/"0001  -out "$DIRR""$KEY""/""$ENCCDIR""/"0002 -k $PASS3 2> /dev/null	
@@ -830,22 +832,17 @@ while read LINE
 	read -p " [>] Do you want to display message? [Y/n]: " DISP
 	
 	case $DISP in
-	"y")
-			clear
+		"y")clear
 			cat "$DIRR""$KEY""/""$DECDIR""/""$ENCCMSGF"
 			echo
 			read -p " [>] Press Enter to exit" SMF
-			fexit
-	;;
-	"")
-			clear
+			fexit;;
+		"")	clear
 			cat "$DIRR""$KEY""/""$DECDIR""/""$ENCCMSGF"
 			echo
 			read -p " [>] Press Enter to exit" SMF
-			fexit
-	;;
-	"Y")
-			clear
+			fexit;;
+		"Y")clear
 			cat "$DIRR""$KEY""/""$DECDIR""/""$ENCCMSGF"
 			echo
 			read -p " [>] Press Enter to exit" SMF
@@ -888,7 +885,7 @@ fdecryptfile()
 	fi
 	FILE="$DIRR""$KEY""/"meta/meta
 	PNUM="1"
-while read LINE
+	while read LINE
 		do
 		
 			case $PNUM in
