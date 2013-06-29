@@ -1,7 +1,7 @@
 #!/bin/bash
-## Crypt files and messages using openssl 256-bit encryption and a layer of random encryption
+## Crypt files and messages using three layers of openssl 256-bit encryption and a layer of random number encryption
 
-fstart()																				#Startup function
+fstart()																#Startup function
 {
 	ENCCDIR="0_Encrypted_Messages"
 	DECDIR="0_Decrypted_Messages"
@@ -38,13 +38,26 @@ fstart()																				#Startup function
 			clear
 			read -p " [*] It looks like openssl is not installed on your system, it is needed for cryptography. Do you want to install it? [Y/n]" INSTOPNSSL
 			case $INSTOPNSSL in
-			"y") apt-get install openssl;clear;sudo apt-get install openssl;;
-			"Y") apt-get install openssl;clear;sudo apt-get install openssl;;
-			"") apt-get install openssl;clear;sudo apt-get install openssl;;
-			"n") clear; echo " [*] Program cannot run without openssl, exitting"; fexit;;
-			"N") clear; echo " [*] Program cannot run without openssl, exitting"; fexit
+				"y") apt-get install openssl;clear;sudo apt-get install openssl;;
+				"Y") apt-get install openssl;clear;sudo apt-get install openssl;;
+				"") apt-get install openssl;clear;sudo apt-get install openssl;;
+				"n") clear; echo " [*] Nypt cannot run without openssl, exitting"; fexit;;
+				"N") clear; echo " [*] Nypt cannot run without openssl, exitting"; fexit
 			esac
 		else echo " [*] openssl found"
+				
+	fi
+	
+	if [ $(which unzip) -z ] 2> /dev/null
+		then
+			clear
+			read -p " [*] It looks like unzip is not installed on your system, it is needed for expoting and importing keys. Do you want to install it? [Y/n]" INSTUNZIP
+			case $INSTUNZIP in
+				"y") apt-get install unzip;clear;sudo apt-get install unzip;;
+				"Y") apt-get install unzip;clear;sudo apt-get install unzip;;
+				"") apt-get install unzip;clear;sudo apt-get install unzip
+			esac
+		else echo " [*] unzip found"
 				
 	fi
 
@@ -63,7 +76,7 @@ fstart()																				#Startup function
 	fmenu
 }
 
-fkeygen()																				#Generate keys
+fkeygen()																#Generate keys
 {
 	clear
 	read -p """ [>] What shall we name your key?
@@ -139,7 +152,7 @@ fkeygen()																				#Generate keys
 
 fmenu()
 {
-	clear																				#This is the main menu
+	clear																#This is the main menu
 	read -p """ [*] Nypt 1.3											
       ~~~~~~~~
  [1] Encryption
@@ -158,8 +171,8 @@ fmenu()
  [4] Read Encrypted messages.
  [5] Securely delete Encrypted messages.
  [6] Back
- >""" ENCCMENU
-		case $ENCCMENU in 1)fencryptmsg;;2)fencryptfile;;3)fopenenc;;4)fcatenc;;5)fsecuredelenc;;6)fmenu;esac
+ >""" MENU
+		case $MENU in 1)fencryptmsg;;2)fencryptfile;;3)fopenenc;;4)fcatenc;;5)fsecuredelenc;;6)fmenu;esac
 	;;
 	2)	clear
 		read -p """ [*] Decryption Menu
@@ -170,8 +183,8 @@ fmenu()
  [4] Read Decrypted messages.
  [5] Securely delete Decrypted messages.
  [6] Back
- >""" DECMENU
-		case $DECMENU in 1)fdecryptmsg;;2)fdecryptfile;;3)fopendec;;4)fcatdec;;5)fsecuredeldec;;6)fmenu;esac
+ >""" MENU
+		case $MENU in 1)fdecryptmsg;;2)fdecryptfile;;3)fopendec;;4)fcatdec;;5)fsecuredeldec;;6)fmenu;esac
 	;;
 	3)	clear
 		read -p """ [*] Key Menu
@@ -181,15 +194,15 @@ fmenu()
  [3] Import a Key.
  [4] Securely delete a Key.
  [5] Back
- >""" KEYMENU 
-		case $KEYMENU in 1)fkeygen;;2)fexport;;3)fimport;;4)fsecuredelkey;;5)fmenu;esac
+ >""" MENU 
+		case $MENU in 1)fkeygen;;2)fexport;;3)fimport;;4)fsecuredelkey;;5)fmenu;esac
 	;;	
 	4)fexit
 	esac
 	fmenu
 }
 
-fcatenc()																				#Read encrypted messages from the 0_Encrypted_Messages Directory
+fcatenc()																#Read encrypted messages from the 0_Encrypted_Messages Directory
 {
 	clear
 	echo " [>] Which key?"
@@ -209,14 +222,14 @@ fcatenc()																				#Read encrypted messages from the 0_Encrypted_Messa
 			clear
 			echo " [>] Which file do you want to read?"
 			cd "$DIRR""$KEY""/""$ENCCDIR";ls "$DIRR""$KEY""/""$ENCCDIR"
-			read -e -p " >" ENCCCAT
-			if [ -f "$DIRR""$KEY""/""$ENCCDIR""/""$ENCCCAT" ]
+			read -e -p " >" ENCCAT
+			if [ -f "$DIRR""$KEY""/""$ENCCDIR""/""$ENCCAT" ]
 				then
 					clear
 					clear
-					cat "$DIRR""$KEY""/""$ENCCDIR""/""$ENCCCAT"
+					cat "$DIRR""$KEY""/""$ENCCDIR""/""$ENCCAT"
 					echo
-					DLEN=$(wc -l "$DIRR""$KEY""/""$ENCCDIR""/""$ENCCCAT")
+					DLEN=$(wc -l "$DIRR""$KEY""/""$ENCCDIR""/""$ENCCAT")
 					DLENT="7"
 					RLEN=${DLEN:0:$DLENT}
 					SLASH="/"
@@ -229,18 +242,18 @@ fcatenc()																				#Read encrypted messages from the 0_Encrypted_Messa
 					
 					DLENT=$((DLENT - 1))
 					RLEN=${DLEN:0:$DLENT}
-					read -p """ [*] Message is $RLEN lines long and stored at "$DIRR""$KEY""/""$ENCCDIR""/""$ENCCCAT"
+					read -p """ [*] Message is $RLEN lines long and stored at "$DIRR""$KEY""/""$ENCCDIR""/""$ENCCAT"
  [>] Press c and Enter to copy to clipboard
  [>] Press Enter to return to menu
  >""" SMF
 					case $SMF in
-						"c") cat "$DIRR""$KEY""/""$ENCCDIR""/""$ENCCCAT" | xclip -sel clip; echo " [*] Message copied to clipboard";fexit;;
+						"c") cat "$DIRR""$KEY""/""$ENCCDIR""/""$ENCCAT" | xclip -sel clip; echo " [*] Message copied to clipboard";fexit;;
 						"") fmenu
 					esac
 					
 				else
 					clear
-					echo " [*] There does not appear to be any file at "$DIRR""$KEY""/""$ENCCDIR""/""$ENCCCAT", try again.."
+					echo " [*] There does not appear to be any file at "$DIRR""$KEY""/""$ENCCDIR""/""$ENCCAT", try again.."
 					sleep 2
 					fmenu
 			fi
@@ -248,7 +261,7 @@ fcatenc()																				#Read encrypted messages from the 0_Encrypted_Messa
 }
 
 
-fcatdec()																				#Read decrypted messages from the 0_Decrypted_Messages Directory
+fcatdec()																#Read decrypted messages from the 0_Decrypted_Messages Directory
 {
 	clear
 	echo " [>] Which key?"
@@ -336,10 +349,10 @@ fimport()
 {
 	clear
 	read -e -p """ [>] Please Enter the location of the key file eg. $HOME/Desktop/key
- >""" KEYOC
-	KEYFILE=$(basename $KEYOC)
+ >""" KEYLOC
+	KEYFILE=$(basename $KEYLOC)
 	clear
-	if [ -f "$KEYOC" ]
+	if [ -f "$KEYLOC" ]
 		then
 			read -p " [>] Do you have a custom key password? [y/N]: " CUSTP
 			
@@ -358,13 +371,13 @@ fimport()
 			esac
 		else
 				clear
-				echo " [*] There does not appear to be any file at $KEYOC, try again."
+				echo " [*] There does not appear to be any file at $KEY, try again."
 				sleep 2
 				fimport
 	fi
 }
 
-fimportcus()																			#Import key using custom password
+fimportcus()															#Import key using custom password
 {
 	clear
 	DONPS="0"
@@ -384,13 +397,17 @@ fimportcus()																			#Import key using custom password
 					DONPS="1"
 			fi
 		done
-	BASEK=$(dirname $KEYOC)
-	cat "$KEYOC" | base64 -d > "$BASEK""/"0004					
-	openssl enc -d -aes-256-gcm -salt -in "$BASEK""/"0004 -out "$KEYOC".zip -k "$RPASS" 2> /dev/null
-	unzip -P "cPHQ0bkM2zEUZY245h9ZwgS7l98Hi0WqIeamJVhow1osQ" "$KEYOC".zip -d "$DIRR" 2> /dev/null
-	shred -zfun 3 "$BASEK""/"0004
-	shred -zfun 3 "$KEYOC".zip
-	shred -zfun 3 "$KEYOC"
+	NPASS=$(echo $ZPASS | base64)
+	NPASS=$NPASS$NPASS
+	GPASS=$(echo NPASS | md5sum)
+	LPASS=$NPASS$GPASS$ZPASS$GPASS
+	openssl enc -aes-256-cbc -d -a -salt -in "$KEYLOC" -out "$WHSAV"/0001 -k "$LPASS" 2> /dev/null
+	openssl enc -camellia-256-cbc -d -a -salt -in "$WHSAV"/0001 -out "$WHSAV"/0002 -k "$NPASS" 2> /dev/null
+	openssl enc -aes-256-gcm -d -a -salt -in "$WHSAV"/0002 -out "$KEY".zip -k "$ZPASS" 2> /dev/null
+	shred -zfun 3 "$WHSAV"/000*
+	unzip -P "$LPASS" "$KEY".zip -d "$DIRR" 2> /dev/null
+	shred -zfun 3 "$KEY".zip
+	shred -zfun 3 "$KEY"
 	chown -hR $USER "$DIRR""$KEYFILE"
 	clear
 	echo " [*] $KEYFILE imported."
@@ -398,15 +415,12 @@ fimportcus()																			#Import key using custom password
 	fmenu
 }
 
-fimportdef()																			#Import key using default password
+fimportdef()															#Import key using default password
 {
-	PATHN=$(dirname $KEYOC)
-	cat $KEYOC | base64 -d > "$PATHN""/"003
-	openssl enc -d -aes-256-gcm -salt -in "$PATHN""/"003 -out "$KEYOC".zip -k "FQhs2UOb6UfY6h4h20hf49LTS9EnkSuQP66357693hahal0l286501EfOoWCvjScbanpDrJ3sWXupryAQLj71Qt" 2> /dev/null
-	shred -zfun 3 "$PATHN""/"003
-	unzip -P "cPHQ0bkM2zEUZY245h9ZwgS7l98Hi0WqIeamJVhow1osQ" "$KEYOC".zip -d "$DIRR" 2> /dev/null
-	shred -zfun 3 "$KEYOC".zip
-	shred -zfun 3 "$KEYOC"
+	openssl enc -d -a -aes-256-gcm -salt -in "$KEYLOC" -out "$KEY".zip -k "FQhs2UOb6UfY6h4h20hf49LTS9EnkSuQP66357693hahal0l286501EfOoWCvjScbanpDrJ3sWXupryAQLj71Qt" 2> /dev/null
+	unzip -P "cPHQ0bkM2zEUZY245h9ZwgS7l98Hi0WqIeamJVhow1osQ" "$KEY".zip -d "$DIRR" 2> /dev/null
+	shred -zfun 3 "$KEY".zip
+	shred -zfun 3 "$KEY"
 	chown -hR $USER "$DIRR""$KEYFILE"
 	clear
 	echo " [*] $KEYFILE imported."
@@ -464,7 +478,7 @@ fexport()
 	fi
 }
 
-fexportcus()																			#Export key using custom password
+fexportcus()															#Export key using custom password
 {
 	clear
 	PASSDON="0"
@@ -473,7 +487,7 @@ fexportcus()																			#Export key using custom password
 			clear
 			echo " [>] Please Enter your password"
 			read -s  TPASS
-			echo " [>] Enter once more"
+			echo " [>] Enter once more"  
 			read -s ZPASS
 			if [ $TPASS != $ZPASS ]
 				then
@@ -482,24 +496,27 @@ fexportcus()																			#Export key using custom password
 					sleep 2
 				else
 					PASSDON="1"
-					(cd "$DIRR"; zip -reP "cPHQ0bkM2zEUZY245h9ZwgS7l98Hi0WqIeamJVhow1osQ" "$DIRR"$KEY.zip $KEY 2> /dev/null)
-					openssl enc -aes-256-gcm -salt -in "$DIRR"$KEY.zip -out "$WHSAV""/"0003 -k "$ZPASS" 2> /dev/null
-					cat "$WHSAV""/"0003 | base64 > "$WHSAV""/"$KEY
-					shred -zfun 3 "$WHSAV""/"0003
+					NPASS=$(echo $ZPASS | base64)
+					NPASS=$NPASS$NPASS
+					GPASS=$(echo NPASS | md5sum)
+					LPASS=$NPASS$GPASS$ZPASS$GPASS
+					(cd "$DIRR"; zip -reP "$LPASS" "$DIRR"$KEY.zip $KEY 2> /dev/null)
+					openssl enc -aes-256-gcm -a -salt -in "$DIRR"$KEY.zip -out "$WHSAV"/0001 -k "$ZPASS" 2> /dev/null
+					openssl enc -camellia-256-cbc -a -salt -in "$WHSAV"/0001 -out "$WHSAV"/0002 -k "$NPASS" 2> /dev/null
+					openssl enc -aes-256-cbc -a -salt -in "$WHSAV"/0002 -out "$WHSAV"/"$KEY" -k "$LPASS" 2> /dev/null
+					shred -zfun 3 "$WHSAV"/000*
 			fi
 		done
 }
 
-fexportdef()          																	#Export key using default password
+fexportdef()          													#Export key using default password
 {
 	(cd "$DIRR"; zip -reP "cPHQ0bkM2zEUZY245h9ZwgS7l98Hi0WqIeamJVhow1osQ" "$DIRR"$KEY.zip $KEY 2> /dev/null)
-	openssl enc -aes-256-gcm -salt -in "$DIRR"$KEY.zip -out "$WHSAV""/"0002 -k "FQhs2UOb6UfY6h4h20hf49LTS9EnkSuQP66357693hahal0l286501EfOoWCvjScbanpDrJ3sWXupryAQLj71Qt" 2> /dev/null
-	cat "$WHSAV""/"0002 | base64 > "$WHSAV""/"$KEY
-	shred -zfun 3 "$WHSAV""/"0002
+	openssl enc -a -aes-256-gcm -salt -in "$DIRR"$KEY.zip -out "$WHSAV""/"$KEY -k "FQhs2UOb6UfY6h4h20hf49LTS9EnkSuQP66357693hahal0l286501EfOoWCvjScbanpDrJ3sWXupryAQLj71Qt" 2> /dev/null
 }
 
 
-fsecuredelkey()																			#Shred key
+fsecuredelkey()															#Shred key
 {
 	clear
 	echo " [>] Which key?"
@@ -540,7 +557,7 @@ fdoseckey()
 	sleep 2
 }
 
-fsecuredelenc()																			#Shred encrypted messages
+fsecuredelenc()															#Shred encrypted messages
 {
 	clear
 	echo " [>] Which key?"
@@ -581,7 +598,7 @@ fsecdelenc()
 	sleep 2
 }
 
-fsecuredeldec()																			#Shred decrypted messages  
+fsecuredeldec()															#Shred decrypted messages  
 {
 	clear
 	echo " [>] Which key?"
@@ -622,7 +639,7 @@ fsecdeldec()
 	sleep 2
 }
 
-fencryptmsg()																			#Encrypt messages
+fencryptmsg()															#Encrypt messages
 {
 	clear
 	
@@ -755,14 +772,14 @@ fencryptmsg()																			#Encrypt messages
 
 fdecpaste()
 {
-	DATER=$(date +%Y-%d-%m--%H:%M:%S)
+	DATER=$(date +%Y_%d_%m_%H_%M_%S)
 	touch "$DIRR""$KEY""/""$ENCCDIR""/""$DATER"
 	DATEFILE="$DIRR""$KEY""/""$ENCCDIR""/"$DATER
 	xclip -sel clip -o > $DATEFILE
 	ISDONE="1"
 }
 
-fdecryptmsg()																			#Decrypt messages
+fdecryptmsg()															#Decrypt messages
 {
 	clear
 	echo " [>]  Which key?"
@@ -968,8 +985,14 @@ while read LINE
 	clear
 	echo " [*] File saved to "$DIRR""$KEY"/"$ENCCDIR"/"0_Encrypted_Files"/"$ENCCMSGF""
 	echo
-	read -p " [>] Press Enter to return to main menu"
-	fmenu
+	echo " [*] Press c and Enter to copy encrypted file to the clipboard"
+	read -p " [>] Press Enter to exit" DOFILE
+	echo
+	case $DOFILE in
+		"c")cat "$DIRR""$KEY"/"$ENCCDIR"/"0_Encrypted_Files"/"$ENCCMSGF" | xclip -sel clip; echo " [*] File copied to clipboard";fexit;;
+		"C")cat "$DIRR""$KEY"/"$ENCCDIR"/"0_Encrypted_Files"/"$ENCCMSGF" | xclip -sel clip; echo " [*] File copied to clipboard";fexit;;
+		"")fexit
+	esac
 }
 
 fdecryptfile()
@@ -1031,7 +1054,7 @@ fdecryptfile()
 	fexit
 }
 
-flistgen()																				#Generate full list of 6 digit numbers to use for random number crypto 
+flistgen()																#Generate full list of 6 digit numbers to use for random number crypto 
 {
 	touch "$DIRR"list
 	clear
@@ -1051,48 +1074,22 @@ flistgen()																				#Generate full list of 6 digit numbers to use for 
 	sleep 1
 }
 
-fexit()																					#Delete left over tempory files when exitting
+fexit()																	#Delete left over tempory files when exitting
 {
-	if [ -f "$DIRR"tmp1 ]
+	if [ -f "$DIRR"tmp* ]
 		then
 			(shred -zfun 3 "$DIRR"tmp1)
 	fi
-	if [ -f "$DIRR"tmp2 ]
+	if [ -f "$DIRR"temp0* ]
 		then
-			(shred -zfun 3 "$DIRR"tmp2)
+			(shred -zfun 3 "$DIRR"temp0*)
 	fi
-	if [ -f "$DIRR"tmp3 ]
+
+	if [ -f "$DIRR"00* ]
 		then
-			(shred -zfun 3 "$DIRR"tmp3)
+			(shred -zfun 3 "$DIRR"00*)
 	fi
-	if [ -f "$DIRR"temp01 ]
-		then
-			(shred -zfun 3 "$DIRR"temp01)
-	fi
-	if [ -f "$DIRR"temp02 ]
-		then
-			(shred -zfun 3 "$DIRR"temp02)
-	fi
-	if [ -f "$DIRR"temp03 ]
-		then
-			(shred -zfun 3 "$DIRR"temp03)
-	fi
-	if [ -f "$DIRR"temp04 ]
-		then
-			(shred -zfun 3 "$DIRR"temp04)
-	fi
-	if [ -f "$DIRR"0 ]
-		then
-			(shred -zfun 3 "$DIRR"0)
-	fi
-	if [ -f "$DIRR"000 ]
-		then
-			(shred -zfun 3 "$DIRR"000)
-	fi
-	if [ -f "$DIRR"001 ]
-		then
-			(shred -zfun 3 "$DIRR"001)
-	fi
+
 	echo
 	exit
 }
