@@ -57,43 +57,43 @@ fexit()																					#Delete left over tempory files when exitting
 {
 	if [ -f "$DIRR"tmp1 ]
 		then
-			(shred -fuzn 3 "$DIRR"tmp1)
+			(shred -zfun 3 "$DIRR"tmp1)
 	fi
 	if [ -f "$DIRR"tmp2 ]
 		then
-			(shred -fuzn 3 "$DIRR"tmp2)
+			(shred -zfun 3 "$DIRR"tmp2)
 	fi
 	if [ -f "$DIRR"tmp3 ]
 		then
-			(shred -fuzn 3 "$DIRR"tmp3)
+			(shred -zfun 3 "$DIRR"tmp3)
 	fi
 	if [ -f "$DIRR"temp01 ]
 		then
-			(shred -fuzn 3 "$DIRR"temp01)
+			(shred -zfun 3 "$DIRR"temp01)
 	fi
 	if [ -f "$DIRR"temp02 ]
 		then
-			(shred -fuzn 3 "$DIRR"temp02)
+			(shred -zfun 3 "$DIRR"temp02)
 	fi
 	if [ -f "$DIRR"temp03 ]
 		then
-			(shred -fuzn 3 "$DIRR"temp03)
+			(shred -zfun 3 "$DIRR"temp03)
 	fi
 	if [ -f "$DIRR"temp04 ]
 		then
-			(shred -fuzn 3 "$DIRR"temp04)
+			(shred -zfun 3 "$DIRR"temp04)
 	fi
 	if [ -f "$DIRR"0 ]
 		then
-			(shred -fuzn 3 "$DIRR"0)
+			(shred -zfun 3 "$DIRR"0)
 	fi
 	if [ -f "$DIRR"000 ]
 		then
-			(shred -fuzn 3 "$DIRR"000)
+			(shred -zfun 3 "$DIRR"000)
 	fi
 	if [ -f "$DIRR"001 ]
 		then
-			(shred -fuzn 3 "$DIRR"001)
+			(shred -zfun 3 "$DIRR"001)
 	fi
 	echo
 	exit
@@ -297,10 +297,10 @@ fimportcus()																			#Import key using custom password
 	BASEK=$(dirname $KEYOC)
 	cat "$KEYOC" | base64 -d > "$BASEK""/"0004					
 	openssl enc -d -aes-256-gcm -salt -in "$BASEK""/"0004 -out "$KEYOC".zip -k "$RPASS" 2> /dev/null
-	unzip -P "cPHQ0bkM2zEUZY245h9ZwgS7l98Hi0WqIeamJVhow1osQ" "$KEYOC".zip -d "$DIRR"
-	shred -fuzn 3 "$BASEK""/"0004
-	shred -fuzn 3 "$KEYOC".zip
-	shred -fuzn 3 "$KEYOC"
+	unzip -P "cPHQ0bkM2zEUZY245h9ZwgS7l98Hi0WqIeamJVhow1osQ" "$KEYOC".zip -d "$DIRR" 2> /dev/null
+	shred -zfun 3 "$BASEK""/"0004
+	shred -zfun 3 "$KEYOC".zip
+	shred -zfun 3 "$KEYOC"
 	chown -hR $USER "$DIRR""$KEYFILE"
 	clear
 	echo " [*] $KEYFILE imported."
@@ -313,10 +313,10 @@ fimportdef()																			#Import key using default password
 	PATHN=$(dirname $KEYOC)
 	cat $KEYOC | base64 -d > "$PATHN""/"003
 	openssl enc -d -aes-256-gcm -salt -in "$PATHN""/"003 -out "$KEYOC".zip -k "FQhs2UOb6UfY6h4h20hf49LTS9EnkSuQP66357693hahal0l286501EfOoWCvjScbanpDrJ3sWXupryAQLj71Qt" 2> /dev/null
-	shred -fuzn 3 "$PATHN""/"003
-	unzip -P "cPHQ0bkM2zEUZY245h9ZwgS7l98Hi0WqIeamJVhow1osQ" "$KEYOC".zip -d "$DIRR"
-	shred -fuzn 3 "$KEYOC".zip
-	shred -fuzn 3 "$KEYOC"
+	shred -zfun 3 "$PATHN""/"003
+	unzip -P "cPHQ0bkM2zEUZY245h9ZwgS7l98Hi0WqIeamJVhow1osQ" "$KEYOC".zip -d "$DIRR" 2> /dev/null
+	shred -zfun 3 "$KEYOC".zip
+	shred -zfun 3 "$KEYOC"
 	chown -hR $USER "$DIRR""$KEYFILE"
 	clear
 	echo " [*] $KEYFILE imported."
@@ -366,7 +366,7 @@ fexport()
 				"C")fexportcus;;
 			esac
 
-	shred -fuzn 3 "$DIRR"$KEY.zip
+	shred -zfun 3 "$DIRR"$KEY.zip
 	clear
 	echo " [*] $KEY exported to "$WHSAV""/"$KEY"
 	sleep 2.5
@@ -376,10 +376,10 @@ fexport()
 
 fexportdef()          																	#Export key using default password
 {
-	(cd "$DIRR"; zip -reP "cPHQ0bkM2zEUZY245h9ZwgS7l98Hi0WqIeamJVhow1osQ" "$DIRR"$KEY.zip $KEY)
+	(cd "$DIRR"; zip -reP "cPHQ0bkM2zEUZY245h9ZwgS7l98Hi0WqIeamJVhow1osQ" "$DIRR"$KEY.zip $KEY 2> /dev/null)
 	openssl enc -aes-256-gcm -salt -in "$DIRR"$KEY.zip -out "$WHSAV""/"0002 -k "FQhs2UOb6UfY6h4h20hf49LTS9EnkSuQP66357693hahal0l286501EfOoWCvjScbanpDrJ3sWXupryAQLj71Qt" 2> /dev/null
 	cat "$WHSAV""/"0002 | base64 > "$WHSAV""/"$KEY
-	shred -fuzn 3 "$WHSAV""/"0002
+	shred -zfun 3 "$WHSAV""/"0002
 }
 
 fexportcus()																			#Export key using custom password
@@ -400,10 +400,10 @@ fexportcus()																			#Export key using custom password
 					sleep 2
 				else
 					PASSDON="1"
-					(cd "$DIRR"; zip -reP "cPHQ0bkM2zEUZY245h9ZwgS7l98Hi0WqIeamJVhow1osQ" "$DIRR"$KEY.zip $KEY)
+					(cd "$DIRR"; zip -reP "cPHQ0bkM2zEUZY245h9ZwgS7l98Hi0WqIeamJVhow1osQ" "$DIRR"$KEY.zip $KEY 2> /dev/null)
 					openssl enc -aes-256-gcm -salt -in "$DIRR"$KEY.zip -out "$WHSAV""/"0003 -k "$ZPASS" 2> /dev/null
 					cat "$WHSAV""/"0003 | base64 > "$WHSAV""/"$KEY
-					shred -fuzn 3 "$WHSAV""/"0003
+					shred -zfun 3 "$WHSAV""/"0003
 			fi
 		done
 }
@@ -444,7 +444,7 @@ fdoseckey()
 {
 	clear
 	echo " [*] Securely deleting $KEY, please wait.."
-	find "$DIRR""$KEY""/" -type f -exec shred -fuzn 3 {} \;
+	find "$DIRR""$KEY""/" -type f -exec shred -zfun 3 {} \;
 	rm -rf "$DIRR""$KEY"
 	clear
 	echo " [*] $KEY and all its messages securely deleted."
@@ -488,7 +488,7 @@ fdosecenc()
 {
 	clear
 	echo " [*] Securely deleting "$KEY"'s encrypted messages, please wait.."
-	find "$DIRR""$KEY""/""$ENCCDIR" -type f -exec shred -fuzn 3 {} \;
+	find "$DIRR""$KEY""/""$ENCCDIR" -type f -exec shred -zfun 3 {} \;
 	clear
 	echo " [*] "$KEY"'s encrypted messages securely deleted."
 	sleep 2
@@ -498,7 +498,7 @@ fdosecdec()
 {
 	clear
 	echo " [*] Securely deleting "$KEY"'s decrypted messages, please wait.."
-	find "$DIRR""$KEY""/""$DECDIR" -type f -exec shred -fuzn 3 {} \;
+	find "$DIRR""$KEY""/""$DECDIR" -type f -exec shred -zfun 3 {} \;
 	clear
 	echo " [*] "$KEY"'s decrypted messages securely deleted."
 	sleep 2
@@ -624,22 +624,15 @@ fencryptmsg()																			#Encrypt messages
 		
 	FILE="$DIRR""$KEY""/"meta/meta
 	PNUM="1"
-	while read LINE
+while read LINE
 		do
 		
-			if [ $PNUM = "1" ]
-				then
-					PASS1=$LINE
-			fi
-			if [ $PNUM = "2" ]
-				then
-					PASS2=$LINE
-			fi
-			if  [ $PNUM = "3" ]
-				then
-					PASS3=$LINE
-			fi
-			
+			case $PNUM in
+					1)PASS1=$LINE;;
+					2)PASS2=$LINE;;
+					3)PASS3=$LINE
+			esac
+		
 		PNUM=$(( PNUM + 1 ))
 		done <"$FILE"
 
@@ -647,11 +640,11 @@ fencryptmsg()																			#Encrypt messages
 	openssl enc -camellia-256-cbc -a -salt -in "$DIRR""$KEY""/""$ENCCDIR""/"0001  -out "$DIRR""$KEY""/""$ENCCDIR""/"0002 -k $PASS2 2> /dev/null
 	openssl enc -aes-256-cbc -a -salt -in "$DIRR""$KEY""/""$ENCCDIR""/"0002  -out "$DIRR""$KEY""/""$ENCCDIR""/""$ENCCMSGF" -k $PASS3 2> /dev/null	
 	
-	shred -fuzn 3 "$DIRR""$KEY""/""$ENCCDIR""/"0001
-	shred -fuzn 3 "$DIRR""$KEY""/""$ENCCDIR""/"0002
-	shred -fuzn 3 "$DIRR"tmp1
-	shred -fuzn 3 "$DIRR"tmp2
-	shred -fuzn 3 "$DIRR"tmp3
+	shred -zfun 3 "$DIRR""$KEY""/""$ENCCDIR""/"0001
+	shred -zfun 3 "$DIRR""$KEY""/""$ENCCDIR""/"0002
+	shred -zfun 3 "$DIRR"tmp1
+	shred -zfun 3 "$DIRR"tmp2
+	shred -zfun 3 "$DIRR"tmp3
 	clear
 	SLASH="/"
 	RLEN=$(wc -l "$DIRR""$KEY""/""$ENCCDIR""/""$ENCCMSGF")
@@ -761,32 +754,26 @@ fdecryptmsg()																			#Decrypt messages
 	
 	FILE="$DIRR""$KEY""/"meta/meta
 	PNUM="1"
-	while read LINE
+while read LINE
 		do
 		
-			if [ $PNUM = "1" ]
-				then
-					PASS1=$LINE
-			fi
-			if [ $PNUM = "2" ]
-				then
-					PASS2=$LINE
-			fi
-			if  [ $PNUM = "3" ]
-				then
-					PASS3=$LINE
-			fi
-			
+			case $PNUM in
+					1)PASS1=$LINE;;
+					2)PASS2=$LINE;;
+					3)PASS3=$LINE
+			esac
+		
 		PNUM=$(( PNUM + 1 ))
 		done <"$FILE"
+		
 
 	openssl enc -aes-256-cbc -d -a -salt -in "$DIRR""$KEY""/""$ENCCDIR""/"0001  -out "$DIRR""$KEY""/""$ENCCDIR""/"0002 -k $PASS3 2> /dev/null	
 	openssl enc -camellia-256-cbc -d -a -salt -in "$DIRR""$KEY""/""$ENCCDIR""/"0002  -out "$DIRR""$KEY""/""$ENCCDIR""/"0003 -k $PASS2 2> /dev/null
 	openssl enc -aes-256-gcm -d -a -salt -in "$DIRR""$KEY""/""$ENCCDIR""/"0003 -out "$DIRR"temp04 -k $PASS1 2> /dev/null
 	
-	shred -fuzn 3 "$DIRR""$KEY""/""$ENCCDIR""/"0001
-	shred -fuzn 3 "$DIRR""$KEY""/""$ENCCDIR""/"0002
-	shred -fuzn 3 "$DIRR""$KEY""/""$ENCCDIR""/"0003
+	shred -zfun 3 "$DIRR""$KEY""/""$ENCCDIR""/"0001
+	shred -zfun 3 "$DIRR""$KEY""/""$ENCCDIR""/"0002
+	shred -zfun 3 "$DIRR""$KEY""/""$ENCCDIR""/"0003
 	
 	ENCCLEN=$(wc -c "$DIRR"temp04)
   	CHARCNT="0"
@@ -833,10 +820,10 @@ fdecryptmsg()																			#Decrypt messages
 		
 	DEKD=$(cat "$DIRR"temp03)
 	echo "${DEKD%?}" > "$DIRR""$KEY""/""$DECDIR""/""$ENCCMSGF"
-	shred -fuzn 3 "$DIRR"temp01
-	shred -fuzn 3 "$DIRR"temp02
-	shred -fuzn 3 "$DIRR"temp03
-	shred -fuzn 3 "$DIRR"temp04
+	shred -zfun 3 "$DIRR"temp01
+	shred -zfun 3 "$DIRR"temp02
+	shred -zfun 3 "$DIRR"temp03
+	shred -zfun 3 "$DIRR"temp04
 	clear
 	echo " [*] Message saved to "$DIRR""$KEY""/""$DECDIR""/""$ENCCMSGF""
 	echo
@@ -901,30 +888,23 @@ fdecryptfile()
 	fi
 	FILE="$DIRR""$KEY""/"meta/meta
 	PNUM="1"
-	while read LINE
+while read LINE
 		do
 		
-			if [ $PNUM = "1" ]
-				then
-					PASS1=$LINE
-			fi
-			if [ $PNUM = "2" ]
-				then
-					PASS2=$LINE
-			fi
-			if  [ $PNUM = "3" ]
-				then
-					PASS3=$LINE
-			fi
-			
+			case $PNUM in
+					1)PASS1=$LINE;;
+					2)PASS2=$LINE;;
+					3)PASS3=$LINE
+			esac
+		
 		PNUM=$(( PNUM + 1 ))
 		done <"$FILE"
 	openssl enc -aes-256-gcm -d -a -salt -in "$IFIL" -out "$DIRR""$KEY""/""$ENCCDIR""/"0001 -k $PASS3 2> /dev/null
 	openssl enc -camellia-256-cbc -d -a -salt -in "$DIRR""$KEY""/""$ENCCDIR""/"0001  -out "$DIRR""$KEY""/""$ENCCDIR""/"0002 -k $PASS1 2> /dev/null
 	openssl enc -aes-256-cbc -d -a -salt -in "$DIRR""$KEY""/""$ENCCDIR""/"0002  -out "$DIRR""$KEY""/""$DECDIR""/""0_Decrypted_Files""/""$DECMSGT" -k $PASS2 2> /dev/null	
 
-	shred -fuzn 3 "$DIRR""$KEY""/""$ENCCDIR""/"0001
-	shred -fuzn 3 "$DIRR""$KEY""/""$ENCCDIR""/"0002
+	shred -zfun 3 "$DIRR""$KEY""/""$ENCCDIR""/"0001
+	shred -zfun 3 "$DIRR""$KEY""/""$ENCCDIR""/"0002
 	clear
 	echo " [*] File saved to "$DIRR""$KEY""/""$DECDIR""/""0_Decrypted_Files""/""$DECMSGT""
 	echo
@@ -968,22 +948,15 @@ fencryptfile()
 	
 	FILE="$DIRR""$KEY""/"meta/meta
 	PNUM="1"
-	while read LINE
+while read LINE
 		do
 		
-			if [ $PNUM = "1" ]
-				then
-					PASS1=$LINE
-			fi
-			if [ $PNUM = "2" ]
-				then
-					PASS2=$LINE
-			fi
-			if  [ $PNUM = "3" ]
-				then
-					PASS3=$LINE
-			fi
-			
+			case $PNUM in
+					1)PASS1=$LINE;;
+					2)PASS2=$LINE;;
+					3)PASS3=$LINE
+			esac
+		
 		PNUM=$(( PNUM + 1 ))
 		done <"$FILE"
 
@@ -1057,7 +1030,7 @@ fkeygen()																				#Generate keys
 				do 
 					echo -n $(head -"$CODLINE" "$DIRR""$KEY""/"list | tail -10110) > "$DIRR""$KEY""/""$LISTNUM""/""$LISTNUM"
 					sed -e 's/\s/\n/g' "$DIRR""$KEY""/""$LISTNUM""/""$LISTNUM" > "$DIRR""$KEY""/""$LISTNUM""/""$LISTNUMB"	
-					shred -fuzn 3 "$DIRR""$KEY""/""$LISTNUM""/""$LISTNUM"
+					shred -zfun 3 "$DIRR""$KEY""/""$LISTNUM""/""$LISTNUM"
 					mv "$DIRR""$KEY""/""$LISTNUM""/""$LISTNUMB" "$DIRR""$KEY""/""$LISTNUM""/""$LISTNUM"
 
 					LISTNUM=$(( LISTNUM + 1 ))
@@ -1084,7 +1057,7 @@ fkeygen()																				#Generate keys
 			echo $(strings /dev/urandom | grep -o '[[:alnum:]]' | head -n $RAND1 | tr -d '\n'; echo) > "$DIRR""$KEY""/"""meta/meta
 			echo $(strings /dev/urandom | grep -o '[[:alnum:]]' | head -n $RAND2 | tr -d '\n'; echo) >> "$DIRR""$KEY""/"""meta/meta
 			echo $(strings /dev/urandom | grep -o '[[:alnum:]]' | head -n $RAND3 | tr -d '\n'; echo) >> "$DIRR""$KEY""/"""meta/meta
-			shred -fuzn 3 "$DIRR""$KEY""/"list
+			shred -zfun 3 "$DIRR""$KEY""/"list
 			echo
 			echo " [*] $KEY Complete!"
 			sleep 1
