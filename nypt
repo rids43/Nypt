@@ -123,6 +123,7 @@ fkeygen()																#Generate keys
 
 fmenu()
 {
+	cd $DIRR
 	clear																#This is the main menu
 	read -p """ [*] Nypt 1.32										
       ~~~~~~~~
@@ -194,13 +195,13 @@ fcatenc()																#Read encrypted messages from the 0_Encrypted_Messages 
 			echo " [>] Which file do you want to read?"
 			cd "$KEY""/""$ENCCDIR";ls
 			read -e -p " >" ENCCAT
-			if [ -f "$KEY""/""$ENCCDIR""/""$ENCCAT" ]
+			if [ -f "$ENCCAT" ]
 				then
 					clear
 					clear
-					cat "$KEY""/""$ENCCDIR""/""$ENCCAT"
+					cat "$ENCCAT"
 					echo
-					DLEN=$(wc -l "$KEY""/""$ENCCDIR""/""$ENCCAT")
+					DLEN=$(wc -l "$ENCCAT")
 					DLENT="7"
 					RLEN=${DLEN:0:$DLENT}
 					SLASH="/"
@@ -213,18 +214,18 @@ fcatenc()																#Read encrypted messages from the 0_Encrypted_Messages 
 					
 					DLENT=$((DLENT - 1))
 					RLEN=${DLEN:0:$DLENT}
-					read -p """ [*] Message is $RLEN lines long and stored at "$KEY""/""$ENCCDIR""/""$ENCCAT"
+					read -p """ [*] Message is $RLEN lines long and stored at "$ENCCAT"
  [>] Press c and Enter to copy to clipboard
  [>] Press Enter to return to menu
  >""" SMF
 					case $SMF in
-						"c") cat "$KEY""/""$ENCCDIR""/""$ENCCAT" | xclip -sel clip; echo " [*] Message copied to clipboard";fmenu;;
+						"c") cat "$ENCCAT" | xclip -sel clip; echo " [*] Message copied to clipboard";fmenu;;
 						"") fmenu
 					esac
 					
 				else
 					clear
-					echo " [*] There does not appear to be any file at "$KEY""/""$ENCCDIR""/""$ENCCAT", try again.."
+					echo " [*] There does not appear to be any file at "$ENCCAT", try again.."
 					sleep 2
 					fmenu
 			fi
@@ -251,18 +252,18 @@ fcatdec()																#Read decrypted messages from the 0_Decrypted_Messages 
 		else
 			clear
 			echo " [>] Which file do you want to read?"
-			cd "$KEY""/""$DECDIR"; ls "$KEY""/""$DECDIR"
+			cd "$KEY""/""$DECDIR"; ls
 			read -e -p " >" DECCAT
-			if [ -f "$KEY""/""$DECDIR""/""$DECCAT" ]
+			if [ -f "$DECCAT" ]
 				then
 					clear
-					cat "$KEY""/""$DECDIR""/""$DECCAT"
+					cat "$DECCAT"
 					echo
 					read -p " [>] Press Enter to return to main menu" SMF
 					fmenu
 				else
 					clear
-					echo " [*] There does not appear to be any file at "$KEY""/""$DECDIR""/""$DECCAT", try again.."
+					echo " [*] There does not appear to be any file at "$DECCAT", try again.."
 					sleep 2
 					fmenu
 			fi
