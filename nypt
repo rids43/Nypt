@@ -1050,7 +1050,7 @@ flistgen()																#Generate full list of 6 digit numbers to use for rand
 	echo " [*] Setup complete!"
 	sleep 1
 }
-
+ 
 fexit()																	#Delete left over tempory files when exitting
 {
 	cd $DIRR
@@ -1065,7 +1065,7 @@ fexit()																	#Delete left over tempory files when exitting
 	
 	DIRR="$HOME""/Desktop/nypt/"
 	if [ ! -d "$DIRR" ]
-		then
+		then k
 			mkdir "$DIRR"
 			flistgen
 	fi
