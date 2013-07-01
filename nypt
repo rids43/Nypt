@@ -1,4 +1,5 @@
 #!/bin/bash
+
 ## Crypt files and messages using three layers of openssl 256-bit encryption and a layer of random number encryption
 
 fstart()																#Startup function
@@ -6,61 +7,45 @@ fstart()																#Startup function
 	ENCCDIR="0_Encrypted_Messages"
 	DECDIR="0_Decrypted_Messages"
 	trap fexit 2
-	if [ $(which shred) -z ] 2> /dev/null
-		then
-			clear
-			read -p " [*] It looks like shred is not installed on your system, it is needed for secure deletion of messages and keys. Do you want to install it? [Y/n]" INSTSHRED
-			case $INSTSHRED in
-			"y") apt-get install shred;clear;sudo apt-get install shred;;
-			"Y") apt-get install shred;clear;sudo apt-get install shred;;
-			"") apt-get install shred;clear;sudo apt-get install shred
-			esac
-		else 
-			echo " [*] shred found"
-	fi
+	LIST="""shred
+xclip
+openssl
+unzip
+base64
+md5sum
+awk
+sed
+grep
+"""
+	echo "$LIST" > tmp1
 	
-	if [ $(which xclip) -z ] 2> /dev/null
-		then
-			clear
-			read -p " [*] It looks like xclip is not installed on your system, it is needed for copying and pasteing the messages out and in to the program and to the clipboad. Do you want to install it? [Y/n]" INSTXCLIP
-			case $INSTXCLIP in
-			"y") apt-get install xclip;clear;sudo apt-get install xclip;;
-			"Y") apt-get install xclip;clear;sudo apt-get install xclip;;
-			"") apt-get install xclip;clear;sudo apt-get install xclip
-			esac
-		else 
-			echo " [*] xclip found"
-	fi	
+	while read COMMAND
+		do
+			INSTALL="N"
+			if [ $(which $COMMAND) -z ] 2> /dev/null
+				then
+					clear
+					read -p " [*] It looks like $COMMAND is not installed on your system, it is needed by Nypt. Do you want to install it? [Y/n]" INSTALL
+					if [ whoami = "root" ]
+						then
+							case $INSTALL in
+								"y") apt-get install $COMMAND;;
+								"Y") apt-get install $COMMAND;;
+								"") apt-get install $COMMAND
+							esac
+						else
+							case $INSTALL in
+								"y") sudo apt-get install $COMMAND;;
+								"Y") sudo apt-get install $COMMAND;;
+								"") sudo apt-get install $COMMAND
+							esac
+					fi
+				else 
+					echo " [*] $COMMAND found"
+			fi
+		done < tmp1
 		
-	if [ $(which openssl) -z ] 2> /dev/null
-		then
-			clear
-			read -p " [*] It looks like openssl is not installed on your system, it is needed for cryptography. Do you want to install it? [Y/n]" INSTOPNSSL
-			case $INSTOPNSSL in
-				"y") apt-get install openssl;clear;sudo apt-get install openssl;;
-				"Y") apt-get install openssl;clear;sudo apt-get install openssl;;
-				"") apt-get install openssl;clear;sudo apt-get install openssl;;
-				"n") clear; echo " [*] Nypt cannot run without openssl, exitting"; fexit;;
-				"N") clear; echo " [*] Nypt cannot run without openssl, exitting"; fexit
-			esac
-		else echo " [*] openssl found"
-				
-	fi
-	
-	if [ $(which unzip) -z ] 2> /dev/null
-		then
-			clear
-			read -p " [*] It looks like unzip is not installed on your system, it is needed for expoting and importing keys. Do you want to install it? [Y/n]" INSTUNZIP
-			case $INSTUNZIP in
-				"y") apt-get install unzip;clear;sudo apt-get install unzip;;
-				"Y") apt-get install unzip;clear;sudo apt-get install unzip;;
-				"") apt-get install unzip;clear;sudo apt-get install unzip
-			esac
-		else echo " [*] unzip found"
-				
-	fi
-
-	
+	rm -rf tmp1
 	fmenu
 }
 
@@ -141,7 +126,7 @@ fkeygen()																#Generate keys
 fmenu()
 {
 	clear																#This is the main menu
-	read -p """ [*] Nypt 1.31										
+	read -p """ [*] Nypt 1.32										
       ~~~~~~~~
  [1] Encryption
  [2] Decryption
@@ -529,7 +514,7 @@ fsecuredelkey()															#Shred key
 			case $DODEL in
 				"Y")	fdoseckey;;
 				"y")	fdoseckey;;
-				"")		fdoseckey
+				"")     fdoseckey
 					
 			esac
 		fmenu
@@ -1039,18 +1024,27 @@ fdecryptfile()
 
 flistgen()																#Generate full list of 6 digit numbers to use for random number crypto 
 {
+	cd $DIRR
 	touch list
 	clear
 	echo " [*] Setting up crypt for first use, please wait.."
 	STARTNUM=100000
-	
+
 	while [ $STARTNUM -le 999999 ]
 		do
+			if [ $(( $STARTNUM % 50000 )) -eq 0 ]
+				then
+					CHECKMSG=1
+			fi
+			if [ $CHECKMSG = "1" ]
+				then
+					echo "done "$STARTNUM" out of 1000000 lines"
+					CHECKMSG=0
+			fi
 			echo -n "$STARTNUM" >> list
 			echo \ >> list
 			STARTNUM=$(( STARTNUM + 1 ))
 		done
-	
 	clear
 	echo
 	echo " [*] Setup complete!"
