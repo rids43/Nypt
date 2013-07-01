@@ -1005,6 +1005,7 @@ fdecryptfile()
 		
 		PNUM=$(( PNUM + 1 ))
 		done <"$FILE"
+		
 	openssl enc -aes-256-gcm -d -a -salt -in "$INFILE" -out "$KEY""/""$ENCCDIR""/"tmp01 -k $PASS3 2> /dev/null
 	openssl enc -camellia-256-cbc -d -a -salt -in "$KEY""/""$ENCCDIR""/"tmp01  -out "$KEY""/""$ENCCDIR""/"tmp02 -k $PASS1 2> /dev/null
 	openssl enc -aes-256-cbc -d -a -salt -in "$KEY""/""$ENCCDIR""/"tmp02  -out "$KEY""/""$DECDIR""/""0_Decrypted_Files""/""$DECMSGT" -k $PASS2 2> /dev/null	
@@ -1025,7 +1026,6 @@ flistgen()																#Generate full list of 6 digit numbers to use for rand
 	cd $DIRR
 	touch list
 	clear
-	echo " [*] Setting up crypt for first use, please wait.."
 	STARTNUM=100000
 
 	while [ $STARTNUM -le 999999 ]
@@ -1036,14 +1036,17 @@ flistgen()																#Generate full list of 6 digit numbers to use for rand
 			fi
 			if [ $CHECKMSG = "1" ]
 				then
-					echo "done "$STARTNUM" out of 1000000 lines"
+					DONENUM=$((STARTNUM - 100000))
+					PERCENT=$((DONENUM / 9000))
+					clear
+					echo " [*] Setting up Nypt for first use, please wait.."
+					echo " [*] done "$PERCENT"%   "$DONENUM" out of 900000 lines"
 					CHECKMSG=0
 			fi
 			echo -n "$STARTNUM" >> list
 			echo \ >> list
 			STARTNUM=$(( STARTNUM + 1 ))
 		done
-	clear
 	echo
 	echo " [*] Setup complete!"
 	sleep 1
