@@ -15,18 +15,16 @@ base64
 md5sum
 awk
 sed
-grep
-"""
+grep"""
 	echo "$LIST" > tmp1
 	
 	while read COMMAND
 		do
-			INSTALL="N"
 			if [ $(which $COMMAND) -z ] 2> /dev/null
 				then
 					clear
 					read -p " [*] It looks like $COMMAND is not installed on your system, it is needed by Nypt. Do you want to install it? [Y/n]" INSTALL
-					if [ whoami = "root" ]
+					if [ $(whoami) = "root" ]
 						then
 							case $INSTALL in
 								"y") apt-get install $COMMAND;;
@@ -374,16 +372,16 @@ fimportcus()															#Import key using custom password
 	NPASS=$(echo $NPASS$NPASS | md5sum)
 	GPASS=$(echo NPASS | md5sum)
 	LPASS=$NPASS$GPASS$SPASS$GPASS
-	openssl enc -aes-256-cbc -d -a -salt -in "$KEYLOC" -out 0001 -k "$LPASS" 2> /dev/null
-	openssl enc -camellia-256-cbc -d -a -salt -in 0001 -out 0002 -k "$NPASS" 2> /dev/null
-	openssl enc -aes-256-gcm -d -a -salt -in 0002 -out "$KEY".zip -k "$SPASS" 2> /dev/null
+	openssl enc -aes-256-cbc -d -a -salt -in "$KEYLOC" -out tmp01 -k "$LPASS" 2> /dev/null
+	openssl enc -camellia-256-cbc -d -a -salt -in tmp01 -out tmp02 -k "$NPASS" 2> /dev/null
+	openssl enc -aes-256-gcm -d -a -salt -in tmp02 -out "$KEY".zip -k "$SPASS" 2> /dev/null
 	unzip -P "$GPASS" "$KEY".zip -d .  2> /dev/null
 	chown -hR $USER "$KEYFILE"
 	clear
 	echo " [*] $KEYFILE imported."
 	shred -zfun 3 "$KEY".zip
-	shred -zfun 3 0001
-	shred -zfun 3 0002
+	shred -zfun 3 tmp01
+	shred -zfun 3 tmp02
 	sleep 2
 	fmenu
 }
@@ -445,8 +443,8 @@ fexport()
 
 	clear
 	echo " [*] $KEY exported to "$WHSAV""/"$KEY"
-	shred -zfun 3 "$WHSAV"/0001
-	shred -zfun 3 "$WHSAV"/0002
+	shred -zfun 3 "$WHSAV"/tmp01
+	shred -zfun 3 "$WHSAV"/tmp02
 	shred -zfun 3 $KEY.zip
 	sleep 2.5
 	fmenu
@@ -476,9 +474,9 @@ fexportcus()															#Export key using custom password
 					GPASS=$(echo NPASS | md5sum)
 					LPASS=$NPASS$GPASS$ZPASS$GPASS
 					zip -reP "$GPASS"  $KEY.zip $KEY 2> /dev/null
-					openssl enc -aes-256-gcm -a -salt -in $KEY.zip -out "$WHSAV"/0001 -k "$ZPASS" 2> /dev/null
-					openssl enc -camellia-256-cbc -a -salt -in "$WHSAV"/0001 -out "$WHSAV"/0002 -k "$NPASS" 2> /dev/null
-					openssl enc -aes-256-cbc -a -salt -in "$WHSAV"/0002 -out "$WHSAV"/"$KEY" -k "$LPASS" 2> /dev/null
+					openssl enc -aes-256-gcm -a -salt -in $KEY.zip -out "$WHSAV"/tmp01 -k "$ZPASS" 2> /dev/null
+					openssl enc -camellia-256-cbc -a -salt -in "$WHSAV"/tmp01 -out "$WHSAV"/tmp02 -k "$NPASS" 2> /dev/null
+					openssl enc -aes-256-cbc -a -salt -in "$WHSAV"/tmp02 -out "$WHSAV"/"$KEY" -k "$LPASS" 2> /dev/null
 					
 			fi
 		done
@@ -713,9 +711,9 @@ fencryptmsg()															#Encrypt messages
 		PNUM=$(( PNUM + 1 ))
 		done <"$FILE"
 
-	openssl enc -aes-256-gcm -a -salt -in tmp3 -out "$KEY""/""$ENCCDIR""/"0001 -k $PASS1 2> /dev/null
-	openssl enc -camellia-256-cbc -a -salt -in "$KEY""/""$ENCCDIR""/"0001  -out "$KEY""/""$ENCCDIR""/"0002 -k $PASS2 2> /dev/null
-	openssl enc -aes-256-cbc -a -salt -in "$KEY""/""$ENCCDIR""/"0002  -out "$KEY""/""$ENCCDIR""/""$ENCCMSGF" -k $PASS3 2> /dev/null	
+	openssl enc -aes-256-gcm -a -salt -in tmp3 -out "$KEY""/""$ENCCDIR""/"tmp01 -k $PASS1 2> /dev/null
+	openssl enc -camellia-256-cbc -a -salt -in "$KEY""/""$ENCCDIR""/"tmp01  -out "$KEY""/""$ENCCDIR""/"tmp02 -k $PASS2 2> /dev/null
+	openssl enc -aes-256-cbc -a -salt -in "$KEY""/""$ENCCDIR""/"tmp02  -out "$KEY""/""$ENCCDIR""/""$ENCCMSGF" -k $PASS3 2> /dev/null	
 	
 	shred -zfun 3 "$KEY""/""$ENCCDIR""/"00*
 	shred -zfun 3 tmp*
@@ -776,10 +774,10 @@ fdecryptmsg()															#Decrypt messages
 			KEY="${KEY%?}"
 	fi
 	
-	touch temp01
-  	touch temp02
-  	touch temp03
-	touch temp04
+	touch tmp01
+  	touch tmp02
+  	touch tmp03
+	touch tmp04
 	ISDONE="0"
 	TMPCHK="0"
 	
@@ -821,11 +819,11 @@ fdecryptmsg()															#Decrypt messages
 	echo " [*] Decrypting, Please wait.."
 
 	case $DODEC in
-		"P") cat $DATEFILE  > "$KEY""/""$ENCCDIR""/"0001;DECMSGF=$DATER;;
-		"p") cat $DATEFILE  > "$KEY""/""$ENCCDIR""/"0001;DECMSGF=$DATER;;
-		"") cat $DATEFILE  > "$KEY""/""$ENCCDIR""/"0001;DECMSGF=$DATER;;
-		"f") cat "$KEY""/""$ENCCDIR""/""$DECMSGF"  > "$KEY""/""$ENCCDIR""/"0001;;
-		"F") cat "$KEY""/""$ENCCDIR""/""$DECMSGF"  > "$KEY""/""$ENCCDIR""/"0001
+		"P") cat $DATEFILE  > "$KEY""/""$ENCCDIR""/"tmp01;DECMSGF=$DATER;;
+		"p") cat $DATEFILE  > "$KEY""/""$ENCCDIR""/"tmp01;DECMSGF=$DATER;;
+		"") cat $DATEFILE  > "$KEY""/""$ENCCDIR""/"tmp01;DECMSGF=$DATER;;
+		"f") cat "$KEY""/""$ENCCDIR""/""$DECMSGF"  > "$KEY""/""$ENCCDIR""/"tmp01;;
+		"F") cat "$KEY""/""$ENCCDIR""/""$DECMSGF"  > "$KEY""/""$ENCCDIR""/"tmp01
 	esac
 	
 	FILE="$KEY""/"meta/meta
@@ -841,18 +839,18 @@ fdecryptmsg()															#Decrypt messages
 			PNUM=$(( PNUM + 1 ))
 		done <"$FILE"
 		
-	openssl enc -aes-256-cbc -d -a -salt -in "$KEY""/""$ENCCDIR""/"0001  -out "$KEY""/""$ENCCDIR""/"0002 -k $PASS3 2> /dev/null	
-	openssl enc -camellia-256-cbc -d -a -salt -in "$KEY""/""$ENCCDIR""/"0002  -out "$KEY""/""$ENCCDIR""/"0003 -k $PASS2 2> /dev/null
-	openssl enc -aes-256-gcm -d -a -salt -in "$KEY""/""$ENCCDIR""/"0003 -out temp04 -k $PASS1 2> /dev/null
+	openssl enc -aes-256-cbc -d -a -salt -in "$KEY""/""$ENCCDIR""/"tmp01  -out "$KEY""/""$ENCCDIR""/"tmp02 -k $PASS3 2> /dev/null	
+	openssl enc -camellia-256-cbc -d -a -salt -in "$KEY""/""$ENCCDIR""/"tmp02  -out "$KEY""/""$ENCCDIR""/"tmp03 -k $PASS2 2> /dev/null
+	openssl enc -aes-256-gcm -d -a -salt -in "$KEY""/""$ENCCDIR""/"tmp03 -out tmp04 -k $PASS1 2> /dev/null
 	
-	shred -zfun 3 "$KEY""/""$ENCCDIR""/"0001
-	shred -zfun 3 "$KEY""/""$ENCCDIR""/"0002
-	shred -zfun 3 "$KEY""/""$ENCCDIR""/"0003
+	shred -zfun 3 "$KEY""/""$ENCCDIR""/"tmp01
+	shred -zfun 3 "$KEY""/""$ENCCDIR""/"tmp02
+	shred -zfun 3 "$KEY""/""$ENCCDIR""/"tmp03
 	
-	ENCCLEN=$(wc -c temp04)
+	ENCCLEN=$(wc -c tmp04)
   	CHARCNT="0"
   	CHAR="0"
-  	ENCCMSG=$(cat temp04)
+  	ENCCMSG=$(cat tmp04)
   	DECCNT="0"
 
   	while [ $CHAR != " " ] 2> /dev/null
@@ -866,32 +864,32 @@ fdecryptmsg()															#Decrypt messages
 	while [ $DECCNT -le $ENLEN ]
 		do
 			CHAR=${ENCCMSG:$DECCNT:6}
-			echo $CHAR >> temp01
+			echo $CHAR >> tmp01
 			DECCNT=$(( DECCNT + 6 ))
 		done 
-	FILE=temp01
+	FILE=tmp01
 	LINECNT="0"
-	STPCNT=$(wc -l temp01)
+	STPCNT=$(wc -l tmp01)
 	
 	while read LINE
 		do			
 			LONGLET=$(grep -rl $LINE "$KEY"/)
-			echo ${LONGLET: -2} >> temp02 
+			echo ${LONGLET: -2} >> tmp02 
 		done <"$FILE"	
-	FILE=temp02
+	FILE=tmp02
 
 	while read LINE
 		do
 			case $LINE in
-				10)DECC="0";;11)DECC="a";;12)DECC="b";;13)DECC="c";;14)DECC="d";;15)DECC="e";;16)DECC="f";;17)DECC="g";;18)DECC="h";;19)DECC="i";;20)DECC="j";;21)DECC="k";;22)DECC="l";;23)DECC="m";;24)DECC="n";;25)DECC="o";;26)DECC="p";;27)DECC="q";;28)DECC="r";;29)DECC="s";;30)DECC="t";;31)DECC="u";;32)DECC="v";;33)DECC="w";;34)DECC="x";;35)DECC="y";;36)DECC="z";;37)DECC="1";;38)DECC="2";;39)DECC="3";;40)DECC="4";;41)DECC="5";;42)DECC="6";;43)DECC="7";;44)DECC="8";;45)DECC="9";;46)echo -n ' ' >> temp03;DECC=" ";;47)DECC="A";;48)DECC="B";;49)DECC="C";;50)DECC="D";;51)DECC="E";;52)DECC="F";;53)DECC="G";;54)DECC="H";;55)DECC="I";;56)DECC="J";;57)DECC="K";;58)DECC="L";;59)DECC="M";;60)DECC="N";;61)DECC="O";;62)DECC="P";;63)DECC="Q";;64)DECC="R";;65)DECC="S";;66)DECC="T";;67)DECC="U";;68)DECC="V";;69)DECC="W";;70)DECC="X";;71)DECC="Y";;72)DECC="Z";;73)DECC=".";;74)DECC="?";;75)DECC=",";;76)DECC="!"
+				10)DECC="0";;11)DECC="a";;12)DECC="b";;13)DECC="c";;14)DECC="d";;15)DECC="e";;16)DECC="f";;17)DECC="g";;18)DECC="h";;19)DECC="i";;20)DECC="j";;21)DECC="k";;22)DECC="l";;23)DECC="m";;24)DECC="n";;25)DECC="o";;26)DECC="p";;27)DECC="q";;28)DECC="r";;29)DECC="s";;30)DECC="t";;31)DECC="u";;32)DECC="v";;33)DECC="w";;34)DECC="x";;35)DECC="y";;36)DECC="z";;37)DECC="1";;38)DECC="2";;39)DECC="3";;40)DECC="4";;41)DECC="5";;42)DECC="6";;43)DECC="7";;44)DECC="8";;45)DECC="9";;46)echo -n ' ' >> tmp03;DECC=" ";;47)DECC="A";;48)DECC="B";;49)DECC="C";;50)DECC="D";;51)DECC="E";;52)DECC="F";;53)DECC="G";;54)DECC="H";;55)DECC="I";;56)DECC="J";;57)DECC="K";;58)DECC="L";;59)DECC="M";;60)DECC="N";;61)DECC="O";;62)DECC="P";;63)DECC="Q";;64)DECC="R";;65)DECC="S";;66)DECC="T";;67)DECC="U";;68)DECC="V";;69)DECC="W";;70)DECC="X";;71)DECC="Y";;72)DECC="Z";;73)DECC=".";;74)DECC="?";;75)DECC=",";;76)DECC="!"
 			esac
 			
-			echo -n $DECC >> temp03
+			echo -n $DECC >> tmp03
 		done <"$FILE"
 		
-	DEKD=$(cat temp03)
+	DEKD=$(cat tmp03)
 	echo "${DEKD%?}" > "$KEY""/""$DECDIR""/""$DECMSGF"
-	shred -zfun 3 temp0*
+	shred -zfun 3 tmp0*
 	clear
 	cat "$KEY""/""$DECDIR""/""$DECMSGF"
 	echo
@@ -946,9 +944,9 @@ while read LINE
 		PNUM=$(( PNUM + 1 ))
 		done <"$FILE"
 
-	openssl enc -aes-256-cbc -a -salt -in "$INFILE"  -out "$KEY""/""$ENCCDIR""/"0001 -k $PASS2 2> /dev/null	
-	openssl enc -camellia-256-cbc -a -salt -in "$KEY""/""$ENCCDIR""/"0001  -out "$KEY""/""$ENCCDIR""/"0002 -k $PASS1 2> /dev/null
-	openssl enc -aes-256-gcm -a -salt -in "$KEY""/""$ENCCDIR""/"0002 -out "$KEY""/""$ENCCDIR""/""0_Encrypted_Files""/""$ENCCMSGF" -k $PASS3 2> /dev/null
+	openssl enc -aes-256-cbc -a -salt -in "$INFILE"  -out "$KEY""/""$ENCCDIR""/"tmp01 -k $PASS2 2> /dev/null	
+	openssl enc -camellia-256-cbc -a -salt -in "$KEY""/""$ENCCDIR""/"tmp01  -out "$KEY""/""$ENCCDIR""/"tmp02 -k $PASS1 2> /dev/null
+	openssl enc -aes-256-gcm -a -salt -in "$KEY""/""$ENCCDIR""/"tmp02 -out "$KEY""/""$ENCCDIR""/""0_Encrypted_Files""/""$ENCCMSGF" -k $PASS3 2> /dev/null
 
 	clear
 	echo " [*] File saved to "$KEY"/"$ENCCDIR"/"0_Encrypted_Files"/"$ENCCMSGF""
@@ -1007,12 +1005,12 @@ fdecryptfile()
 		
 		PNUM=$(( PNUM + 1 ))
 		done <"$FILE"
-	openssl enc -aes-256-gcm -d -a -salt -in "$INFILE" -out "$KEY""/""$ENCCDIR""/"0001 -k $PASS3 2> /dev/null
-	openssl enc -camellia-256-cbc -d -a -salt -in "$KEY""/""$ENCCDIR""/"0001  -out "$KEY""/""$ENCCDIR""/"0002 -k $PASS1 2> /dev/null
-	openssl enc -aes-256-cbc -d -a -salt -in "$KEY""/""$ENCCDIR""/"0002  -out "$KEY""/""$DECDIR""/""0_Decrypted_Files""/""$DECMSGT" -k $PASS2 2> /dev/null	
+	openssl enc -aes-256-gcm -d -a -salt -in "$INFILE" -out "$KEY""/""$ENCCDIR""/"tmp01 -k $PASS3 2> /dev/null
+	openssl enc -camellia-256-cbc -d -a -salt -in "$KEY""/""$ENCCDIR""/"tmp01  -out "$KEY""/""$ENCCDIR""/"tmp02 -k $PASS1 2> /dev/null
+	openssl enc -aes-256-cbc -d -a -salt -in "$KEY""/""$ENCCDIR""/"tmp02  -out "$KEY""/""$DECDIR""/""0_Decrypted_Files""/""$DECMSGT" -k $PASS2 2> /dev/null	
 
-	shred -zfun 3 "$KEY""/""$ENCCDIR""/"0001
-	shred -zfun 3 "$KEY""/""$ENCCDIR""/"0002
+	shred -zfun 3 "$KEY""/""$ENCCDIR""/"tmp01
+	shred -zfun 3 "$KEY""/""$ENCCDIR""/"tmp02
 	clear
 	echo " [*] File saved to "$KEY""/""$DECDIR""/""0_Decrypted_Files""/""$DECMSGT""
 	echo
@@ -1055,16 +1053,7 @@ fexit()																	#Delete left over tempory files when exitting
 {
 	if [[ -f tmp* ]]
 		then
-			(shred -zfun 3 tmp1)
-	fi
-	if [[ -f temp0* ]]
-		then
-			(shred -zfun 3 temp0*)
-	fi
-
-	if [[ -f 00* ]]
-		then
-			(shred -zfun 3 00*)
+			(shred -zfun 3 tmp*)
 	fi
 
 	echo
@@ -1076,7 +1065,6 @@ fexit()																	#Delete left over tempory files when exitting
 		then
 			mkdir "$DIRR"
 			flistgen
-			fkeygen
 	fi
 	
 	if [ ! -f "$DIRR"list ]
