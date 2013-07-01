@@ -1053,6 +1053,7 @@ flistgen()																#Generate full list of 6 digit numbers to use for rand
 
 fexit()																	#Delete left over tempory files when exitting
 {
+	cd $DIRR
 	if [[ -f tmp* ]]
 		then
 			(shred -zfun 3 tmp*)
