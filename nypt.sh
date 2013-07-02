@@ -24,7 +24,9 @@ grep"""
 			if [ $(which $COMMAND) -z ] 2> /dev/null
 				then
 					clear
+					tput setab 6
 					read -p " [*] It looks like $COMMAND is not installed on your system, it is needed by Nypt. Do you want to install it? [Y/n]" INSTALL
+					tput setab 9
 					if [ $(whoami) = "root" ]
 						then
 							case $INSTALL in
@@ -40,7 +42,9 @@ grep"""
 							esac
 					fi
 				else 
+					tput setab 2
 					echo " [*] $COMMAND found"
+					tput setab 9
 			fi
 		done < tmp1
 		
@@ -51,27 +55,30 @@ grep"""
 fkeygen()																#Generate keys
 {
 	clear
-	read -p """ [>] What shall we name your key?
-
- >""" KEY
+	tput setab 6
+	echo " [>] What shall we name your key?"
+	tput setab 9
+	read -p " >" KEY
 	if [ "${KEY: -1}" = "/" ] 2> /dev/null
 		then
 			KEY="${KEY%?}"
 	fi
-	if [ -d "$KEY" ]
+	if [ -d $KEY ]
 		then
 			clear
+			tput setab 2
 			echo " [*] $KEY already exists, try again."
 			sleep 2
 			fkeygen
 		else
 			clear
+			tput setab 4
 			echo " [*] Generating $KEY, please wait..."
 			mkdir $KEY
 			mkdir $KEY/$ENCCDIR
 			mkdir $KEY/$DECDIR
 			sort -R list > $KEY/list
-			DIRNUM="10"
+			DIRNUM=10
 			
 			while [ $DIRNUM -le 99 ]
 				do
@@ -114,9 +121,11 @@ fkeygen()																#Generate keys
 			echo $(strings /dev/urandom | grep -o '[[:alnum:]]' | head -n $RAND1 | tr -d '\n'; echo) > $KEY/meta/meta
 			echo $(strings /dev/urandom | grep -o '[[:alnum:]]' | head -n $RAND2 | tr -d '\n'; echo) >> $KEY/meta/meta
 			echo $(strings /dev/urandom | grep -o '[[:alnum:]]' | head -n $RAND3 | tr -d '\n'; echo) >> $KEY/meta/meta
-			shred -zfun 3 "$KEY""/"list
+			shred -zfun 3 $KEY/list
 			echo
+			tput setab 2
 			echo " [*] $KEY Complete!"
+			tput setab 9
 			sleep 1
 			fmenu
 	fi
@@ -127,16 +136,22 @@ fmenu()
 	clear
 	if [ $DISPCOP = "1" ] 2> /dev/null
 		then
+			tput setab 2
 			echo " [*] File text copied to clipboard"
-			DISPCOP="0"
+			tput setab 9
+			DISPCOP=0
 	elif [ $DISPCOPMSG = "1" ] 2> /dev/null
 		then
+			tput setab 2
 			echo " [*] Message copied to clipboard"
-			DISPCOPMSG="0"
+			DISPCOPMSG=0
+			tput setab 9
 	fi
-	cd $DIRR																#This is the main menu
-	read -p """ [*] Nypt 1.32										
-      ~~~~~~~~
+	cd $DIRR
+	tput setab 6
+	echo "  [*] Nypt 1.32"		
+	tput setab 9														#This is the main menu
+	read -p """      ~~~~~~~~
  [1] Encryption
  [2] Decryption
  [3] Keys
@@ -145,8 +160,10 @@ fmenu()
   
 		case $MENU in
 	1)	clear
-		read -p """ [*] Encryption Menu
-      ~~~~~~~~
+		tput setab 6
+		echo " [*] Encryption Menu"
+		tput setab 9
+		read -p """      ~~~~~~~~
  [1] Encrypt a message.
  [2] Encrypt a file.
  [3] Browse Encryption folder.
@@ -157,8 +174,10 @@ fmenu()
 		case $MENU in 1)fencryptmsg;;2)fencryptfile;;3)fopenenc;;4)fcatenc;;5)fsecuredelenc;;6)fmenu;esac
 	;;
 	2)	clear
-		read -p """ [*] Decryption Menu
-      ~~~~~~~~
+		tput setab 6
+		echo " [*] Decryption Menu"
+		tput setab 9
+		read -p """      ~~~~~~~~
  [1] Decrypt a message.
  [2] Decrypt a file.
  [3] Browse Decryption folder.
@@ -169,8 +188,10 @@ fmenu()
 		case $MENU in 1)fdecryptmsg;;2)fdecryptfile;;3)fopendec;;4)fcatdec;;5)fsecuredeldec;;6)fmenu;esac
 	;;
 	3)	clear
-		read -p """ [*] Key Menu
-      ~~~~~~~~
+		tput setab 6
+		echo " [*] Key Menu"
+		tput setab 9
+		read -p """      ~~~~~~~~
  [1] Generate a new Key.
  [2] Export a Key.
  [3] Import a Key.
@@ -187,22 +208,28 @@ fmenu()
 fcatenc()																#Read encrypted messages from the 0_Encrypted_Messages Directory
 {
 	clear
+	tput setab 6
 	echo " [>] Which key?"
+	tput setab 9
 	ls 	
 	read -e -p " >" KEY
 	if [ "${KEY: -1}" = "/" ] 2> /dev/null
 		then
 			KEY="${KEY%?}"
 	fi
-	if [ ! -d "$KEY" ]
+	if [ ! -d $KEY ]
 		then
 			clear
+			tput setab 1
 			echo " [*] $KEY is not a valid key, try again.."
+			tput setab 9
 			sleep 1
 			fcatenc
 		else
 			clear
+			tput setab 6
 			echo " [>] Which file do you want to read?"
+			tput setab 9
 			cd $KEY/$ENCCDIR;ls
 			read -e -p " >" ENCCAT
 			if [ -f $ENCCAT ]
@@ -211,7 +238,7 @@ fcatenc()																#Read encrypted messages from the 0_Encrypted_Messages 
 					clear
 					cat $ENCCAT
 					echo
-					DLEN=$(wc -l "$ENCCAT")
+					DLEN=$(wc -l $ENCCAT)
 					DLENT=7
 					RLEN=${DLEN:0:$DLENT}										
 					while [[ "$RLEN" ==  *"/"* ]]
@@ -222,18 +249,22 @@ fcatenc()																#Read encrypted messages from the 0_Encrypted_Messages 
 					
 					DLENT=$((DLENT - 1))
 					RLEN=${DLEN:0:$DLENT}
-					read -p """ [*] Message is $RLEN lines long and stored at "$ENCCAT"
- [>] Press c and Enter to copy to clipboard
+					tput setab 2
+					echo " [*] Message is $RLEN lines long and stored at $DIRR$KEY$ENCCDIR$ENCCAT"
+					tput setab 9
+					read -p """ [>] Press c and Enter to copy to clipboard
  [>] Press Enter to return to menu
  >""" SMF
 					case $SMF in
-						"c") cat $ENCCAT | xclip -sel clip; echo " [*] Message copied to clipboard";fmenu;;
+						"c") cat $ENCCAT | xclip -sel clip;DISPCOPMSG=1;fmenu;;
 						"") fmenu
 					esac
 					
 				else
 					clear
-					echo " [*] There does not appear to be any file at "$ENCCAT", try again.."
+					tput setab 1
+					echo " [*] There does not appear to be any file at $ENCCAT, try again.."
+					tput setab 9
 					sleep 2
 					fmenu
 			fi
@@ -244,22 +275,28 @@ fcatenc()																#Read encrypted messages from the 0_Encrypted_Messages 
 fcatdec()																#Read decrypted messages from the 0_Decrypted_Messages Directory
 {
 	clear
+	tput setab 6
 	echo " [>] Which key?"
+	tput setab 9
 	ls 	
 	read -e -p " >" KEY
 	if [ "${KEY: -1}" = "/" ] 2> /dev/null
 		then
 			KEY="${KEY%?}"
 	fi
-	if [ ! -d "$KEY" ]
+	if [ ! -d $KEY ]
 		then
 			clear
+			tput setab 1
 			echo " [*] $KEY is not a valid key, try again.."
+			tput setab 9
 			sleep 1
 			fcatdec
 		else
 			clear
+			tput setab 6
 			echo " [>] Which file do you want to read?"
+			tput setab 9
 			cd $KEY/$DECDIR; ls
 			read -e -p " >" DECCAT
 			if [ -f $DECCAT ]
@@ -271,7 +308,9 @@ fcatdec()																#Read decrypted messages from the 0_Decrypted_Messages 
 					fmenu
 				else
 					clear
-					echo " [*] There does not appear to be any file at "$DECCAT", try again.."
+					tput setab 1
+					echo " [*] There does not appear to be any file at $DECCAT, try again.."
+					tput setab 9
 					sleep 2
 					fmenu
 			fi
@@ -281,7 +320,9 @@ fcatdec()																#Read decrypted messages from the 0_Decrypted_Messages 
 fopenenc()
 {
 	clear
+	tput setab 6
 	echo " [>] Which key?"
+	tput setab 9
 	ls 	
 	read -e -p " >" KEY
 	if [ "${KEY: -1}" = "/" ] 2> /dev/null
@@ -292,7 +333,9 @@ fopenenc()
 	if [ ! -d $KEY/$ENCCDIR ]
 		then
 			clear
+			tput setab 1
 			echo " [*] $KEY is not a valid key, try again.."
+			tput setab 9
 			sleep 2
 			fopenenc
 		else
@@ -305,7 +348,9 @@ fopenenc()
 fopendec()
 {
 	clear
+	tput setab 6
 	echo " [>] Which key?"
+	tput setab 9
 	ls 
 	read -e -p " >" KEY
 	if [ "${KEY: -1}" = "/" ] 2> /dev/null
@@ -320,7 +365,7 @@ fopendec()
 			sleep 2
 			fopendec
 		else
-			nautilus "$KEY""/""$DECDIR"
+			nautilus $KEY/$DECDIR
 	fi
 	fmenu
 }
@@ -332,7 +377,7 @@ fimport()
  >""" KEYLOC
 	KEYFILE=$(basename $KEYLOC)
 	clear
-	if [ -f "$KEYLOC" ]
+	if [ -f $KEYLOC ]
 		then
 			read -p " [>] Do you have a custom key password? [Y/n]: " CUSTP
 			
@@ -360,7 +405,7 @@ fimport()
 fimportcus()															#Import key using custom password
 {
 	clear
-	DONPS="0"
+	DONPS=0
 	while [ $DONPS != "1" ]
 		do
 			clear
@@ -374,7 +419,7 @@ fimportcus()															#Import key using custom password
 					echo " [*] Passwords do not match, try again.."
 					sleep 2
 				else
-					DONPS="1"
+					DONPS=1
 			fi
 		done
 	NPASS=$(echo $SPASS | base64)
@@ -384,13 +429,13 @@ fimportcus()															#Import key using custom password
 	
 	openssl enc -aes-256-cbc -d -a -salt -in $KEYLOC -out tmp01 -k $LPASS 2> /dev/null
 	openssl enc -camellia-256-cbc -d -a -salt -in tmp01 -out tmp02 -k $NPASS 2> /dev/null
-	openssl enc -aes-256-gcm -d -a -salt -in tmp02 -out "$KEYFILE".zip -k $SPASS 2> /dev/null
+	openssl enc -aes-256-gcm -d -a -salt -in tmp02 -out $KEYFILE.zip -k $SPASS 2> /dev/null
 	
-	unzip -P $GPASS "$KEYFILE".zip -d .  2> /dev/null
+	unzip -P $GPASS $KEYFILE.zip -d .  2> /dev/null
 	chown -hR $USER $KEYFILE
 	clear
 	echo " [*] $KEYFILE imported."
-	shred -zfun 3 "$KEYFILE".zip
+	shred -zfun 3 $KEYFILE.zip
 	shred -zfun 3 tmp0*
 	sleep 2
 	fmenu
@@ -398,9 +443,9 @@ fimportcus()															#Import key using custom password
 
 fimportdef()															#Import key using default password
 {
-	openssl enc -d -a -aes-256-gcm -salt -in $KEYLOC -out "$KEY".zip -k "FQhs2UOb6UfY6h4h20hf49LTS9EnkSuQP66357693hahal0l286501EfOoWCvjScbanpDrJ3sWXupryAQLj71Qt" 2> /dev/null
-	unzip -P "cPHQ0bkM2zEUZY245h9ZwgS7l98Hi0WqIeamJVhow1osQ" "$KEY".zip -d .  2> /dev/null
-	shred -zfun 3 "$KEY".zip
+	openssl enc -d -a -aes-256-gcm -salt -in $KEYLOC -out $KEY.zip -k "FQhs2UOb6UfY6h4h20hf49LTS9EnkSuQP66357693hahal0l286501EfOoWCvjScbanpDrJ3sWXupryAQLj71Qt" 2> /dev/null
+	unzip -P "cPHQ0bkM2zEUZY245h9ZwgS7l98Hi0WqIeamJVhow1osQ" $KEY.zip -d .  2> /dev/null
+	shred -zfun 3 $KEY.zip
 	shred -zfun 3 $KEY
 	chown -hR $USER $KEYFILE
 	clear
@@ -420,7 +465,7 @@ fexport()
 		then
 			KEY="${KEY%?}"
 	fi
-	if [ ! -d "$KEY" ]
+	if [ ! -d $KEY ]
 		then
 			clear
 			echo " [*] $KEY is not a valid key, try again.."
@@ -453,7 +498,7 @@ fexport()
 
 	clear
 	echo " [*] $KEY exported to $DIRR$WHSAV/$KEY"
-	shred -zfun 3 "$WHSAV"/tmp0*
+	shred -zfun 3 $WHSAV/tmp0*
 	shred -zfun 3 $KEY.zip
 	sleep 2.5
 	fmenu
@@ -463,7 +508,7 @@ fexport()
 fexportcus()															#Export key using custom password
 {
 	clear
-	PASSDON="0"
+	PASSDON=0
 	while [ $PASSDON != "1" ]
 		do
 			clear
@@ -502,7 +547,9 @@ fexportdef()          													#Export key using default password
 fsecuredelkey()															#Shred key
 {
 	clear
+	tput setab 6
 	echo " [>] Which key?"
+	tput setab 9
 	ls 
 	read -e -p " >" KEY
 	if [ "${KEY: -1}" = "/" ] 2> /dev/null
@@ -510,15 +557,20 @@ fsecuredelkey()															#Shred key
 			KEY="${KEY%?}"
 	fi
 			
-	if [ ! -d "$KEY" ]
+	if [ ! -d $KEY ]
 		then
 			clear
+			tput setab 1
 			echo " [*] $KEY is not a valid key, try again.."
+			tput setab 9
 			sleep 1
 			fsecuredelkey
 		else
 			clear
-			read -p " [>] Warning, this will securely delete $KEY and all of its messages, are you sure? [Y/n]: " DODEL
+			tput setab 1
+			echo " [>] Warning, this will securely delete $KEY and all of its messages, are you sure? [Y/n]: " 
+			tput setab 9
+			read -p " >" DODEL
 			case $DODEL in
 				"Y")	fdoseckey;;
 				"y")	fdoseckey;;
@@ -533,17 +585,22 @@ fsecuredelkey()															#Shred key
 fdoseckey()
 {
 	echo
+	tput setab 4
 	echo " [*] Securely deleting $KEY, please wait.."
 	find $KEY/ -type f -exec shred -zfun 3 {} \;
 	rm -rf $KEY
+	tput setab 2
 	echo " [*] $KEY and all its messages securely deleted."
+	tput setab 9
 	sleep 2
 }
 
 fsecuredelenc()															#Shred encrypted messages
 {
 	clear
+	tput setab 6
 	echo " [>] Which key?"
+	tput setab 9
 	ls 
 	read -e -p " >" KEY
 	if [ "${KEY: -1}" = "/" ] 2> /dev/null
@@ -551,15 +608,20 @@ fsecuredelenc()															#Shred encrypted messages
 			KEY="${KEY%?}"
 	fi
 			
-	if [ ! -d "$KEY" ]
+	if [ ! -d $KEY ]
 		then
 			clear
+			tput setab 1
 			echo " [*] $KEY is not a valid key, try again.."
+			tput setab 9
 			sleep 1
 			fsecuredelenc
 		else
 			clear
-			read -p " [>] Warning, this will securely delete all of "$KEY"'s encrypted messages, are you sure? [Y/n]: " DODEL
+			tput setab 1
+			echo " [>] Warning, this will securely delete all of "$KEY"'s encrypted messages, are you sure? [Y/n]:"
+			tput setab 9
+			read -p " >" DODEL
 			clear
 		
 			case $DODEL in
@@ -575,16 +637,21 @@ fsecuredelenc()															#Shred encrypted messages
 
 fsecdelenc()
 {
+	tput setab 4
 	echo " [*] Securely deleting "$KEY"'s encrypted messages, please wait.."
 	find $KEY/$ENCCDIR -type f -exec shred -zfun 3 {} \;
+	tput setab 2
 	echo " [*] "$KEY"'s encrypted messages securely deleted."
+	tput setab 9
 	sleep 2
 }
 
 fsecuredeldec()															#Shred decrypted messages  
 {
 	clear
+	tput setab 6
 	echo " [>] Which key?"
+	tput setab 9
 	ls 
 	read -e -p " >" KEY
 	if [ "${KEY: -1}" = "/" ] 2> /dev/null
@@ -592,15 +659,20 @@ fsecuredeldec()															#Shred decrypted messages
 			KEY="${KEY%?}"
 	fi
 			
-	if [ ! -d "$KEY" ]
+	if [ ! -d $KEY ]
 		then
 			clear
+			tput setab 1
 			echo " [*] $KEY is not a valid key, try again.."
+			tput setab 9
 			sleep 1
 			fsecuredeldec
 		else
 			clear
-			read -p " [>] Warning, this will securely delete all of "$KEY"'s decrypted messages, are you sure? [Y/n]: " DODEL
+			tput setab 1
+			echo " [>] Warning, this will securely delete all of "$KEY"'s decrypted messages, are you sure? [Y/n]:"
+			tput setab 9
+			read -p " >" DODEL
 			clear
 		
 			case $DODEL in
@@ -616,9 +688,12 @@ fsecuredeldec()															#Shred decrypted messages
 
 fsecdeldec()
 {
+	tput setab 4
 	echo " [*] Securely deleting "$KEY"'s decrypted messages, please wait.."
 	find $KEY/$DECDIR -type f -exec shred -zfun 3 {} \;
+	tput setab 2
 	echo " [*] "$KEY"'s decrypted messages securely deleted."
+	tput setab 9
 	sleep 2
 }
 
@@ -630,21 +705,27 @@ fencryptmsg()															#Encrypt messages
 		then
 			fkeygen
 	fi
-
+	
+	tput setab 6
 	echo " [>] Please choose your key"
+	tput setab 9
 	ls 
 	echo
 	read -e -p " >" KEY
 
-	if [ ! -d "$KEY" ]
+	if [ ! -d $KEY ]
 		then
+			tput setab 1
 			echo " [*] $KEY is not a valid key, try again."
+			tput setab 9
 			sleep 1
 			fencryptmsg
 	
 	elif [ $KEY -z ] 2> /dev/null
 		then
+			tput setab 1
 			echo " [*] You must choose a key, try again"
+			tput setab 9
 			sleep 1
 			fencryptmsg
 	elif [ "${KEY: -1}" = "/" ] 2> /dev/null
@@ -653,11 +734,12 @@ fencryptmsg()															#Encrypt messages
 	fi
 	
 	clear
-	read -p """ [>] Please Enter your message:
-
- >""" MSG
+	tput setab 6
+	echo " [>] Please Enter your message:"
+	tput setab 9
+	read -p " >" MSG
 	MSGLEN=${#MSG}
-	MSGCNT="0"
+	MSGCNT=0
 	touch tmp1
 	touch tmp2
 	touch tmp3
@@ -674,41 +756,48 @@ fencryptmsg()															#Encrypt messages
 		done
 				
 	FILE=tmp1
-	MSGNAME="0"
+	MSGNAME=0
 	clear
 	while [ $MSGNAME = "0" ]
 		do
-			read -p """ [>] Please Enter a filename for your message:
-		
- >""" ENCCMSGF
+			tput setab 6
+			echo " [>] Please Enter a filename for your message:"
+			tput setab 9
+			read -p " >" ENCCMSGF
 			if [ -f $KEY/$ENCCDIR/$ENCCMSGF ]
 				then
+					tput setab 1
 					echo " [*] $ENCCMSGF already exists, Try again.."
+					tput setab 9
 					sleep 1
 					clear
 			elif [ $ENCCMSGF -z ] 2> /dev/null
 				then
+					tput setab 1
 					echo " [*] You must Enter a filename, try again."
+					tput setab 9
 					sleep 1
 					clear
 			else
 				touch $KEY/$ENCCDIR/$ENCCMSGF
-				MSGNAME="1"
+				MSGNAME=1
 			fi
 		done
 		
 	clear
+	tput setab 4
 	echo " [*] Encrypting, Please wait.."
+	tput setab 9	
 		
 	while read LINE
 		do
 			echo $(cat $KEY/$LINE/$LINE | sort -R | head -n 1) >>tmp2
-		done <"$FILE"
+		done <$FILE
 		
 	echo $(tr '\n' ' ' < tmp2 | sed -e 's/\s//g') > tmp3
 		
 	FILE=$KEY/meta/meta
-	LNUM="1"
+	LNUM=1
 	while read LINE
 		do
 		
@@ -719,7 +808,7 @@ fencryptmsg()															#Encrypt messages
 			esac
 		
 		LNUM=$(( LNUM + 1 ))
-		done <"$FILE"
+		done <$FILE
 
 	openssl enc -aes-256-gcm -a -salt -in tmp3 -out $KEY/$ENCCDIR/tmp01 -k $PASS1 2> /dev/null
 	openssl enc -camellia-256-cbc -a -salt -in $KEY/$ENCCDIR/tmp01  -out $KEY/$ENCCDIR/tmp02 -k $PASS2 2> /dev/null
@@ -728,7 +817,7 @@ fencryptmsg()															#Encrypt messages
 	shred -zfun 3 tmp*
 	clear
 	RLEN=$(wc -l $DIRR$KEY/$ENCCDIR/$ENCCMSGF)
-	DLENT="7"
+	DLENT=7
 	while [[ "$RLEN" ==  *"/"* ]]
 			do
 				DLENT=$((DLENT - 1))							
@@ -738,12 +827,14 @@ fencryptmsg()															#Encrypt messages
 	RLEN=${RLEN:0:$DLENT}
 	cat $KEY/$ENCCDIR/$ENCCMSGF
 	echo
-	read -p """ [*] Message is $RLEN lines long and stored at $DIRR$KEY/$ENCCDIR/$ENCCMSGF
- [>] Press c and Enter to copy to clipboard
+	tput setab 2
+	echo " [*] Message is $RLEN lines long and stored at $DIRR$KEY/$ENCCDIR/$ENCCMSGF"
+	tput setab 9
+	read -p """ [>] Press c and Enter to copy to clipboard
  [>] Press Enter to return to menu
  >""" SMF
 	case $SMF in
-		"c") cat $KEY/$ENCCDIR/$ENCCMSGF | xclip -sel clip; DISPCOPMSG="1";fmenu;;
+		"c") cat $KEY/$ENCCDIR/$ENCCMSGF | xclip -sel clip; DISPCOPMSG=1;fmenu;;
 		"") fmenu
 	esac
 }
@@ -754,26 +845,32 @@ fdecpaste()
 	touch $KEY/$ENCCDIR/$DATER
 	DATEFILE=$KEY/$ENCCDIR/$DATER
 	xclip -sel clip -o > $DATEFILE
-	ISDONE="1"
+	ISDONE=1
 }
 
 fdecryptmsg()															#Decrypt messages
 {
 	clear
+	tput setab 6
 	echo " [>]  Which key?"
+	tput setab 9
 	ls 
 	echo
 	read -e -p " >" KEY
 	
-	if [ ! -d "$KEY" ]
+	if [ ! -d $KEY ]
 		then
+			tput setab 1
 			echo " [*] $KEY is not a valid key, try again."
+			tput setab 9
 			sleep 1
 			fdecryptmsg
 	
 	elif [ $KEY -z ] 2> /dev/null
 		then
+			tput setab 1
 			echo " [*] You must choose a key, try again."
+			tput setab 9
 			sleep 1
 			fdecryptmsg
 	
@@ -786,15 +883,16 @@ fdecryptmsg()															#Decrypt messages
   	touch tmp02
   	touch tmp03
 	touch tmp04
-	ISDONE="0"
-	TMPCHK="0"
+	ISDONE=0
+	TMPCHK=0
 	
 	while [ $ISDONE = "0" ]
 		do
 			clear
-			read -p """ [>] Paste your message from clipboard or read message file from 0_Encrypted_Messages? [P/f]
-			
- >" DODEC
+			tput setab 6
+			echo " [>] Paste your message from clipboard or read message file from 0_Encrypted_Messages? [P/f]:"
+			tput setab 9
+			read -p " >" DODEC
 			case $DODEC in
 				"P") fdecpaste;;
 				"p") fdecpaste;;
@@ -803,29 +901,35 @@ fdecryptmsg()															#Decrypt messages
 				echo
 				read -e -p " >" DECMSGF
 			
-				if [ ! -f "$DECMSGF" ]
+				if [ ! -f $DECMSGF ]
 					then
+						tput setab 1
 						echo " [*] $DECMSGF is not a valid file, try again."
+						tput setab 9
 						sleep 2
 				else
-					ISDONE="1"
+					ISDONE=1
 				fi;;
 				"F") cd $KEY/$ENCCDIR;ls
 				echo
 				read -e -p " >" DECMSGF
-				if [ ! -f "$DECMSGF" ]
+				if [ ! -f $DECMSGF ]
 					then
+						tput setab 1
 						echo " [*] $DECMSGF is not a valid file, try again."
+						tput setab 9
 						sleep 2
 					else
-						ISDONE="1"
+						ISDONE=1
 				fi
 			esac
 		done
 		
 	clear
 	cd "$DIRR"
+	tput setab 4
 	echo " [*] Decrypting, Please wait.."
+	tput setab 9
 
 	case $DODEC in
 		"P") cat $DATEFILE  > $KEY/$ENCCDIR/tmp01;DECMSGF=$DATER;;
@@ -836,7 +940,7 @@ fdecryptmsg()															#Decrypt messages
 	esac
 	
 	FILE=$KEY/meta/meta
-	LNUM="1"
+	LNUM=1
 	while read LINE
 		do
 			case $LNUM in
@@ -846,7 +950,7 @@ fdecryptmsg()															#Decrypt messages
 			esac
 		
 			LNUM=$(( LNUM + 1 ))
-		done <"$FILE"
+		done <$FILE
 		
 	openssl enc -aes-256-cbc -d -a -salt -in $KEY/$ENCCDIR/tmp01  -out $KEY/$ENCCDIR/tmp02 -k $PASS3 2> /dev/null	
 	openssl enc -camellia-256-cbc -d -a -salt -in $KEY/$ENCCDIR/tmp02  -out $KEY/$ENCCDIR/tmp03 -k $PASS2 2> /dev/null
@@ -855,10 +959,10 @@ fdecryptmsg()															#Decrypt messages
 	shred -zfun 3 $KEY/$ENCCDIR/tmp0*
 	
 	ENCCLEN=$(wc -c tmp04)
-  	CHARCNT="0"
-  	CHAR="0"
-  	ENCCMSG=$(cat tmp04)
-  	DECCNT="0"
+	ENCCMSG=$(cat tmp04)
+  	CHARCNT=0
+  	CHAR=0
+  	DECCNT=0
 
   	while [ $CHAR != " " ] 2> /dev/null
 		do
@@ -875,14 +979,14 @@ fdecryptmsg()															#Decrypt messages
 			DECCNT=$(( DECCNT + 6 ))
 		done 
 	FILE=tmp01
-	LINECNT="0"
+	LINECNT=0
 	STPCNT=$(wc -l tmp01)
 	
 	while read LINE
 		do			
-			LONGLET=$(grep -rl $LINE "$KEY"/)
+			LONGLET=$(grep -rl $LINE $KEY/)
 			echo ${LONGLET: -2} >> tmp02 
-		done <"$FILE"	
+		done <$FILE
 	FILE=tmp02
 
 	while read LINE
@@ -892,7 +996,7 @@ fdecryptmsg()															#Decrypt messages
 			esac
 			
 			echo -n $DECC >> tmp03
-		done <"$FILE"
+		done <$FILE
 		
 	DEKD=$(cat tmp03)
 	echo "${DEKD%?}" > $KEY/$DECDIR/$DECMSGF
@@ -900,7 +1004,9 @@ fdecryptmsg()															#Decrypt messages
 	clear
 	cat $KEY/$DECDIR/$DECMSGF
 	echo
+	tput setab 2
 	echo " [*] Message saved to $DIRR$KEY/$DECDIR/$DECMSGF"
+	tput setab 9
 	read -p " [>] Press Enter to return to menu" SMF
 	fmenu
 }
@@ -908,14 +1014,18 @@ fdecryptmsg()															#Decrypt messages
 fencryptfile()
 {
 	clear
+	tput setab 6
 	echo " [>] Which key?"
+	tput setab 9
 	ls 	
 	read -e -p " >" KEY
 	
-	if [ ! -d "$KEY" ]
+	if [ ! -d $KEY ]
 		then
 			clear
+			tput setab 1
 			echo " [*] $KEY is not a valid key, try again.."
+			tput setab 9
 			sleep 1
 			fencryptfile
 	elif [ "${KEY: -1}" = "/" ] 2> /dev/null
@@ -923,24 +1033,32 @@ fencryptfile()
 			KEY="${KEY%?}"
 	fi
 	clear
+	tput setab 6
 	echo " [>] Please Enter the location of the file: e.g. $HOME/file"
+	tput setab 9
 	read -e -p " >" INFILE
 	
-	if [ ! -f "$INFILE" ]
+	if [ ! -f $INFILE ]
 		then
+			tput setab 1
 			echo " [*] There does not appear to be any file at $INFILE, try again.."
+			tput setab 9
 			sleep 2
 			fencryptfile
 	fi
+	clear
 	PASS=$(cat $KEY/meta/meta)
 	ENCCMSGF=$(basename $INFILE)
+	tput setab 4
+	echo " [*] Decrypting "$ENCCMSF", please wait.."
+	tput setab 9
 	
 	if [ ! -d $KEY/$ENCCDIR/0_Encrypted_Files ]
 		then
 			mkdir $KEY/$ENCCDIR/0_Encrypted_Files
 	fi
 	FILE=$KEY/meta/meta
-	LNUM="1"
+	LNUM=1
 	
 	while read LINE
 		do
@@ -950,21 +1068,23 @@ fencryptfile()
 					3)PASS3=$LINE
 			esac
 		LNUM=$(( LNUM + 1 ))
-		done <"$FILE"
+		done <$FILE
 
 	openssl enc -aes-256-cbc -a -salt -in $INFILE -out $KEY/$ENCCDIR/tmp01 -k $PASS2 2> /dev/null	
 	openssl enc -camellia-256-cbc -a -salt -in $KEY/$ENCCDIR/tmp01  -out $KEY/$ENCCDIR/tmp02 -k $PASS1 2> /dev/null
 	openssl enc -aes-256-gcm -a -salt -in $KEY/$ENCCDIR/tmp02 -out $KEY/$ENCCDIR/0_Encrypted_Files/$ENCCMSGF -k $PASS3 2> /dev/null
 
 	clear
-	echo " [*] File saved to $KEY/$ENCCDIR/0_Encrypted_Files/$ENCCMSGF"
+	tput setab 2
+	echo " [*] File saved to $DIRR$KEY/$ENCCDIR/0_Encrypted_Files/$ENCCMSGF"
+	tput setab 9
 	echo
 	echo " [*] Press c and Enter to copy encrypted file to the clipboard"
 	read -p " [>] Press Enter to return to menu" DOFILE
 	echo
 	case $DOFILE in
-		"c")cat $KEY/$ENCCDIR/0_Encrypted_Files/$ENCCMSGF | xclip -sel clip;DISPCOP="1";fmenu;;
-		"C")cat $KEY/$ENCCDIR/0_Encrypted_Files/$ENCCMSGF | xclip -sel clip;DISPCOP="1";fmenu;;
+		"c")cat $KEY/$ENCCDIR/0_Encrypted_Files/$ENCCMSGF | xclip -sel clip;DISPCOP=1;fmenu;;
+		"C")cat $KEY/$ENCCDIR/0_Encrypted_Files/$ENCCMSGF | xclip -sel clip;DISPCOP=1;fmenu;;
 		"")fmenu
 	esac
 }
@@ -972,14 +1092,18 @@ fencryptfile()
 fdecryptfile()
 {
 	clear
+	tput setab 6
 	echo " [>] Which key?"
+	tput setab 9
 	ls 	
 	read -e -p " >" KEY
 	
-	if [ ! -d "$KEY" ]
+	if [ ! -d $KEY ]
 		then
 			clear
+			tput setab 1
 			echo " [*] $KEY is not a valid key, try again.."
+			tput setab 9
 			sleep 1
 			fencryptfile
 	elif [ "${KEY: -1}" = "/" ] 2> /dev/null
@@ -987,12 +1111,16 @@ fdecryptfile()
 			KEY="${KEY%?}"
 	fi
 	clear
+	tput setab 6
 	echo " [>] Please Enter the location of the file: e.g. $HOME/file"
+	tput setab 9
 	read -e -p " >" INFILE
 	
-	if [ ! -f "$INFILE" ]
+	if [ ! -f $INFILE ]
 		then
+			tput setab 1
 			echo " [*] There does not appear to be any file at $INFILE, try again.."
+			tput setab 9
 			sleep 2
 			fdecryptfile
 	fi
@@ -1004,7 +1132,7 @@ fdecryptfile()
 			mkdir $KEY/$DECDIR/0_Decrypted_Files
 	fi
 	FILE=$KEY/meta/meta
-	LNUM="1"
+	LNUM=1
 	
 	while read LINE
 		do
@@ -1016,15 +1144,17 @@ fdecryptfile()
 			esac
 		
 		LNUM=$(( LNUM + 1 ))
-		done <"$FILE"
+		done <$FILE
 		
-	openssl enc -aes-256-gcm -d -a -salt -in "$INFILE" -out $KEY/$ENCCDIR/tmp01 -k $PASS3 2> /dev/null
+	openssl enc -aes-256-gcm -d -a -salt -in $INFILE -out $KEY/$ENCCDIR/tmp01 -k $PASS3 2> /dev/null
 	openssl enc -camellia-256-cbc -d -a -salt -in $KEY/$ENCCDIR/tmp01  -out $KEY/$ENCCDIR/tmp02 -k $PASS1 2> /dev/null
 	openssl enc -aes-256-cbc -d -a -salt -in $KEY/$ENCCDIR/tmp02  -out $KEY/$DECDIR/0_Decrypted_Files/$DECMSGT -k $PASS2 2> /dev/null	
 
 	shred -zfun 3 $KEY/$ENCCDIR/tmp0*
 	clear
+	tput setab 2
 	echo " [*] File saved to $KEY/$DECDIR/0_Decrypted_Files/$DECMSGT"
+	tput setab 9
 	echo
 	file $KEY/$DECDIR/0_Decrypted_Files/$DECMSGT
 	echo
@@ -1051,21 +1181,27 @@ flistgen()																#Generate full list of 6 digit numbers to use for rand
 					DONENUM=$((STARTNUM - 100000))
 					PERCENT=$((DONENUM / 9000))
 					clear
+					tput setab 2
 					echo " [*] Setting up Nypt for first use, please wait.."
-					echo " [*] Done "$PERCENT"%   "$DONENUM" out of 900000 lines"
+					tput setab 4
+					echo " [*] Done "$PERCENT"%   "$DONENUM"/900000 lines"
+					tput setab 9
 					CHECKMSG=0
 			fi
-			echo -n "$STARTNUM" >> list
+			echo -n $STARTNUM >> list
 			echo \ >> list
 			STARTNUM=$(( STARTNUM + 1 ))
 		done
 	echo
+	tput setab 2
 	echo " [*] Setup complete!"
+	tput setab 9
 	sleep 1
 }
  
 fexit()																	#Delete left over tempory files when exitting
 {
+	tput setab 9
 	cd $DIRR
 	if [[ -f tmp* ]]
 		then
@@ -1077,9 +1213,9 @@ fexit()																	#Delete left over tempory files when exitting
 }
 	
 	DIRR=$HOME/Desktop/nypt/
-	if [ ! -d "$DIRR" ]
+	if [ ! -d $DIRR ]
 		then k
-			mkdir "$DIRR"
+			mkdir $DIRR
 			flistgen
 	fi
 	
