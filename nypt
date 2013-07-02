@@ -66,10 +66,10 @@ fkeygen()																#Generate keys
 		else
 			clear
 			echo " [*] Generating $KEY, please wait..."
-			mkdir "$KEY"
-			mkdir "$KEY""/""$ENCCDIR"
-			mkdir "$KEY""/""$DECDIR"
-			sort -R list > "$KEY""/"list
+			mkdir $KEY
+			mkdir $KEY/$ENCCDIR
+			mkdir $KEY/$DECDIR
+			sort -R list > $KEY/list
 			DIRNUM="10"
 			
 			while [ $DIRNUM -le 99 ]
@@ -109,10 +109,10 @@ fkeygen()																#Generate keys
 				then
 					RAND3=$(( RAND3 + 35 ))
 			fi
-			mkdir "$KEY""/"""meta/
-			echo $(strings /dev/urandom | grep -o '[[:alnum:]]' | head -n $RAND1 | tr -d '\n'; echo) > "$KEY""/"""meta/meta
-			echo $(strings /dev/urandom | grep -o '[[:alnum:]]' | head -n $RAND2 | tr -d '\n'; echo) >> "$KEY""/"""meta/meta
-			echo $(strings /dev/urandom | grep -o '[[:alnum:]]' | head -n $RAND3 | tr -d '\n'; echo) >> "$KEY""/"""meta/meta
+			mkdir $KEY/meta/
+			echo $(strings /dev/urandom | grep -o '[[:alnum:]]' | head -n $RAND1 | tr -d '\n'; echo) > $KEY/meta/meta
+			echo $(strings /dev/urandom | grep -o '[[:alnum:]]' | head -n $RAND2 | tr -d '\n'; echo) >> $KEY/meta/meta
+			echo $(strings /dev/urandom | grep -o '[[:alnum:]]' | head -n $RAND3 | tr -d '\n'; echo) >> $KEY/meta/meta
 			shred -zfun 3 "$KEY""/"list
 			echo
 			echo " [*] $KEY Complete!"
@@ -193,7 +193,7 @@ fcatenc()																#Read encrypted messages from the 0_Encrypted_Messages 
 		else
 			clear
 			echo " [>] Which file do you want to read?"
-			cd "$KEY""/""$ENCCDIR";ls
+			cd $KEY/$ENCCDIR;ls
 			read -e -p " >" ENCCAT
 			if [ -f "$ENCCAT" ]
 				then
@@ -203,10 +203,8 @@ fcatenc()																#Read encrypted messages from the 0_Encrypted_Messages 
 					echo
 					DLEN=$(wc -l "$ENCCAT")
 					DLENT="7"
-					RLEN=${DLEN:0:$DLENT}
-					SLASH="/"
-										
-					while [[ "$RLEN" ==  *"$SLASH"* ]]
+					RLEN=${DLEN:0:$DLENT}										
+					while [[ "$RLEN" ==  *"/"* ]]
 						do
 							DLENT=$((DLENT - 1))							
 							RLEN=${DLEN:0:$DLENT}
@@ -343,7 +341,7 @@ fimport()
 			esac
 		else
 				clear
-				echo " [*] There does not appear to be any file at $KEY, try again."
+				echo " [*] There does not appear to be any file at $KEYFILE, try again."
 				sleep 2
 				fimport
 	fi
@@ -376,13 +374,13 @@ fimportcus()															#Import key using custom password
 	
 	openssl enc -aes-256-cbc -d -a -salt -in "$KEYLOC" -out tmp01 -k "$LPASS" 2> /dev/null
 	openssl enc -camellia-256-cbc -d -a -salt -in tmp01 -out tmp02 -k "$NPASS" 2> /dev/null
-	openssl enc -aes-256-gcm -d -a -salt -in tmp02 -out "$KEY".zip -k "$SPASS" 2> /dev/null
+	openssl enc -aes-256-gcm -d -a -salt -in tmp02 -out "$KEYFILE".zip -k "$SPASS" 2> /dev/null
 	
-	unzip -P "$GPASS" "$KEY".zip -d .  2> /dev/null
+	unzip -P "$GPASS" "$KEYFILE".zip -d .  2> /dev/null
 	chown -hR $USER "$KEYFILE"
 	clear
 	echo " [*] $KEYFILE imported."
-	shred -zfun 3 "$KEY".zip
+	shred -zfun 3 "$KEYFILE".zip
 	shred -zfun 3 tmp0*
 	sleep 2
 	fmenu
@@ -419,17 +417,17 @@ fexport()
 			sleep 1
 			fexport
 		else
-			if [ ! -d "$KEY""/""0_Exported_Keys" ]
+			if [ ! -d $KEY/0_Exported_Keys ]
 				then
-					mkdir "$KEY""/""0_Exported_Keys"
+					mkdir $KEY/0_Exported_Keys
 			fi			
 			
-			WHSAV="$KEY""/""0_Exported_Keys"
+			WHSAV=$KEY/0_Exported_Keys
 			clear
 			PASSCHI=""
 			echo " [*] Please note it is NOT safe to export keys over untrusted networks using the default password."
 			echo
-			read -p " [>] Do you want to use the default or a custom password? [d/C]: " PASSCHI
+			read -p " [>] Do you want to use the default or a custom password? [C/d]: " PASSCHI
 
 			case $PASSCHI in
 				"")fexportcus;;
@@ -609,7 +607,7 @@ fsecuredeldec()															#Shred decrypted messages
 fsecdeldec()
 {
 	echo " [*] Securely deleting "$KEY"'s decrypted messages, please wait.."
-	find "$KEY""/""$DECDIR" -type f -exec shred -zfun 3 {} \;
+	find $KEY/$DECDIR -type f -exec shred -zfun 3 {} \;
 	echo " [*] "$KEY"'s decrypted messages securely deleted."
 	sleep 2
 }
@@ -673,7 +671,7 @@ fencryptmsg()															#Encrypt messages
 			read -p """ [>] Please Enter a filename for your message:
 		
  >""" ENCCMSGF
-			if [ -f "$KEY"""/"$ENCCDIR""/""$ENCCMSGF" ]
+			if [ -f $KEY/$ENCCDIR/$ENCCMSGF ]
 				then
 					echo " [*] $ENCCMSGF already exists, Try again.."
 					sleep 1
@@ -684,7 +682,7 @@ fencryptmsg()															#Encrypt messages
 					sleep 1
 					clear
 			else
-				touch "$KEY""/""$ENCCDIR""/""$ENCCMSGF"
+				touch $KEY/$ENCCDIR/$ENCCMSGF
 				MSGNAME="1"
 			fi
 		done
@@ -694,12 +692,12 @@ fencryptmsg()															#Encrypt messages
 		
 	while read LINE
 		do
-			echo $(cat "$KEY""/""$LINE""/""$LINE" | sort -R | head -n 1) >>tmp2
+			echo $(cat $KEY/$LINE/$LINE | sort -R | head -n 1) >>tmp2
 		done <"$FILE"
 		
 	echo $(tr '\n' ' ' < tmp2 | sed -e 's/\s//g') > tmp3
 		
-	FILE="$KEY""/"meta/meta
+	FILE=$KEY/meta/meta
 	PNUM="1"
 	while read LINE
 		do
@@ -713,30 +711,29 @@ fencryptmsg()															#Encrypt messages
 		PNUM=$(( PNUM + 1 ))
 		done <"$FILE"
 
-	openssl enc -aes-256-gcm -a -salt -in tmp3 -out "$KEY""/""$ENCCDIR""/"tmp01 -k $PASS1 2> /dev/null
-	openssl enc -camellia-256-cbc -a -salt -in "$KEY""/""$ENCCDIR""/"tmp01  -out "$KEY""/""$ENCCDIR""/"tmp02 -k $PASS2 2> /dev/null
-	openssl enc -aes-256-cbc -a -salt -in "$KEY""/""$ENCCDIR""/"tmp02  -out "$KEY""/""$ENCCDIR""/""$ENCCMSGF" -k $PASS3 2> /dev/null	
+	openssl enc -aes-256-gcm -a -salt -in tmp3 -out $KEY/$ENCCDIR/tmp01 -k $PASS1 2> /dev/null
+	openssl enc -camellia-256-cbc -a -salt -in $KEY/$ENCCDIR/tmp01  -out $KEY/$ENCCDIR/tmp02 -k $PASS2 2> /dev/null
+	openssl enc -aes-256-cbc -a -salt -in $KEY/$ENCCDIR/tmp02  -out $KEY/$ENCCDIR/$ENCCMSGF -k $PASS3 2> /dev/null	
 	
 	shred -zfun 3 tmp*
 	clear
-	SLASH="/"
-	RLEN=$(wc -l "$KEY""/""$ENCCDIR""/""$ENCCMSGF")
+	RLEN=$(wc -l $DIRR$KEY/$ENCCDIR/$ENCCMSGF)
 	DLENT="7"
-	while [[ "$RLEN" ==  *"$SLASH"* ]]
+	while [[ "$RLEN" ==  *"/"* ]]
 			do
 				DLENT=$((DLENT - 1))							
 				RLEN=${RLEN:0:$DLENT}
 			done
 	DLENT=$((DLENT - 1))
 	RLEN=${RLEN:0:$DLENT}
-	cat "$KEY""/""$ENCCDIR""/""$ENCCMSGF"
+	cat $KEY/$ENCCDIR/$ENCCMSGF
 	echo
-	read -p """ [*] Message is $RLEN lines long and stored at "$KEY""/""$ENCCDIR""/""$ENCCMSGF"
+	read -p """ [*] Message is $RLEN lines long and stored at $DIRR$KEY/$ENCCDIR/$ENCCMSGF
  [>] Press c and Enter to copy to clipboard
  [>] Press Enter to return to menu
  >""" SMF
 	case $SMF in
-		"c") cat "$KEY""/""$ENCCDIR""/""$ENCCMSGF" | xclip -sel clip; echo " [*] Message copied to clipboard";fmenu;;
+		"c") cat $KEY/$ENCCDIR/$ENCCMSGF | xclip -sel clip; echo " [*] Message copied to clipboard";fmenu;;
 		"") fmenu
 	esac
 }
@@ -744,8 +741,8 @@ fencryptmsg()															#Encrypt messages
 fdecpaste()
 {
 	DATER=$(date +%Y_%d_%m_%H_%M_%S)
-	touch "$KEY""/""$ENCCDIR""/""$DATER"
-	DATEFILE="$KEY""/""$ENCCDIR""/"$DATER
+	touch $KEY/$ENCCDIR/$DATER
+	DATEFILE=$KEY/$ENCCDIR/$DATER
 	xclip -sel clip -o > $DATEFILE
 	ISDONE="1"
 }
@@ -792,7 +789,7 @@ fdecryptmsg()															#Decrypt messages
 				"P") fdecpaste;;
 				"p") fdecpaste;;
 				"") fdecpaste;;
-				"f") clear;cd "$KEY""/""$ENCCDIR"; ls
+				"f") clear;cd $KEY/$ENCCDIR; ls
 				echo
 				read -e -p " >" DECMSGF
 			
@@ -803,7 +800,7 @@ fdecryptmsg()															#Decrypt messages
 				else
 					ISDONE="1"
 				fi;;
-				"F") cd "$KEY""/""$ENCCDIR";ls
+				"F") cd $KEY/$ENCCDIR;ls
 				echo
 				read -e -p " >" DECMSGF
 				if [ ! -f "$DECMSGF" ]
@@ -821,14 +818,14 @@ fdecryptmsg()															#Decrypt messages
 	echo " [*] Decrypting, Please wait.."
 
 	case $DODEC in
-		"P") cat $DATEFILE  > "$KEY""/""$ENCCDIR""/"tmp01;DECMSGF=$DATER;;
-		"p") cat $DATEFILE  > "$KEY""/""$ENCCDIR""/"tmp01;DECMSGF=$DATER;;
-		"") cat $DATEFILE  > "$KEY""/""$ENCCDIR""/"tmp01;DECMSGF=$DATER;;
-		"f") cat "$KEY""/""$ENCCDIR""/""$DECMSGF"  > "$KEY""/""$ENCCDIR""/"tmp01;;
-		"F") cat "$KEY""/""$ENCCDIR""/""$DECMSGF"  > "$KEY""/""$ENCCDIR""/"tmp01
+		"P") cat $DATEFILE  > $KEY/$ENCCDIR/tmp01;DECMSGF=$DATER;;
+		"p") cat $DATEFILE  > $KEY/$ENCCDIR/tmp01;DECMSGF=$DATER;;
+		"") cat $DATEFILE  > $KEY/$ENCCDIR/tmp01;DECMSGF=$DATER;;
+		"f") cat $KEY/$ENCCDIR/$DECMSGF  > $KEY/$ENCCDIR/tmp01;;
+		"F") cat $KEY/$ENCCDIR/$DECMSGF  > $KEY/$ENCCDIR/tmp01
 	esac
 	
-	FILE="$KEY""/"meta/meta
+	FILE=$KEY/meta/meta
 	PNUM="1"
 	while read LINE
 		do
@@ -841,11 +838,11 @@ fdecryptmsg()															#Decrypt messages
 			PNUM=$(( PNUM + 1 ))
 		done <"$FILE"
 		
-	openssl enc -aes-256-cbc -d -a -salt -in "$KEY""/""$ENCCDIR""/"tmp01  -out "$KEY""/""$ENCCDIR""/"tmp02 -k $PASS3 2> /dev/null	
-	openssl enc -camellia-256-cbc -d -a -salt -in "$KEY""/""$ENCCDIR""/"tmp02  -out "$KEY""/""$ENCCDIR""/"tmp03 -k $PASS2 2> /dev/null
-	openssl enc -aes-256-gcm -d -a -salt -in "$KEY""/""$ENCCDIR""/"tmp03 -out tmp04 -k $PASS1 2> /dev/null
+	openssl enc -aes-256-cbc -d -a -salt -in $KEY/$ENCCDIR/tmp01  -out $KEY/$ENCCDIR/tmp02 -k $PASS3 2> /dev/null	
+	openssl enc -camellia-256-cbc -d -a -salt -in $KEY/$ENCCDIR/tmp02  -out $KEY/$ENCCDIR/tmp03 -k $PASS2 2> /dev/null
+	openssl enc -aes-256-gcm -d -a -salt -in $KEY/$ENCCDIR/tmp03 -out tmp04 -k $PASS1 2> /dev/null
 	
-	shred -zfun 3 "$KEY""/""$ENCCDIR""/"tmp0*
+	shred -zfun 3 $KEY/$ENCCDIR/tmp0*
 	
 	ENCCLEN=$(wc -c tmp04)
   	CHARCNT="0"
@@ -888,12 +885,12 @@ fdecryptmsg()															#Decrypt messages
 		done <"$FILE"
 		
 	DEKD=$(cat tmp03)
-	echo "${DEKD%?}" > "$KEY""/""$DECDIR""/""$DECMSGF"
+	echo "${DEKD%?}" > $KEY/$DECDIR/$DECMSGF
 	shred -zfun 3 tmp0*
 	clear
-	cat "$KEY""/""$DECDIR""/""$DECMSGF"
+	cat $KEY/$DECDIR/$DECMSGF
 	echo
-	echo " [*] Message saved to "$KEY""/""$DECDIR""/""$DECMSGF""
+	echo " [*] Message saved to $DIRR$KEY/$DECDIR/$DECMSGF"
 	read -p " [>] Press Enter to return to menu" SMF
 	fmenu
 }
@@ -915,7 +912,7 @@ fencryptfile()
 			KEY="${KEY%?}"
 	fi
 	clear
-	echo " [>] Please Enter the location of the file: e.g. "$HOME"/file"
+	echo " [>] Please Enter the location of the file: e.g. $HOME/file"
 	read -e -p " >" INFILE
 	if [ ! -f "$INFILE" ]
 		then
@@ -923,16 +920,16 @@ fencryptfile()
 			sleep 2
 			fencryptfile
 	fi
-	PASS=$(cat "$KEY"/meta/meta)
+	PASS=$(cat $KEY/meta/meta)
 	ENCCMSGF=$(basename $INFILE)
-	if [ ! -d "$KEY""/""$ENCCDIR""/""0_Encrypted_Files" ]
+	if [ ! -d $KEY/$ENCCDIR/"0_Encrypted_Files" ]
 		then
-			mkdir "$KEY""/""$ENCCDIR""/""0_Encrypted_Files"
+			mkdir $KEY/$ENCCDIR/"0_Encrypted_Files"
 	fi
 	
-	FILE="$KEY""/"meta/meta
+	FILE=$KEY/meta/meta
 	PNUM="1"
-while read LINE
+	while read LINE
 		do
 		
 			case $PNUM in
@@ -944,19 +941,19 @@ while read LINE
 		PNUM=$(( PNUM + 1 ))
 		done <"$FILE"
 
-	openssl enc -aes-256-cbc -a -salt -in "$INFILE"  -out "$KEY""/""$ENCCDIR""/"tmp01 -k $PASS2 2> /dev/null	
-	openssl enc -camellia-256-cbc -a -salt -in "$KEY""/""$ENCCDIR""/"tmp01  -out "$KEY""/""$ENCCDIR""/"tmp02 -k $PASS1 2> /dev/null
-	openssl enc -aes-256-gcm -a -salt -in "$KEY""/""$ENCCDIR""/"tmp02 -out "$KEY""/""$ENCCDIR""/""0_Encrypted_Files""/""$ENCCMSGF" -k $PASS3 2> /dev/null
+	openssl enc -aes-256-cbc -a -salt -in $INFILE -out $KEY/$ENCCDIR/tmp01 -k $PASS2 2> /dev/null	
+	openssl enc -camellia-256-cbc -a -salt -in $KEY/$ENCCDIR/tmp01  -out $KEY/$ENCCDIR/tmp02 -k $PASS1 2> /dev/null
+	openssl enc -aes-256-gcm -a -salt -in $KEY/$ENCCDIR/tmp02 -out $KEY/$ENCCDIR/0_Encrypted_Files/$ENCCMSGF -k $PASS3 2> /dev/null
 
 	clear
-	echo " [*] File saved to "$KEY"/"$ENCCDIR"/"0_Encrypted_Files"/"$ENCCMSGF""
+	echo " [*] File saved to $KEY/$ENCCDIR/0_Encrypted_Files/$ENCCMSGF"
 	echo
 	echo " [*] Press c and Enter to copy encrypted file to the clipboard"
 	read -p " [>] Press Enter to return to menu" DOFILE
 	echo
 	case $DOFILE in
-		"c")cat "$KEY"/"$ENCCDIR"/"0_Encrypted_Files"/"$ENCCMSGF" | xclip -sel clip; echo " [*] File copied to clipboard";fmenu;;
-		"C")cat "$KEY"/"$ENCCDIR"/"0_Encrypted_Files"/"$ENCCMSGF" | xclip -sel clip; echo " [*] File copied to clipboard";fmenu;;
+		"c")cat $KEY/$ENCCDIR/0_Encrypted_Files/$ENCCMSGF | xclip -sel clip; echo " [*] File copied to clipboard";fmenu;;
+		"C")cat $KEY/$ENCCDIR/0_Encrypted_Files/$ENCCMSGF | xclip -sel clip; echo " [*] File copied to clipboard";fmenu;;
 		"")fmenu
 	esac
 }
@@ -986,13 +983,13 @@ fdecryptfile()
 			sleep 2
 			fdecryptfile
 	fi
-	PASS=$(cat "$KEY"/meta/meta)
+	PASS=$(cat $KEY/meta/meta)
 	DECMSGT=$(basename $INFILE)
-	if [ ! -d "$KEY""/""$DECDIR""/""0_Decrypted_Files" ]
+	if [ ! -d $KEY/$DECDIR/0_Decrypted_Files ]
 		then
-			mkdir "$KEY""/""$DECDIR""/""0_Decrypted_Files"
+			mkdir $KEY/$DECDIR/0_Decrypted_Files
 	fi
-	FILE="$KEY""/"meta/meta
+	FILE=$KEY/meta/meta
 	PNUM="1"
 	while read LINE
 		do
@@ -1006,15 +1003,15 @@ fdecryptfile()
 		PNUM=$(( PNUM + 1 ))
 		done <"$FILE"
 		
-	openssl enc -aes-256-gcm -d -a -salt -in "$INFILE" -out "$KEY""/""$ENCCDIR""/"tmp01 -k $PASS3 2> /dev/null
-	openssl enc -camellia-256-cbc -d -a -salt -in "$KEY""/""$ENCCDIR""/"tmp01  -out "$KEY""/""$ENCCDIR""/"tmp02 -k $PASS1 2> /dev/null
-	openssl enc -aes-256-cbc -d -a -salt -in "$KEY""/""$ENCCDIR""/"tmp02  -out "$KEY""/""$DECDIR""/""0_Decrypted_Files""/""$DECMSGT" -k $PASS2 2> /dev/null	
+	openssl enc -aes-256-gcm -d -a -salt -in "$INFILE" -out $KEY/$ENCCDIR/tmp01 -k $PASS3 2> /dev/null
+	openssl enc -camellia-256-cbc -d -a -salt -in $KEY/$ENCCDIR/tmp01  -out $KEY/$ENCCDIR/tmp02 -k $PASS1 2> /dev/null
+	openssl enc -aes-256-cbc -d -a -salt -in $KEY/$ENCCDIR/tmp02  -out $KEY/$DECDIR/0_Decrypted_Files/$DECMSGT -k $PASS2 2> /dev/null	
 
-	shred -zfun 3 "$KEY""/""$ENCCDIR""/"tmp0*
+	shred -zfun 3 $KEY/$ENCCDIR/tmp0*
 	clear
-	echo " [*] File saved to "$KEY""/""$DECDIR""/""0_Decrypted_Files""/""$DECMSGT""
+	echo " [*] File saved to $KEY/$DECDIR/0_Decrypted_Files/$DECMSGT"
 	echo
-	file "$KEY""/""$DECDIR""/""0_Decrypted_Files""/""$DECMSGT"
+	file $KEY/$DECDIR/0_Decrypted_Files/$DECMSGT
 	echo
 	read -p " [>] Press Enter to return to menu"
 	fmenu
@@ -1029,7 +1026,7 @@ flistgen()																#Generate full list of 6 digit numbers to use for rand
 
 	while [ $STARTNUM -le 999999 ]
 		do
-			if [ $(( $STARTNUM % 50000 )) -eq 0 ]
+			if [ $(( $STARTNUM % 10000 )) -eq 0 ]
 				then
 					CHECKMSG=1
 			fi
@@ -1039,7 +1036,7 @@ flistgen()																#Generate full list of 6 digit numbers to use for rand
 					PERCENT=$((DONENUM / 9000))
 					clear
 					echo " [*] Setting up Nypt for first use, please wait.."
-					echo " [*] Done -"$PERCENT"%   "$DONENUM" out of 900000 lines"
+					echo " [*] Done "$PERCENT"%   "$DONENUM" out of 900000 lines"
 					CHECKMSG=0
 			fi
 			echo -n "$STARTNUM" >> list
@@ -1063,7 +1060,7 @@ fexit()																	#Delete left over tempory files when exitting
 	exit
 }
 	
-	DIRR="$HOME""/Desktop/nypt/"
+	DIRR=$HOME/Desktop/nypt/
 	if [ ! -d "$DIRR" ]
 		then k
 			mkdir "$DIRR"
