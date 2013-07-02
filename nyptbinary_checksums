@@ -1,0 +1,7 @@
+Run the following commands to verify the integrity of the binary:
+
+cat nyptbinary | md5sum
+532fee5e04bd180f5b299d458be20e2e
+
+cat nyptbinary | sha1sum
+673ce16fe92bea1f2f4f30f9b050e03dbd4914f1
