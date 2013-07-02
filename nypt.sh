@@ -440,11 +440,11 @@ fimportcus()															#Import key using custom password
 	GPASS=$(echo NPASS | md5sum)
 	LPASS=$NPASS$GPASS$SPASS$GPASS
 	
-	openssl enc -aes-256-cbc -d -a -salt -in $KEYLOC -out tmp01 -k $LPASS 2> /dev/null
-	openssl enc -camellia-256-cbc -d -a -salt -in tmp01 -out tmp02 -k $NPASS 2> /dev/null
-	openssl enc -aes-256-gcm -d -a -salt -in tmp02 -out $KEYFILE.zip -k $SPASS 2> /dev/null
+	openssl enc -aes-256-cbc -d -a -salt -in $KEYLOC -out tmp01 -k "$LPASS" 2> /dev/null
+	openssl enc -camellia-256-cbc -d -a -salt -in tmp01 -out tmp02 -k "$NPASS" 2> /dev/null
+	openssl enc -aes-256-gcm -d -a -salt -in tmp02 -out $KEYFILE.zip -k "$SPASS" 2> /dev/null
 	
-	unzip -P $GPASS $KEYFILE.zip -d .  2> /dev/null
+	unzip -P $SPASS $KEYFILE.zip -d .  2> /dev/null
 	chown -hR $USER $KEYFILE
 	clear
 	$COLOR 2
@@ -498,7 +498,7 @@ fexport()
 					mkdir $KEY/0_Exported_Keys
 			fi			
 			
-			WHSAV=$KEY/0_Exported_Keys
+			WHSAV="$KEY/0_Exported_Keys"
 			clear
 			PASSCHI=""
 			$COLOR 1
@@ -526,7 +526,7 @@ fexport()
 	$COLOR 2
 	echo " [*] $KEY exported to $DIRR$WHSAV/$KEY"
 	$COLOR 9
-	shred -zfun 3 $WHSAV/tmp0*
+	shred -zfun 3 "$WHSAV"/tmp0*
 	shred -zfun 3 $KEY.zip
 	sleep 2.5
 	fmenu
@@ -556,16 +556,16 @@ fexportcus()															#Export key using custom password
 					$COLOR 9
 					sleep 2
 				else
-					PASSDON="1"
+					PASSDON=1
 					NPASS=$(echo $ZPASS | base64)
 					NPASS=$(echo $NPASS$NPASS | md5sum)
 					GPASS=$(echo NPASS | md5sum)
 					LPASS=$NPASS$GPASS$ZPASS$GPASS
-					zip -reP $GPASS  $KEY.zip $KEY 2> /dev/null
+					zip -reP $ZPASS $KEY.zip $KEY 
 					
-					openssl enc -aes-256-gcm -a -salt -in $KEY.zip -out $WHSAV/tmp01 -k $ZPASS 2> /dev/null
-					openssl enc -camellia-256-cbc -a -salt -in $WHSAV/tmp01 -out $WHSAV/tmp02 -k $NPASS 2> /dev/null
-					openssl enc -aes-256-cbc -a -salt -in $WHSAV/tmp02 -out $WHSAV/$KEY -k $LPASS 2> /dev/null
+					openssl enc -aes-256-gcm -a -salt -in $KEY.zip -out "$WHSAV"/tmp01 -k "$ZPASS" 2> /dev/null
+					openssl enc -camellia-256-cbc -a -salt -in "$WHSAV"/tmp01 -out "$WHSAV"/tmp02 -k "$NPASS" 2> /dev/null
+					openssl enc -aes-256-cbc -a -salt -in "$WHSAV"/tmp02 -out $WHSAV/$KEY -k "$LPASS" 2> /dev/null
 					
 			fi
 		done
@@ -844,9 +844,9 @@ fencryptmsg()															#Encrypt messages
 		LNUM=$(( LNUM + 1 ))
 		done <$FILE
 
-	openssl enc -aes-256-gcm -a -salt -in tmp3 -out $KEY/$ENCCDIR/tmp01 -k $PASS1 2> /dev/null
-	openssl enc -camellia-256-cbc -a -salt -in $KEY/$ENCCDIR/tmp01  -out $KEY/$ENCCDIR/tmp02 -k $PASS2 2> /dev/null
-	openssl enc -aes-256-cbc -a -salt -in $KEY/$ENCCDIR/tmp02  -out $KEY/$ENCCDIR/$ENCCMSGF -k $PASS3 2> /dev/null	
+	openssl enc -aes-256-gcm -a -salt -in tmp3 -out $KEY/$ENCCDIR/tmp01 -k "$PASS1" 2> /dev/null
+	openssl enc -camellia-256-cbc -a -salt -in $KEY/$ENCCDIR/tmp01  -out $KEY/$ENCCDIR/tmp02 -k "$PASS2" 2> /dev/null
+	openssl enc -aes-256-cbc -a -salt -in $KEY/$ENCCDIR/tmp02  -out $KEY/$ENCCDIR/$ENCCMSGF -k "$PASS3" 2> /dev/null	
 	
 	shred -zfun 3 tmp*
 	clear
@@ -986,9 +986,9 @@ fdecryptmsg()															#Decrypt messages
 			LNUM=$(( LNUM + 1 ))
 		done <$FILE
 		
-	openssl enc -aes-256-cbc -d -a -salt -in $KEY/$ENCCDIR/tmp01  -out $KEY/$ENCCDIR/tmp02 -k $PASS3 2> /dev/null	
-	openssl enc -camellia-256-cbc -d -a -salt -in $KEY/$ENCCDIR/tmp02  -out $KEY/$ENCCDIR/tmp03 -k $PASS2 2> /dev/null
-	openssl enc -aes-256-gcm -d -a -salt -in $KEY/$ENCCDIR/tmp03 -out tmp04 -k $PASS1 2> /dev/null
+	openssl enc -aes-256-cbc -d -a -salt -in $KEY/$ENCCDIR/tmp01  -out $KEY/$ENCCDIR/tmp02 -k "$PASS3" 2> /dev/null	
+	openssl enc -camellia-256-cbc -d -a -salt -in $KEY/$ENCCDIR/tmp02  -out $KEY/$ENCCDIR/tmp03 -k "$PASS2" 2> /dev/null
+	openssl enc -aes-256-gcm -d -a -salt -in $KEY/$ENCCDIR/tmp03 -out tmp04 -k "$PASS1" 2> /dev/null
 	
 	shred -zfun 3 $KEY/$ENCCDIR/tmp0*
 	
@@ -1104,9 +1104,9 @@ fencryptfile()
 		LNUM=$(( LNUM + 1 ))
 		done <$FILE
 
-	openssl enc -aes-256-cbc -a -salt -in $INFILE -out $KEY/$ENCCDIR/tmp01 -k $PASS2 2> /dev/null	
-	openssl enc -camellia-256-cbc -a -salt -in $KEY/$ENCCDIR/tmp01  -out $KEY/$ENCCDIR/tmp02 -k $PASS1 2> /dev/null
-	openssl enc -aes-256-gcm -a -salt -in $KEY/$ENCCDIR/tmp02 -out $KEY/$ENCCDIR/0_Encrypted_Files/$ENCCMSGF -k $PASS3 2> /dev/null
+	openssl enc -aes-256-cbc -a -salt -in $INFILE -out $KEY/$ENCCDIR/tmp01 -k "$PASS2" 2> /dev/null	
+	openssl enc -camellia-256-cbc -a -salt -in $KEY/$ENCCDIR/tmp01  -out $KEY/$ENCCDIR/tmp02 -k "$PASS1" 2> /dev/null
+	openssl enc -aes-256-gcm -a -salt -in $KEY/$ENCCDIR/tmp02 -out $KEY/$ENCCDIR/0_Encrypted_Files/$ENCCMSGF -k "$PASS3" 2> /dev/null
 
 	clear
 	$COLOR 2
@@ -1180,9 +1180,9 @@ fdecryptfile()
 		LNUM=$(( LNUM + 1 ))
 		done <$FILE
 		
-	openssl enc -aes-256-gcm -d -a -salt -in $INFILE -out $KEY/$ENCCDIR/tmp01 -k $PASS3 2> /dev/null
-	openssl enc -camellia-256-cbc -d -a -salt -in $KEY/$ENCCDIR/tmp01  -out $KEY/$ENCCDIR/tmp02 -k $PASS1 2> /dev/null
-	openssl enc -aes-256-cbc -d -a -salt -in $KEY/$ENCCDIR/tmp02  -out $KEY/$DECDIR/0_Decrypted_Files/$DECMSGT -k $PASS2 2> /dev/null	
+	openssl enc -aes-256-gcm -d -a -salt -in $INFILE -out $KEY/$ENCCDIR/tmp01 -k "$PASS3" 2> /dev/null
+	openssl enc -camellia-256-cbc -d -a -salt -in $KEY/$ENCCDIR/tmp01  -out $KEY/$ENCCDIR/tmp02 -k "$PASS1" 2> /dev/null
+	openssl enc -aes-256-cbc -d -a -salt -in $KEY/$ENCCDIR/tmp02  -out $KEY/$DECDIR/0_Decrypted_Files/$DECMSGT -k "$PASS2" 2> /dev/null	
 
 	shred -zfun 3 $KEY/$ENCCDIR/tmp0*
 	clear
