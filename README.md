@@ -1,8 +1,10 @@
- Nypt 1.33
+ Nypt 1.34
+ 
+NOTE: V.1.34 is incompatible with previous versions
 
 Custom wrapper for OpenSSL
 
-Nypt uses a custom random number symmetric encryption layer and three layers of OpenSSL 256-bit highest grade encryption to encrypt messages and files for transmission across the internet. The secret keys are stored locally on the drive, and so passwords are not needed to encrypt/decrypt messages or files. Both communicating parties are required to have the same copy of the secret key, in order to read each others messages.
+Nypt uses a custom random number symmetric encryption layer and five layers of OpenSSL 256-bit highest grade encryption to encrypt messages, files and keys for transmission across the internet. The secret keys are stored locally on the drive, and so passwords are not needed to encrypt/decrypt messages or files. Both communicating parties are required to have the same copy of the secret key, in order to read each others messages.
 
 Random Number Encryption Layer:
 
@@ -22,6 +24,6 @@ Key Transmission:
 
 4. Keys and/or their secret password can be transferred via SSH, PGP, cryptocat private room, or any other suitable encrypted communication method.
 
-Programmers: Customizing certain parameters in this script is highly recommended to make it more secure, just remember that the other party must have a copy of the edited script for it to work. This is another problem that must be solved by sending the edited script using secure encrypted communication methods.
+Programmers: Customizing certain parameters in this script is highly recommended to make it even more secure, just remember that the other party must have a copy of the edited script for it to work. This is another problem that must be solved by sending the edited script using secure encrypted communication methods.
 
 rids@tormail.org 
