@@ -9,7 +9,6 @@ fstart()																#Startup function
 	if [ ! -d $DIRR ]
 		then
 			mkdir $DIRR
-			flistgen
 	fi
 	
 	if [ ! -f "$DIRR"list ]
