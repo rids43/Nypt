@@ -5,25 +5,6 @@
 fstart()																#Startup function
 {
 	COLOR="tput setab"
-	if [ $(whoami) != 'root' ]
-		then
-			$COLOR 1
-			echo " [*] Warning, Nypt needs to be run as root user, do you want to switch to root now? [Y/n]:"
-			$COLOR 9
-			echo
-			read -p " >" SUDO
-			case $SUDO in
-				"Y")sudo su -c ./nypt.sh; fexit;;
-				"y")sudo su -c ./nypt.sh; fexit;;
-				"")	sudo su -c ./nypt.sh; fexit;;
-				"n")fexit;;
-				"N")fexit
-			esac
-			if [ ! -d $HOME/Desktop ]
-				then
-					mkdir $HOME/Desktop
-			fi
-	fi
 	DIRR=$HOME/Desktop/nypt/
 	if [ ! -d $DIRR ]
 		then
@@ -103,7 +84,7 @@ fmenu()
 	fi
 	cd $DIRR
 	$COLOR 6
-	echo "  [*] Nypt 1.32"		
+	echo "  [*] Nypt 1.33"		
 	$COLOR 9														#This is the main menu
 	read -p """      ~~~~~~~~
  [1] Encryption
@@ -341,23 +322,22 @@ fencryptmsg()															#Encrypt messages
 		
 	echo $(tr '\n' ' ' < tmp2 | sed -e 's/\s//g') > tmp3
 		
-	FILE=$KEY/meta/meta
+	FILE=$DIRR$KEY"/meta/meta"
 	LNUM=1
 	while read LINE
 		do
-		
 			case $LNUM in
-					1)PASS1=$LINE;;
-					2)PASS2=$LINE;;
-					3)PASS3=$LINE
+					1)PASS1="$LINE";;
+					2)PASS2="$LINE";;
+					3)PASS3="$LINE"
 			esac
 		
-		LNUM=$(( LNUM + 1 ))
-		done <$FILE
+			LNUM=$(( LNUM + 1 ))
+		done <"$FILE"
 
-	openssl enc -aes-256-gcm -a -salt -in tmp3 -out $KEY/$ENCDIR/tmp01 -k "$PASS1" 2> /dev/null
-	openssl enc -camellia-256-cbc -a -salt -in $KEY/$ENCDIR/tmp01  -out $KEY/$ENCDIR/tmp02 -k "$PASS2" 2> /dev/null
-	openssl enc -aes-256-cbc -a -salt -in $KEY/$ENCDIR/tmp02  -out $KEY/$ENCDIR/$ENCCMSGF -k "$PASS3" 2> /dev/null	
+	openssl enc -aes-256-cbc -a -salt -in tmp3 -out $DIRR$KEY/$ENCDIR/tmp01 -k "$PASS1" 2> /dev/null
+	openssl enc -camellia-256-cbc -a -salt -in $DIRR$KEY/$ENCDIR/tmp01  -out $DIRR$KEY/$ENCDIR/tmp02 -k "$PASS2" 2> /dev/null
+	openssl enc -aes-256-cbc -a -salt -in $DIRR$KEY/$ENCDIR/tmp02  -out $DIRR$KEY/$ENCDIR/$ENCCMSGF -k "$PASS3" 2> /dev/null	
 	
 	shred -zfun 3 tmp*
 	clear
@@ -485,32 +465,33 @@ fdecryptmsg()															#Decrypt messages
 	$COLOR 4
 	echo " [*] Decrypting, Please wait.."
 	$COLOR 9
-
+	DATEFILE="$DIRR""$KEY"/"$ENCDIR"/"$DATER"
 	case $DODEC in
-		"P") cat $DATEFILE  > $KEY/$ENCDIR/tmp01;DECMSGF=$DATER;;
-		"p") cat $DATEFILE  > $KEY/$ENCDIR/tmp01;DECMSGF=$DATER;;
-		"") cat $DATEFILE  > $KEY/$ENCDIR/tmp01;DECMSGF=$DATER;;
+		"P") mv "$DATEFILE" "$DIRR""$KEY"/"$ENCDIR"/"tmp01" ; DECMSGF="$DATER";;
+		"p") mv "$DATEFILE" "$DIRR""$KEY"/"$ENCDIR"/"tmp01" ; DECMSGF="$DATER";;
+		"") mv "$DATEFILE" "$DIRR""$KEY"/"$ENCDIR"/"tmp01" ; DECMSGF="$DATER";;
 		"f") cat $KEY/$ENCDIR/$DECMSGF  > $KEY/$ENCDIR/tmp01;;
 		"F") cat $KEY/$ENCDIR/$DECMSGF  > $KEY/$ENCDIR/tmp01
 	esac
 	
-	FILE=$KEY/meta/meta
+	FILE=$DIRR$KEY"/meta/meta"
 	LNUM=1
 	while read LINE
 		do
 			case $LNUM in
-					1)PASS1=$LINE;;
-					2)PASS2=$LINE;;
-					3)PASS3=$LINE
+					1)PASS1="$LINE";;
+					2)PASS2="$LINE";;
+					3)PASS3="$LINE"
 			esac
 		
 			LNUM=$(( LNUM + 1 ))
-		done <$FILE
+		done <"$FILE"
 		
-	openssl enc -aes-256-cbc -d -a -salt -in $KEY/$ENCDIR/tmp01  -out $KEY/$ENCDIR/tmp02 -k "$PASS3" 2> /dev/null	
-	openssl enc -camellia-256-cbc -d -a -salt -in $KEY/$ENCDIR/tmp02  -out $KEY/$ENCDIR/tmp03 -k "$PASS2" 2> /dev/null
-	openssl enc -aes-256-gcm -d -a -salt -in $KEY/$ENCDIR/tmp03 -out tmp04 -k "$PASS1" 2> /dev/null
-	
+	openssl enc -aes-256-cbc -d -a -salt -in $DIRR$KEY/$ENCDIR/tmp01  -out $DIRR$KEY/$ENCDIR/tmp02 -k "$PASS3" 2> /dev/null	
+	openssl enc -camellia-256-cbc -d -a -salt -in $DIRR$KEY/$ENCDIR/tmp02  -out $DIRR$KEY/$ENCDIR/tmp03 -k "$PASS2" 2> /dev/null
+	openssl enc -aes-256-cbc -d -a -salt -in $DIRR$KEY/$ENCDIR/tmp03 -out $DIRR$KEY/$ENCDIR/tmp04 -k "$PASS1" 2> /dev/null
+
+	mv $DIRR$KEY/$ENCDIR/tmp04 $PWD/tmp04
 	shred -zfun 3 $KEY/$ENCDIR/tmp0*
 	
 	ENCCLEN=$(wc -c tmp04)
@@ -555,7 +536,6 @@ fdecryptmsg()															#Decrypt messages
 		
 	DEKD=$(cat tmp03)
 	echo "${DEKD%?}" > $KEY/$DECDIR/$DECMSGF
-	shred -zfun 3 tmp0*
 	clear
 	cat $KEY/$DECDIR/$DECMSGF
 	echo
@@ -568,9 +548,11 @@ fdecryptmsg()															#Decrypt messages
 
 fdecpaste()
 {
-	DATER=$(date +%Y_%d_%m_%H_%M_%S)
-	DATEFILE=$KEY/$ENCDIR/$DATER
+	DATER=$( date +%Y_%d_%m_%H_%M_%S )
+	DATEFILE="$DIRR""$KEY"/"$ENCDIR"/"$DATER"
+	touch $DATEFILE
 	xclip -sel clip -o > $DATEFILE
+	echo "$DIRR""$KEY"/"$ENCDIR"/"$DATER"
 	ISDONE=1
 }
 
@@ -650,9 +632,9 @@ fencryptfile()
 		LNUM=$(( LNUM + 1 ))
 		done <$FILE
 
-	openssl enc -aes-256-cbc -a -salt -in $INFILE -out $KEY/$ENCDIR/tmp01 -k "$PASS2" 2> /dev/null	
-	openssl enc -camellia-256-cbc -a -salt -in $KEY/$ENCDIR/tmp01  -out $KEY/$ENCDIR/tmp02 -k "$PASS1" 2> /dev/null
-	openssl enc -aes-256-gcm -a -salt -in $KEY/$ENCDIR/tmp02 -out $KEY/$ENCDIR/0_Encrypted_Files/$ENCCMSGF -k "$PASS3" 2> /dev/null
+	openssl enc -aes-256-cbc -a -salt -in $INFILE -out $DIRR$KEY/$ENCDIR/tmp01 -k "$PASS2" 2> /dev/null	
+	openssl enc -camellia-256-cbc -a -salt -in $DIRR$KEY/$ENCDIR/tmp01  -out $DIRR$KEY/$ENCDIR/tmp02 -k "$PASS1" 2> /dev/null
+	openssl enc -aes-256-cbc -a -salt -in $DIRR$KEY/$ENCDIR/tmp02 -out $DIRR$KEY/$ENCDIR/0_Encrypted_Files/$ENCCMSGF -k "$PASS3" 2> /dev/null
 
 	clear
 	$COLOR 2
@@ -747,9 +729,9 @@ fdecryptfile()
 		LNUM=$(( LNUM + 1 ))
 		done <$FILE
 		
-	openssl enc -aes-256-gcm -d -a -salt -in $INFILE -out $KEY/$ENCDIR/tmp01 -k "$PASS3" 2> /dev/null
-	openssl enc -camellia-256-cbc -d -a -salt -in $KEY/$ENCDIR/tmp01  -out $KEY/$ENCDIR/tmp02 -k "$PASS1" 2> /dev/null
-	openssl enc -aes-256-cbc -d -a -salt -in $KEY/$ENCDIR/tmp02  -out $KEY/$DECDIR/0_Decrypted_Files/$DECMSGT -k "$PASS2" 2> /dev/null	
+	openssl enc -aes-256-cbc -d -a -salt -in $INFILE -out $DIRR$KEY/$ENCDIR/tmp01 -k "$PASS3" 2> /dev/null
+	openssl enc -camellia-256-cbc -d -a -salt -in $DIRR$KEY/$ENCDIR/tmp01  -out $DIRR$KEY/$ENCDIR/tmp02 -k "$PASS1" 2> /dev/null
+	openssl enc -aes-256-cbc -d -a -salt -in $DIRR$KEY/$ENCDIR/tmp02  -out $DIRR$KEY/$DECDIR/0_Decrypted_Files/$DECMSGT -k "$PASS2" 2> /dev/null	
 
 	shred -zfun 3 $KEY/$ENCDIR/tmp0*
 	clear
@@ -1038,7 +1020,7 @@ fimportcus()															#Import key using custom password
 	
 	openssl enc -aes-256-cbc -d -a -salt -in $KEYLOC -out tmp01 -k "$LPASS" 2> /dev/null
 	openssl enc -camellia-256-cbc -d -a -salt -in tmp01 -out tmp02 -k "$NPASS" 2> /dev/null
-	openssl enc -aes-256-gcm -d -a -salt -in tmp02 -out $KEYFILE.zip -k "$SPASS" 2> /dev/null
+	openssl enc -aes-256-cbc -d -a -salt -in tmp02 -out $DIRR$KEYFILE.zip -k "$SPASS" 2> /dev/null
 	
 	unzip -P $SPASS $KEYFILE.zip -d .  2> /dev/null
 	chown -hR $USER $KEYFILE
@@ -1054,7 +1036,7 @@ fimportcus()															#Import key using custom password
 
 fimportdef()															#Import key using default password
 {
-	openssl enc -d -a -aes-256-gcm -salt -in $KEYLOC -out $KEY.zip -k "FQhs2UOb6UfY6h4h20hf49LTS9EnkSuQP66357693hahal0lp4s501EfOoWCvjScbanpDrJ3sWXupryAQLj71Qt" 2> /dev/null
+	openssl enc -d -a -aes-256-cbc -salt -in $KEYLOC -out $DIRR$KEY.zip -k "FQhs2UOb6UfY6h4h20hf49LTS9EnkSuQP66357693hahal0lp4s501EfOoWCvjScbanpDrJ3sWXupryAQLj71Qt" 2> /dev/null
 	unzip -P "cPHQ0bkM2zEUZY245h9ZwgS7l98Hi0WqIeamJVhow1osQ" $KEY.zip -d .  2> /dev/null
 	shred -zfun 3 $KEY.zip
 	shred -zfun 3 $KEY
@@ -1164,7 +1146,7 @@ fexportcus()															#Export key using custom password
 					LPASS=$NPASS$GPASS$ZPASS$GPASS
 					zip -reP $ZPASS $KEY.zip $KEY 
 					
-					openssl enc -aes-256-gcm -a -salt -in $KEY.zip -out "$WHSAV"/tmp01 -k "$ZPASS" 2> /dev/null
+					openssl enc -aes-256-cbc -a -salt -in $DIRR$KEY.zip -out "$WHSAV"/tmp01 -k "$ZPASS" 2> /dev/null
 					openssl enc -camellia-256-cbc -a -salt -in "$WHSAV"/tmp01 -out "$WHSAV"/tmp02 -k "$NPASS" 2> /dev/null
 					openssl enc -aes-256-cbc -a -salt -in "$WHSAV"/tmp02 -out $WHSAV/$KEY -k "$LPASS" 2> /dev/null
 					
@@ -1175,7 +1157,7 @@ fexportcus()															#Export key using custom password
 fexportdef()          													#Export key using default password
 {
 	( zip -reP "cPHQ0bkM2zEUZY245h9ZwgS7l98Hi0WqIeamJVhow1osQ" $KEY.zip $KEY ) 2> /dev/null
-	openssl enc -a -aes-256-gcm -salt -in $KEY.zip -out $WHSAV/$KEY -k "FQhs2UOb6UfY6h4h20hf49LTS9EnkSuQP66357693hahal0lp4s501EfOoWCvjScbanpDrJ3sWXupryAQLj71Qt" 2> /dev/null
+	openssl enc -a -aes-256-cbc -salt -in $DIRR$KEY.zip -out $WHSAV/$KEY -k "FQhs2UOb6UfY6h4h20hf49LTS9EnkSuQP66357693hahal0lp4s501EfOoWCvjScbanpDrJ3sWXupryAQLj71Qt" 2> /dev/null
 }
 
 
