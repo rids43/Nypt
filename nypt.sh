@@ -1258,9 +1258,9 @@ fexit()																	#Delete left over tempory files when exitting
 			echo
 			read -p " >" SUDO
 			case $SUDO in
-				"Y")sudo su -c ./nypt;;
-				"y")sudo su -c ./nypt;;
-				"")	sudo su -c ./nypt;;
+				"Y")sudo su -c ./nypt.sh;;
+				"y")sudo su -c ./nypt.sh;;
+				"")	sudo su -c ./nypt.sh;;
 			esac
 			if [ ! -d $HOME/Desktop ]
 				then
