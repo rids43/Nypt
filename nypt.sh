@@ -238,9 +238,9 @@ fcatenc()																#Read encrypted messages from the 0_Encrypted_Messages 
 					clear
 					cat $ENCCAT
 					echo
-					DLEN=$(wc -l $ENCCAT)
+					DLEN=$(wc -l $DIRR$KEY"/"$ENCCDIR"/"$ENCCAT)
 					DLENT=7
-					RLEN=${DLEN:0:$DLENT}										
+					RLEN=${DLEN:0:$DLENT}
 					while [[ "$RLEN" ==  *"/"* ]]
 						do
 							DLENT=$((DLENT - 1))							
@@ -250,10 +250,10 @@ fcatenc()																#Read encrypted messages from the 0_Encrypted_Messages 
 					DLENT=$((DLENT - 1))
 					RLEN=${DLEN:0:$DLENT}
 					$COLOR 2
-					echo " [*] Message is $RLEN lines long and stored at $DIRR$KEY$ENCCDIR$ENCCAT"
+					echo " [*] Message is $RLEN lines long and stored at $DIRR$KEY/$ENCCDIR/$ENCCAT"
 					$COLOR 9
-					read -p """ [>] Press c and Enter to copy to clipboard
- [>] Press Enter to return to menu
+					echo " [>] Press c and Enter to copy to clipboard"
+					read -p """ [>] Press Enter to return to menu
  >""" SMF
 					case $SMF in
 						"c") cat $ENCCAT | xclip -sel clip;DISPCOPMSG=1;fmenu;;
@@ -1084,7 +1084,7 @@ fencryptfile()
 	PASS=$(cat $KEY/meta/meta)
 	ENCCMSGF=$(basename $INFILE)
 	$COLOR 4
-	echo " [*] Decrypting "$ENCCMSF", please wait.."
+	echo " [*] Encrypting "$ENCCMSF", please wait.."
 	$COLOR 9
 	
 	if [ ! -d $KEY/$ENCCDIR/0_Encrypted_Files ]
@@ -1158,8 +1158,12 @@ fdecryptfile()
 			sleep 2
 			fdecryptfile
 	fi
-	PASS=$(cat $KEY/meta/meta)
 	DECMSGT=$(basename $INFILE)
+	PASS=$(cat $KEY/meta/meta)
+	clear
+	$COLOR 4
+	echo " [*] Decrypting "$DECMSGT", please wait.."
+	$COLOR 9
 	
 	if [ ! -d $KEY/$DECDIR/0_Decrypted_Files ]
 		then
@@ -1190,7 +1194,11 @@ fdecryptfile()
 	echo " [*] File saved to $KEY/$DECDIR/0_Decrypted_Files/$DECMSGT"
 	$COLOR 9
 	echo
-	file $KEY/$DECDIR/0_Decrypted_Files/$DECMSGT
+	STRT=" [*] "
+	CHKFILE=$( file $KEY/$DECDIR/0_Decrypted_Files/$DECMSGT )
+	$COLOR 5
+	echo $STRT$CHKFILE
+	$COLOR 9
 	echo
 	read -p " [>] Press Enter to return to menu"
 	fmenu
@@ -1226,7 +1234,7 @@ flistgen()																#Generate full list of 6 digit numbers to use for rand
 			echo \ >> list
 			STARTNUM=$(( STARTNUM + 1 ))
 		done
-	echo
+	clear
 	$COLOR 2
 	echo " [*] Setup complete!"
 	$COLOR 9
@@ -1237,11 +1245,7 @@ fexit()																	#Delete left over tempory files when exitting
 {
 	$COLOR 9
 	cd $DIRR
-	if [[ -f tmp* ]]
-		then
-			(shred -zfun 3 tmp*)
-	fi
-
+	shred -zfun 3 tmp* 2> /dev/null
 	echo
 	exit
 }
