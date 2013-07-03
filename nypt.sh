@@ -360,7 +360,8 @@ fencryptmsg()															#Encrypt messages
 	openssl enc -camellia-256-cbc -a -salt -in $DIRR$KEY/$ENCDIR/tmp03  -out $DIRR$KEY/$ENCDIR/tmp04 -k "$PASS4" 2> /dev/null
 	openssl enc -aes-256-cbc -a -salt -in $DIRR$KEY/$ENCDIR/tmp04  -out $DIRR$KEY/$ENCDIR/$ENCCMSGF -k "$PASS5" 2> /dev/null	
 	
-	shred -zfun 3 tmp*
+	shred -zfun 3 tmp* 2> /dev/null
+	shred -zfun 3 $DIRR$KEY/$ENCDIR/tmp* 2> /dev/null
 	clear
 	RLEN=$(wc -l $DIRR$KEY/$ENCDIR/$ENCCMSGF)
 	DLENT=7
@@ -372,7 +373,7 @@ fencryptmsg()															#Encrypt messages
 	DLENT=$((DLENT - 1))
 	RLEN=${RLEN:0:$DLENT}
 	cat $KEY/$ENCDIR/$ENCCMSGF
-	echo
+	echo " "
 	$COLOR 2
 	echo " [*] Message is $RLEN lines long and stored at $DIRR$KEY/$ENCDIR/$ENCCMSGF"
 	$COLOR 9
@@ -517,7 +518,7 @@ fdecryptmsg()															#Decrypt messages
 	openssl enc -aes-256-cbc -d -a -salt -in $DIRR$KEY/$ENCDIR/tmp05 -out $DIRR$KEY/$ENCDIR/tmp06 -k "$PASS1" 2> /dev/null
 
 	mv $DIRR$KEY/$ENCDIR/tmp06 $PWD/tmp04
-	shred -zfun 3 $KEY/$ENCDIR/tmp0*
+	shred -zfun 3 $DIRR$KEY/$ENCDIR/tmp* 2> /dev/null
 	
 	ENCCLEN=$(wc -c tmp04)
 	ENCCMSG=$(cat tmp04)
@@ -561,7 +562,7 @@ fdecryptmsg()															#Decrypt messages
 		
 	DEKD=$(cat tmp03)
 	echo "${DEKD%?}" > $KEY/$DECDIR/$DECMSGF
-	shred -zfun 3 $PWD/tmp04
+	shred -zfun 3 tmp* 2> /dev/null
 	clear
 	cat $KEY/$DECDIR/$DECMSGF
 	echo
