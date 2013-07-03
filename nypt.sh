@@ -14,8 +14,13 @@ fstart()																#Startup function
 	
 	if [ ! -f "$DIRR"list ]
 		then
-			flistgen
+			cp "$PWD"/list "$DIRR"list 2> /dev/null
+			if [ ! -f "$DIRR"list ]
+				then
+					flistgen
+			fi
 	fi
+	
 	
 	cd $DIRR
 	ENCDIR="0_Encrypted_Messages"
