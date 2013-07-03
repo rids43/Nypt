@@ -4,7 +4,7 @@
 
 fstart()																#Startup function
 {
-	ENCCDIR="0_Encrypted_Messages"
+	ENCDIR="0_Encrypted_Messages"
 	DECDIR="0_Decrypted_Messages"
 	trap fexit 2
 	LIST="""shred
@@ -63,11 +63,19 @@ fkeygen()																#Generate keys
 		then
 			KEY="${KEY%?}"
 	fi
+	if [ $KEY -z ] 2> /dev/null
+		then
+			$COLOR 1
+			echo " [*] You must enter a key name, try again..."
+			$COLOR 9
+			sleep 2
+			fkeygen
+	fi
 	if [ -d $KEY ]
 		then
-			clear
-			$COLOR 2
-			echo " [*] $KEY already exists, try again."
+			$COLOR 1
+			echo " [*] $KEY already exists, try again..."
+			$COLOR 9
 			sleep 2
 			fkeygen
 		else
@@ -75,7 +83,7 @@ fkeygen()																#Generate keys
 			$COLOR 4
 			echo " [*] Generating $KEY, please wait..."
 			mkdir $KEY
-			mkdir $KEY/$ENCCDIR
+			mkdir $KEY/$ENCDIR
 			mkdir $KEY/$DECDIR
 			sort -R list > $KEY/list
 			DIRNUM=10
@@ -126,7 +134,7 @@ fkeygen()																#Generate keys
 			$COLOR 2
 			echo " [*] $KEY Complete!"
 			$COLOR 9
-			sleep 1
+			sleep 1.5
 			fmenu
 	fi
 }
@@ -217,20 +225,27 @@ fcatenc()																#Read encrypted messages from the 0_Encrypted_Messages 
 		then
 			KEY="${KEY%?}"
 	fi
+	if [ $KEY -z ] 2> /dev/null
+		then
+			$COLOR 1
+			echo " [*] You must enter a key, try again..."
+			$COLOR 9
+			sleep 1.5
+			fcatenc
+	fi
 	if [ ! -d $KEY ]
 		then
-			clear
 			$COLOR 1
-			echo " [*] $KEY is not a valid key, try again.."
+			echo " [*] $KEY is not a valid key, try again..."
 			$COLOR 9
-			sleep 1
+			sleep 1.5
 			fcatenc
 		else
 			clear
 			$COLOR 6
 			echo " [>] Which file do you want to read?"
 			$COLOR 9
-			cd $KEY/$ENCCDIR;ls
+			cd $KEY/$ENCDIR;ls
 			read -e -p " >" ENCCAT
 			if [ -f $ENCCAT ]
 				then
@@ -238,7 +253,7 @@ fcatenc()																#Read encrypted messages from the 0_Encrypted_Messages 
 					clear
 					cat $ENCCAT
 					echo
-					DLEN=$(wc -l $DIRR$KEY"/"$ENCCDIR"/"$ENCCAT)
+					DLEN=$(wc -l $DIRR$KEY"/"$ENCDIR"/"$ENCCAT)
 					DLENT=7
 					RLEN=${DLEN:0:$DLENT}
 					while [[ "$RLEN" ==  *"/"* ]]
@@ -250,7 +265,7 @@ fcatenc()																#Read encrypted messages from the 0_Encrypted_Messages 
 					DLENT=$((DLENT - 1))
 					RLEN=${DLEN:0:$DLENT}
 					$COLOR 2
-					echo " [*] Message is $RLEN lines long and stored at $DIRR$KEY/$ENCCDIR/$ENCCAT"
+					echo " [*] Message is $RLEN lines long and stored at $DIRR$KEY/$ENCDIR/$ENCCAT"
 					$COLOR 9
 					echo " [>] Press c and Enter to copy to clipboard"
 					read -p """ [>] Press Enter to return to menu
@@ -263,10 +278,10 @@ fcatenc()																#Read encrypted messages from the 0_Encrypted_Messages 
 				else
 					clear
 					$COLOR 1
-					echo " [*] There does not appear to be any file at $ENCCAT, try again.."
+					echo " [*] There does not appear to be any file at $ENCCAT, try again..."
 					$COLOR 9
 					sleep 2
-					fmenu
+					fcatenc
 			fi
 	fi
 }
@@ -284,13 +299,20 @@ fcatdec()																#Read decrypted messages from the 0_Decrypted_Messages 
 		then
 			KEY="${KEY%?}"
 	fi
+	if [ $KEY -z ] 2> /dev/null
+		then
+			$COLOR 1
+			echo " [*] $KEY is not a valid key, try again..."
+			$COLOR 9
+			sleep 1.5
+			fcatdec
+	fi
 	if [ ! -d $KEY ]
 		then
-			clear
 			$COLOR 1
-			echo " [*] $KEY is not a valid key, try again.."
+			echo " [*] $KEY is not a valid key, try again..."
 			$COLOR 9
-			sleep 1
+			sleep 1.5
 			fcatdec
 		else
 			clear
@@ -307,12 +329,11 @@ fcatdec()																#Read decrypted messages from the 0_Decrypted_Messages 
 					read -p " [>] Press Enter to return to main menu" SMF
 					fmenu
 				else
-					clear
 					$COLOR 1
-					echo " [*] There does not appear to be any file at $DECCAT, try again.."
+					echo " [*] There does not appear to be any file at $DECCAT, try again..."
 					$COLOR 9
 					sleep 2
-					fmenu
+					fcatdec
 			fi
 	fi
 }
@@ -325,21 +346,28 @@ fopenenc()
 	$COLOR 9
 	ls 	
 	read -e -p " >" KEY
+	if [ $KEY -z ] 2> /dev/null
+		then
+			$COLOR 1
+			echo " [*] You must enter a key, try again..."
+			$COLOR 9
+			sleep 2
+			fopenenc
+	fi
 	if [ "${KEY: -1}" = "/" ] 2> /dev/null
 		then
 			KEY="${KEY%?}"
 	fi
 			
-	if [ ! -d $KEY/$ENCCDIR ]
+	if [ ! -d $KEY/$ENCDIR ]
 		then
-			clear
 			$COLOR 1
-			echo " [*] $KEY is not a valid key, try again.."
+			echo " [*] $KEY is not a valid key, try again..."
 			$COLOR 9
 			sleep 2
 			fopenenc
 		else
-			nautilus $KEY/$ENCCDIR
+			nautilus $KEY/$ENCDIR 2> /dev/null
 	fi
 
 	fmenu	
@@ -357,15 +385,23 @@ fopendec()
 		then
 			KEY="${KEY%?}"
 	fi
-			
+	if [ $KEY -z ] 2> /dev/null
+		then
+			$COLOR 1
+			echo " [*] You must enter a key, try again..."
+			$COLOR 9
+			sleep 2
+			fopendec
+	fi
 	if [ ! -d $KEY/$DECDIR ]
 		then
-			clear
-			echo " [*] $KEY is not a valid key, try again.."
+			$COLOR 1
+			echo " [*] $KEY is not a valid key, try again..."
+			$COLOR 9
 			sleep 2
 			fopendec
 		else
-			nautilus $KEY/$DECDIR
+			nautilus $KEY/$DECDIR 2> /dev/null
 	fi
 	fmenu
 }
@@ -377,8 +413,16 @@ fimport()
 	echo " [>] Please Enter the location of the key file eg. $HOME/Desktop/key"
 	$COLOR 9
 	read -e -p " >" KEYLOC
-	KEYFILE=$(basename $KEYLOC)
-	clear
+	if [ $KEYLOC -z ] 2> /dev/null
+		then
+			$COLOR 1
+			echo " [*] You must enter the path to key file eg. $HOME/Desktop/key, try again..."
+			$COLOR 9
+			sleep 2
+			fimport
+		else
+			KEYFILE=$(basename $KEYLOC)
+	fi
 	if [ -f $KEYLOC ]
 		then
 			$COLOR 6
@@ -400,9 +444,8 @@ fimport()
 			
 			esac
 		else
-				clear
 				$COLOR 1
-				echo " [*] There does not appear to be any file at $KEYFILE, try again."
+				echo " [*] There does not appear to be any file at $KEYFILE, try again..."
 				$COLOR 9
 				sleep 2
 				fimport
@@ -426,9 +469,8 @@ fimportcus()															#Import key using custom password
 			read -s SPASS
 			if [ $RPASS != $SPASS ]
 				then
-					clear
 					$COLOR 1
-					echo " [*] Passwords do not match, try again.."
+					echo " [*] Passwords do not match, try again..."
 					$COLOR 9
 					sleep 2
 				else
@@ -484,13 +526,19 @@ fexport()
 		then
 			KEY="${KEY%?}"
 	fi
+	if [ $KEY -z ] 2> /dev/null
+		then
+			$COLOR 1
+			echo " [*] You must enter a key, try again..."
+			$COLOR 9
+			sleep
+	fi
 	if [ ! -d $KEY ]
 		then
-			clear
 			$COLOR 1
-			echo " [*] $KEY is not a valid key, try again.."
+			echo " [*] $KEY is not a valid key, try again..."
 			$COLOR 9
-			sleep 1
+			sleep 1.5
 			fexport
 		else
 			if [ ! -d $KEY/0_Exported_Keys ]
@@ -550,9 +598,8 @@ fexportcus()															#Export key using custom password
 			read -s ZPASS
 			if [ $TPASS != $ZPASS ]
 				then
-					clear
 					$COLOR 1
-					echo " [*] Passwords do not match, try again.."
+					echo " [*] Passwords do not match, try again..."
 					$COLOR 9
 					sleep 2
 				else
@@ -590,14 +637,20 @@ fsecuredelkey()															#Shred key
 		then
 			KEY="${KEY%?}"
 	fi
-			
+	if [ $KEY -z ] 2> /dev/null
+		then
+			$COLOR 1
+			echo " [*] You must enter a key, try again..."
+			$COLOR 9
+			sleep 1.5
+			fsecuredelkey
+	fi
 	if [ ! -d $KEY ]
 		then
-			clear
 			$COLOR 1
-			echo " [*] $KEY is not a valid key, try again.."
+			echo " [*] $KEY is not a valid key, try again..."
 			$COLOR 9
-			sleep 1
+			sleep 1.5
 			fsecuredelkey
 		else
 			clear
@@ -641,14 +694,21 @@ fsecuredelenc()															#Shred encrypted messages
 		then
 			KEY="${KEY%?}"
 	fi
+	if [ $KEY -z ] 2> /dev/null
+		then
+			$COLOR 1
+			echo " [*] You must enter a key, try again..."
+			$COLOR 9
+			sleep 1.5
+			fsecuredelenc
+	fi
 			
 	if [ ! -d $KEY ]
 		then
-			clear
 			$COLOR 1
-			echo " [*] $KEY is not a valid key, try again.."
+			echo " [*] $KEY is not a valid key, try again..."
 			$COLOR 9
-			sleep 1
+			sleep 1.5
 			fsecuredelenc
 		else
 			clear
@@ -656,7 +716,6 @@ fsecuredelenc()															#Shred encrypted messages
 			echo " [>] Warning, this will securely delete all of "$KEY"'s encrypted messages, are you sure? [Y/n]:"
 			$COLOR 9
 			read -p " >" DODEL
-			clear
 		
 			case $DODEL in
 				"Y")	fsecdelenc;;
@@ -673,7 +732,7 @@ fsecdelenc()
 {
 	$COLOR 4
 	echo " [*] Securely deleting "$KEY"'s encrypted messages, please wait.."
-	find $KEY/$ENCCDIR -type f -exec shred -zfun 3 {} \;
+	find $KEY/$ENCDIR -type f -exec shred -zfun 3 {} \;
 	$COLOR 2
 	echo " [*] "$KEY"'s encrypted messages securely deleted."
 	$COLOR 9
@@ -692,14 +751,21 @@ fsecuredeldec()															#Shred decrypted messages
 		then
 			KEY="${KEY%?}"
 	fi
+	if [ $KEY -z ] 2> /dev/null
+		then
+			$COLOR 1
+			echo " [*] You must enter a key, try again..."
+			$COLOR 9
+			sleep 1.5
+			fsecuredeldec
+	fi
 			
 	if [ ! -d $KEY ]
 		then
-			clear
 			$COLOR 1
-			echo " [*] $KEY is not a valid key, try again.."
+			echo " [*] $KEY is not a valid key, try again..."
 			$COLOR 9
-			sleep 1
+			sleep 1.5
 			fsecuredeldec
 		else
 			clear
@@ -750,17 +816,17 @@ fencryptmsg()															#Encrypt messages
 	if [ ! -d $KEY ]
 		then
 			$COLOR 1
-			echo " [*] $KEY is not a valid key, try again."
+			echo " [*] $KEY is not a valid key, try again..."
 			$COLOR 9
-			sleep 1
+			sleep 1.5
 			fencryptmsg
 	
 	elif [ $KEY -z ] 2> /dev/null
 		then
 			$COLOR 1
-			echo " [*] You must choose a key, try again"
+			echo " [*] You must choose a key, try again..."
 			$COLOR 9
-			sleep 1
+			sleep 1.5
 			fencryptmsg
 	elif [ "${KEY: -1}" = "/" ] 2> /dev/null
 		then
@@ -774,9 +840,6 @@ fencryptmsg()															#Encrypt messages
 	read -p " >" MSG
 	MSGLEN=${#MSG}
 	MSGCNT=0
-	touch tmp1
-	touch tmp2
-	touch tmp3
 	
 	while [ $MSGCNT -lt $MSGLEN ]
 		do
@@ -798,22 +861,21 @@ fencryptmsg()															#Encrypt messages
 			echo " [>] Please Enter a filename for your message:"
 			$COLOR 9
 			read -p " >" ENCCMSGF
-			if [ -f $KEY/$ENCCDIR/$ENCCMSGF ]
+			if [ -f $KEY/$ENCDIR/$ENCCMSGF ]
 				then
 					$COLOR 1
-					echo " [*] $ENCCMSGF already exists, Try again.."
+					echo " [*] $ENCCMSGF already exists, Try again..."
 					$COLOR 9
-					sleep 1
+					sleep 1.5
 					clear
 			elif [ $ENCCMSGF -z ] 2> /dev/null
 				then
 					$COLOR 1
-					echo " [*] You must Enter a filename, try again."
+					echo " [*] You must Enter a filename, try again..."
 					$COLOR 9
-					sleep 1
+					sleep 1.5
 					clear
 			else
-				touch $KEY/$ENCCDIR/$ENCCMSGF
 				MSGNAME=1
 			fi
 		done
@@ -844,13 +906,13 @@ fencryptmsg()															#Encrypt messages
 		LNUM=$(( LNUM + 1 ))
 		done <$FILE
 
-	openssl enc -aes-256-gcm -a -salt -in tmp3 -out $KEY/$ENCCDIR/tmp01 -k "$PASS1" 2> /dev/null
-	openssl enc -camellia-256-cbc -a -salt -in $KEY/$ENCCDIR/tmp01  -out $KEY/$ENCCDIR/tmp02 -k "$PASS2" 2> /dev/null
-	openssl enc -aes-256-cbc -a -salt -in $KEY/$ENCCDIR/tmp02  -out $KEY/$ENCCDIR/$ENCCMSGF -k "$PASS3" 2> /dev/null	
+	openssl enc -aes-256-gcm -a -salt -in tmp3 -out $KEY/$ENCDIR/tmp01 -k "$PASS1" 2> /dev/null
+	openssl enc -camellia-256-cbc -a -salt -in $KEY/$ENCDIR/tmp01  -out $KEY/$ENCDIR/tmp02 -k "$PASS2" 2> /dev/null
+	openssl enc -aes-256-cbc -a -salt -in $KEY/$ENCDIR/tmp02  -out $KEY/$ENCDIR/$ENCCMSGF -k "$PASS3" 2> /dev/null	
 	
 	shred -zfun 3 tmp*
 	clear
-	RLEN=$(wc -l $DIRR$KEY/$ENCCDIR/$ENCCMSGF)
+	RLEN=$(wc -l $DIRR$KEY/$ENCDIR/$ENCCMSGF)
 	DLENT=7
 	while [[ "$RLEN" ==  *"/"* ]]
 			do
@@ -859,16 +921,16 @@ fencryptmsg()															#Encrypt messages
 			done
 	DLENT=$((DLENT - 1))
 	RLEN=${RLEN:0:$DLENT}
-	cat $KEY/$ENCCDIR/$ENCCMSGF
+	cat $KEY/$ENCDIR/$ENCCMSGF
 	echo
 	$COLOR 2
-	echo " [*] Message is $RLEN lines long and stored at $DIRR$KEY/$ENCCDIR/$ENCCMSGF"
+	echo " [*] Message is $RLEN lines long and stored at $DIRR$KEY/$ENCDIR/$ENCCMSGF"
 	$COLOR 9
 	read -p """ [>] Press c and Enter to copy to clipboard
  [>] Press Enter to return to menu
  >""" SMF
 	case $SMF in
-		"c") cat $KEY/$ENCCDIR/$ENCCMSGF | xclip -sel clip; DISPCOPMSG=1;fmenu;;
+		"c") cat $KEY/$ENCDIR/$ENCCMSGF | xclip -sel clip; DISPCOPMSG=1;fmenu;;
 		"") fmenu
 	esac
 }
@@ -876,8 +938,7 @@ fencryptmsg()															#Encrypt messages
 fdecpaste()
 {
 	DATER=$(date +%Y_%d_%m_%H_%M_%S)
-	touch $KEY/$ENCCDIR/$DATER
-	DATEFILE=$KEY/$ENCCDIR/$DATER
+	DATEFILE=$KEY/$ENCDIR/$DATER
 	xclip -sel clip -o > $DATEFILE
 	ISDONE=1
 }
@@ -895,17 +956,17 @@ fdecryptmsg()															#Decrypt messages
 	if [ ! -d $KEY ]
 		then
 			$COLOR 1
-			echo " [*] $KEY is not a valid key, try again."
+			echo " [*] $KEY is not a valid key, try again..."
 			$COLOR 9
-			sleep 1
+			sleep 1.5
 			fdecryptmsg
 	
 	elif [ $KEY -z ] 2> /dev/null
 		then
 			$COLOR 1
-			echo " [*] You must choose a key, try again."
+			echo " [*] You must choose a key, try again..."
 			$COLOR 9
-			sleep 1
+			sleep 1.5
 			fdecryptmsg
 	
 	elif [ "${KEY: -1}" = "/" ] 2> /dev/null
@@ -913,10 +974,6 @@ fdecryptmsg()															#Decrypt messages
 			KEY="${KEY%?}"
 	fi
 	
-	touch tmp01
-  	touch tmp02
-  	touch tmp03
-	touch tmp04
 	ISDONE=0
 	TMPCHK=0
 	
@@ -931,30 +988,53 @@ fdecryptmsg()															#Decrypt messages
 				"P") fdecpaste;;
 				"p") fdecpaste;;
 				"") fdecpaste;;
-				"f") clear;cd $KEY/$ENCCDIR; ls
-				echo
+				"f") clear; LSS=$(ls $KEY/$ENCDIR)
+				if [ $LSS -z ] 2> /dev/null
+					then
+						$COLOR 1
+						echo " [*] There are no files in $DIRR$KEY/$ENCDIR"
+						$COLOR 9
+						sleep 2
+						fmenu
+					else
+						echo $LSS
+					
+				fi
+				cd $KEY/$ENCDIR
 				read -e -p " >" DECMSGF
-			
+
 				if [ ! -f $DECMSGF ]
 					then
 						$COLOR 1
-						echo " [*] $DECMSGF is not a valid file, try again."
+						echo " [*] $DECMSGF is not a valid file, try again..."
 						$COLOR 9
 						sleep 2
 				else
 					ISDONE=1
 				fi;;
-				"F") cd $KEY/$ENCCDIR;ls
-				echo
+				"F") clear; LSS=$(ls $KEY/$ENCDIR)
+				if [ $LSS -z ] 2> /dev/null
+					then
+						$COLOR 1
+						echo " [*] There are no files in $DIRR$KEY/$ENCDIR"
+						$COLOR 9
+						sleep 2
+						fmenu
+					else
+						echo $LSS
+					
+				fi
+				cd $KEY/$ENCDIR
 				read -e -p " >" DECMSGF
+
 				if [ ! -f $DECMSGF ]
 					then
 						$COLOR 1
-						echo " [*] $DECMSGF is not a valid file, try again."
+						echo " [*] $DECMSGF is not a valid file, try again..."
 						$COLOR 9
 						sleep 2
-					else
-						ISDONE=1
+				else
+					ISDONE=1
 				fi
 			esac
 		done
@@ -966,11 +1046,11 @@ fdecryptmsg()															#Decrypt messages
 	$COLOR 9
 
 	case $DODEC in
-		"P") cat $DATEFILE  > $KEY/$ENCCDIR/tmp01;DECMSGF=$DATER;;
-		"p") cat $DATEFILE  > $KEY/$ENCCDIR/tmp01;DECMSGF=$DATER;;
-		"") cat $DATEFILE  > $KEY/$ENCCDIR/tmp01;DECMSGF=$DATER;;
-		"f") cat $KEY/$ENCCDIR/$DECMSGF  > $KEY/$ENCCDIR/tmp01;;
-		"F") cat $KEY/$ENCCDIR/$DECMSGF  > $KEY/$ENCCDIR/tmp01
+		"P") cat $DATEFILE  > $KEY/$ENCDIR/tmp01;DECMSGF=$DATER;;
+		"p") cat $DATEFILE  > $KEY/$ENCDIR/tmp01;DECMSGF=$DATER;;
+		"") cat $DATEFILE  > $KEY/$ENCDIR/tmp01;DECMSGF=$DATER;;
+		"f") cat $KEY/$ENCDIR/$DECMSGF  > $KEY/$ENCDIR/tmp01;;
+		"F") cat $KEY/$ENCDIR/$DECMSGF  > $KEY/$ENCDIR/tmp01
 	esac
 	
 	FILE=$KEY/meta/meta
@@ -986,11 +1066,11 @@ fdecryptmsg()															#Decrypt messages
 			LNUM=$(( LNUM + 1 ))
 		done <$FILE
 		
-	openssl enc -aes-256-cbc -d -a -salt -in $KEY/$ENCCDIR/tmp01  -out $KEY/$ENCCDIR/tmp02 -k "$PASS3" 2> /dev/null	
-	openssl enc -camellia-256-cbc -d -a -salt -in $KEY/$ENCCDIR/tmp02  -out $KEY/$ENCCDIR/tmp03 -k "$PASS2" 2> /dev/null
-	openssl enc -aes-256-gcm -d -a -salt -in $KEY/$ENCCDIR/tmp03 -out tmp04 -k "$PASS1" 2> /dev/null
+	openssl enc -aes-256-cbc -d -a -salt -in $KEY/$ENCDIR/tmp01  -out $KEY/$ENCDIR/tmp02 -k "$PASS3" 2> /dev/null	
+	openssl enc -camellia-256-cbc -d -a -salt -in $KEY/$ENCDIR/tmp02  -out $KEY/$ENCDIR/tmp03 -k "$PASS2" 2> /dev/null
+	openssl enc -aes-256-gcm -d -a -salt -in $KEY/$ENCDIR/tmp03 -out tmp04 -k "$PASS1" 2> /dev/null
 	
-	shred -zfun 3 $KEY/$ENCCDIR/tmp0*
+	shred -zfun 3 $KEY/$ENCDIR/tmp0*
 	
 	ENCCLEN=$(wc -c tmp04)
 	ENCCMSG=$(cat tmp04)
@@ -1054,13 +1134,21 @@ fencryptfile()
 	ls 	
 	read -e -p " >" KEY
 	
+	if [ $KEY -z ] 2> /dev/null
+		then
+			$COLOR 1
+			echo " [*] You must enter a key, try again..."
+			$COLOR 9
+			sleep 1.5
+			fencryptfile
+	fi
+	
 	if [ ! -d $KEY ]
 		then
-			clear
 			$COLOR 1
-			echo " [*] $KEY is not a valid key, try again.."
+			echo " [*] $KEY is not a valid key, try again..."
 			$COLOR 9
-			sleep 1
+			sleep 1.5
 			fencryptfile
 	elif [ "${KEY: -1}" = "/" ] 2> /dev/null
 		then
@@ -1072,10 +1160,19 @@ fencryptfile()
 	$COLOR 9
 	read -e -p " >" INFILE
 	
+	if [ $INFILE -z ] 2> /dev/null
+		then
+			$COLOR 1
+			echo " [*] You must enter the path to the keyfile e.g. $HOME/file, try again..."
+			$COLOR 9
+			sleep 1.5
+			fencryptfile
+	fi
+	
 	if [ ! -f $INFILE ]
 		then
 			$COLOR 1
-			echo " [*] There does not appear to be any file at $INFILE, try again.."
+			echo " [*] There does not appear to be any file at $INFILE, try again..."
 			$COLOR 9
 			sleep 2
 			fencryptfile
@@ -1087,9 +1184,9 @@ fencryptfile()
 	echo " [*] Encrypting "$ENCCMSF", please wait.."
 	$COLOR 9
 	
-	if [ ! -d $KEY/$ENCCDIR/0_Encrypted_Files ]
+	if [ ! -d $KEY/$ENCDIR/0_Encrypted_Files ]
 		then
-			mkdir $KEY/$ENCCDIR/0_Encrypted_Files
+			mkdir $KEY/$ENCDIR/0_Encrypted_Files
 	fi
 	FILE=$KEY/meta/meta
 	LNUM=1
@@ -1104,21 +1201,21 @@ fencryptfile()
 		LNUM=$(( LNUM + 1 ))
 		done <$FILE
 
-	openssl enc -aes-256-cbc -a -salt -in $INFILE -out $KEY/$ENCCDIR/tmp01 -k "$PASS2" 2> /dev/null	
-	openssl enc -camellia-256-cbc -a -salt -in $KEY/$ENCCDIR/tmp01  -out $KEY/$ENCCDIR/tmp02 -k "$PASS1" 2> /dev/null
-	openssl enc -aes-256-gcm -a -salt -in $KEY/$ENCCDIR/tmp02 -out $KEY/$ENCCDIR/0_Encrypted_Files/$ENCCMSGF -k "$PASS3" 2> /dev/null
+	openssl enc -aes-256-cbc -a -salt -in $INFILE -out $KEY/$ENCDIR/tmp01 -k "$PASS2" 2> /dev/null	
+	openssl enc -camellia-256-cbc -a -salt -in $KEY/$ENCDIR/tmp01  -out $KEY/$ENCDIR/tmp02 -k "$PASS1" 2> /dev/null
+	openssl enc -aes-256-gcm -a -salt -in $KEY/$ENCDIR/tmp02 -out $KEY/$ENCDIR/0_Encrypted_Files/$ENCCMSGF -k "$PASS3" 2> /dev/null
 
 	clear
 	$COLOR 2
-	echo " [*] File saved to $DIRR$KEY/$ENCCDIR/0_Encrypted_Files/$ENCCMSGF"
+	echo " [*] File saved to $DIRR$KEY/$ENCDIR/0_Encrypted_Files/$ENCCMSGF"
 	$COLOR 9
 	echo
 	echo " [*] Press c and Enter to copy encrypted file to the clipboard"
 	read -p " [>] Press Enter to return to menu" DOFILE
 	echo
 	case $DOFILE in
-		"c")cat $KEY/$ENCCDIR/0_Encrypted_Files/$ENCCMSGF | xclip -sel clip;DISPCOP=1;fmenu;;
-		"C")cat $KEY/$ENCCDIR/0_Encrypted_Files/$ENCCMSGF | xclip -sel clip;DISPCOP=1;fmenu;;
+		"c")cat $KEY/$ENCDIR/0_Encrypted_Files/$ENCCMSGF | xclip -sel clip;DISPCOP=1;fmenu;;
+		"C")cat $KEY/$ENCDIR/0_Encrypted_Files/$ENCCMSGF | xclip -sel clip;DISPCOP=1;fmenu;;
 		"")fmenu
 	esac
 }
@@ -1132,13 +1229,21 @@ fdecryptfile()
 	ls 	
 	read -e -p " >" KEY
 	
+	if [ $KEY -z ] 2> /dev/null
+		then
+			$COLOR 1
+			echo " [*] You must enter a key, try again..."
+			$COLOR 9
+			sleep 1.5
+			fdecryptfile
+	fi
+	
 	if [ ! -d $KEY ]
 		then
-			clear
 			$COLOR 1
-			echo " [*] $KEY is not a valid key, try again.."
+			echo " [*] $KEY is not a valid key, try again..."
 			$COLOR 9
-			sleep 1
+			sleep 1.5
 			fencryptfile
 	elif [ "${KEY: -1}" = "/" ] 2> /dev/null
 		then
@@ -1150,10 +1255,19 @@ fdecryptfile()
 	$COLOR 9
 	read -e -p " >" INFILE
 	
+	if [ $INFILE -z ] 2> /dev/null
+		then
+			$COLOR 1
+			echo " [*] You must enter the location of the file e.g. $HOME/file, try again..."
+			$COLOR 9
+			sleep 1.5
+			fencryptfile
+	fi
+	
 	if [ ! -f $INFILE ]
 		then
 			$COLOR 1
-			echo " [*] There does not appear to be any file at $INFILE, try again.."
+			echo " [*] There does not appear to be any file at $INFILE, try again..."
 			$COLOR 9
 			sleep 2
 			fdecryptfile
@@ -1184,11 +1298,11 @@ fdecryptfile()
 		LNUM=$(( LNUM + 1 ))
 		done <$FILE
 		
-	openssl enc -aes-256-gcm -d -a -salt -in $INFILE -out $KEY/$ENCCDIR/tmp01 -k "$PASS3" 2> /dev/null
-	openssl enc -camellia-256-cbc -d -a -salt -in $KEY/$ENCCDIR/tmp01  -out $KEY/$ENCCDIR/tmp02 -k "$PASS1" 2> /dev/null
-	openssl enc -aes-256-cbc -d -a -salt -in $KEY/$ENCCDIR/tmp02  -out $KEY/$DECDIR/0_Decrypted_Files/$DECMSGT -k "$PASS2" 2> /dev/null	
+	openssl enc -aes-256-gcm -d -a -salt -in $INFILE -out $KEY/$ENCDIR/tmp01 -k "$PASS3" 2> /dev/null
+	openssl enc -camellia-256-cbc -d -a -salt -in $KEY/$ENCDIR/tmp01  -out $KEY/$ENCDIR/tmp02 -k "$PASS1" 2> /dev/null
+	openssl enc -aes-256-cbc -d -a -salt -in $KEY/$ENCDIR/tmp02  -out $KEY/$DECDIR/0_Decrypted_Files/$DECMSGT -k "$PASS2" 2> /dev/null	
 
-	shred -zfun 3 $KEY/$ENCCDIR/tmp0*
+	shred -zfun 3 $KEY/$ENCDIR/tmp0*
 	clear
 	$COLOR 2
 	echo " [*] File saved to $KEY/$DECDIR/0_Decrypted_Files/$DECMSGT"
@@ -1207,7 +1321,6 @@ fdecryptfile()
 flistgen()																#Generate full list of 6 digit numbers to use for random number crypto 
 {
 	cd $DIRR
-	touch list
 	clear
 	STARTNUM=100000
 
@@ -1238,7 +1351,7 @@ flistgen()																#Generate full list of 6 digit numbers to use for rand
 	$COLOR 2
 	echo " [*] Setup complete!"
 	$COLOR 9
-	sleep 1
+	sleep 1.5
 }
  
 fexit()																	#Delete left over tempory files when exitting
@@ -1248,19 +1361,22 @@ fexit()																	#Delete left over tempory files when exitting
 	shred -zfun 3 tmp* 2> /dev/null
 	echo
 	exit
+	
 }
 	COLOR="tput setab"
 	if [ $(whoami) != 'root' ]
 		then
-			$COLOR 6
-			echo " [*] Warning, Nypt needs to be run as root user, do you want to switch to root now [Y/n]:"
+			$COLOR 1
+			echo " [*] Warning, Nypt needs to be run as root user, do you want to switch to root now? [Y/n]:"
 			$COLOR 9
 			echo
 			read -p " >" SUDO
 			case $SUDO in
 				"Y")sudo su -c ./nypt.sh; fexit;;
 				"y")sudo su -c ./nypt.sh; fexit;;
-				"")	sudo su -c ./nypt.sh; fexit;
+				"")	sudo su -c ./nypt.sh; fexit;;
+				"n")fexit;;
+				"N")fexit
 			esac
 			if [ ! -d $HOME/Desktop ]
 				then
