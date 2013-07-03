@@ -1249,11 +1249,29 @@ fexit()																	#Delete left over tempory files when exitting
 	echo
 	exit
 }
-	
+
+	if [ $(whoami) != 'root' ]
+		then
+			$COLOR 6
+			echo " [*] Warning, Nypt needs to be run as root user, do you want to switch to root now [Y/n]:"
+			$COLOR 9
+			echo
+			read -p " >" SUDO
+			case $SUDO in
+				"Y")sudo su;;
+				"y")sudo su;;
+				"")	sudo su;;
+				*)fexit
+			esac
+			if [ ! -d $HOME/Desktop ]
+				then
+					mkdir $HOME/Desktop
+			fi
+	fi
 	DIRR=$HOME/Desktop/nypt/
 	COLOR="tput setab"
 	if [ ! -d $DIRR ]
-		then k
+		then
 			mkdir $DIRR
 			flistgen
 	fi
