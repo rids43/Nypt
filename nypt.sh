@@ -652,15 +652,20 @@ fencryptfile()
 			case $LNUM in
 					1)PASS1=$LINE;;
 					2)PASS2=$LINE;;
-					3)PASS3=$LINE
+					3)PASS3=$LINE;;
+					4)PASS4=$LINE;;
+					5)PASS5=$LINE
 			esac
 		LNUM=$(( LNUM + 1 ))
 		done <$FILE
 
-	openssl enc -aes-256-cbc -a -salt -in $INFILE -out $DIRR$KEY/$ENCDIR/tmp01 -k "$PASS2" 2> /dev/null	
-	openssl enc -camellia-256-cbc -a -salt -in $DIRR$KEY/$ENCDIR/tmp01  -out $DIRR$KEY/$ENCDIR/tmp02 -k "$PASS1" 2> /dev/null
-	openssl enc -aes-256-cbc -a -salt -in $DIRR$KEY/$ENCDIR/tmp02 -out $DIRR$KEY/$ENCDIR/0_Encrypted_Files/$ENCCMSGF -k "$PASS3" 2> /dev/null
+	openssl enc -aes-256-cbc -a -salt -in $INFILE -out $DIRR$KEY/$ENCDIR/tmp01 -k "$PASS1" 2> /dev/null	
+	openssl enc -camellia-256-cbc -a -salt -in $DIRR$KEY/$ENCDIR/tmp01  -out $DIRR$KEY/$ENCDIR/tmp02 -k "$PASS2" 2> /dev/null
+	openssl enc -aes-256-cbc -a -salt -in $DIRR$KEY/$ENCDIR/tmp02  -out $DIRR$KEY/$ENCDIR/tmp03 -k "$PASS3" 2> /dev/null
+	openssl enc -camellia-256-cbc -a -salt -in $DIRR$KEY/$ENCDIR/tmp03  -out $DIRR$KEY/$ENCDIR/tmp04 -k "$PASS4" 2> /dev/null
+	openssl enc -aes-256-cbc -a -salt -in $DIRR$KEY/$ENCDIR/tmp04 -out $DIRR$KEY/$ENCDIR/0_Encrypted_Files/$ENCCMSGF -k "$PASS5" 2> /dev/null
 
+	shred -zfun 3 $DIRR$KEY/$ENCDIR/tmp* 2> /dev/null
 	clear
 	$COLOR 2
 	echo " [*] File saved to $DIRR$KEY/$ENCDIR/0_Encrypted_Files/$ENCCMSGF"
@@ -748,20 +753,24 @@ fdecryptfile()
 			case $LNUM in
 					1)PASS1=$LINE;;
 					2)PASS2=$LINE;;
-					3)PASS3=$LINE
+					3)PASS3=$LINE;;
+					4)PASS4=$LINE;;
+					5)PASS5=$LINE
 			esac
 		
 		LNUM=$(( LNUM + 1 ))
 		done <$FILE
 		
-	openssl enc -aes-256-cbc -d -a -salt -in $INFILE -out $DIRR$KEY/$ENCDIR/tmp01 -k "$PASS3" 2> /dev/null
-	openssl enc -camellia-256-cbc -d -a -salt -in $DIRR$KEY/$ENCDIR/tmp01  -out $DIRR$KEY/$ENCDIR/tmp02 -k "$PASS1" 2> /dev/null
-	openssl enc -aes-256-cbc -d -a -salt -in $DIRR$KEY/$ENCDIR/tmp02  -out $DIRR$KEY/$DECDIR/0_Decrypted_Files/$DECMSGT -k "$PASS2" 2> /dev/null	
+	openssl enc -aes-256-cbc -d -a -salt -in $INFILE -out $DIRR$KEY/$ENCDIR/tmp01 -k "$PASS5" 2> /dev/null
+	openssl enc -camellia-256-cbc -d -a -salt -in $DIRR$KEY/$ENCDIR/tmp01  -out $DIRR$KEY/$ENCDIR/tmp02 -k "$PASS4" 2> /dev/null
+	openssl enc -aes-256-cbc -d -a -salt -in $DIRR$KEY/$ENCDIR/tmp02  -out $DIRR$KEY/$ENCDIR/tmp03 -k "$PASS3" 2> /dev/null
+	openssl enc -camellia-256-cbc -d -a -salt -in $DIRR$KEY/$ENCDIR/tmp03  -out $DIRR$KEY/$ENCDIR/tmp04 -k "$PASS2" 2> /dev/null
+	openssl enc -aes-256-cbc -d -a -salt -in $DIRR$KEY/$ENCDIR/tmp04  -out $DIRR$KEY/$DECDIR/0_Decrypted_Files/$DECMSGT -k "$PASS1" 2> /dev/null	
 
 	shred -zfun 3 $KEY/$ENCDIR/tmp0*
 	clear
 	$COLOR 2
-	echo " [*] File saved to $KEY/$DECDIR/0_Decrypted_Files/$DECMSGT"
+	echo " [*] File saved to $DIRR$KEY/$DECDIR/0_Decrypted_Files/$DECMSGT"
 	$COLOR 9
 	echo
 	STRT=" [*] "
