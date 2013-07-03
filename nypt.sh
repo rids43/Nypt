@@ -1249,7 +1249,7 @@ fexit()																	#Delete left over tempory files when exitting
 	echo
 	exit
 }
-
+	COLOR="tput setab"
 	if [ $(whoami) != 'root' ]
 		then
 			$COLOR 6
@@ -1261,7 +1261,6 @@ fexit()																	#Delete left over tempory files when exitting
 				"Y")sudo su;;
 				"y")sudo su;;
 				"")	sudo su;;
-				*)fexit
 			esac
 			if [ ! -d $HOME/Desktop ]
 				then
@@ -1269,7 +1268,6 @@ fexit()																	#Delete left over tempory files when exitting
 			fi
 	fi
 	DIRR=$HOME/Desktop/nypt/
-	COLOR="tput setab"
 	if [ ! -d $DIRR ]
 		then
 			mkdir $DIRR
