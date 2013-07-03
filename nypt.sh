@@ -88,7 +88,7 @@ fmenu()
 	fi
 	cd $DIRR
 	$COLOR 6
-	echo "  [*] Nypt 1.33"		
+	echo "  [*] Nypt 1.34"		
 	$COLOR 9														#This is the main menu
 	read -p """      ~~~~~~~~
  [1] Encryption
@@ -205,6 +205,8 @@ fkeygen()																#Generate keys
 			RAND1=${RANDOM:0:2}
 			RAND2=${RANDOM:0:2}
 			RAND3=${RANDOM:0:2}
+			RAND4=${RANDOM:0:2}
+			RAND5=${RANDOM:0:2}
 			if [ $RAND1 -le 50 ]
 				then
 					RAND1=$(( RAND1 + 35 ))
@@ -217,10 +219,21 @@ fkeygen()																#Generate keys
 				then
 					RAND3=$(( RAND3 + 35 ))
 			fi
+			if [ $RAND4 -le 50 ]
+				then
+					RAND4=$(( RAND4 + 35 ))
+			fi
+			if [ $RAND5 -le 50 ]
+				then
+					RAND5=$(( RAND5 + 35 ))
+			fi
 			mkdir $KEY/meta/
 			echo $(strings /dev/urandom | grep -o '[[:alnum:]]' | head -n $RAND1 | tr -d '\n'; echo) > $KEY/meta/meta
 			echo $(strings /dev/urandom | grep -o '[[:alnum:]]' | head -n $RAND2 | tr -d '\n'; echo) >> $KEY/meta/meta
 			echo $(strings /dev/urandom | grep -o '[[:alnum:]]' | head -n $RAND3 | tr -d '\n'; echo) >> $KEY/meta/meta
+			echo $(strings /dev/urandom | grep -o '[[:alnum:]]' | head -n $RAND4 | tr -d '\n'; echo) >> $KEY/meta/meta
+			echo $(strings /dev/urandom | grep -o '[[:alnum:]]' | head -n $RAND5 | tr -d '\n'; echo) >> $KEY/meta/meta
+
 			shred -zfun 3 $KEY/list
 			echo
 			$COLOR 2
@@ -333,7 +346,9 @@ fencryptmsg()															#Encrypt messages
 			case $LNUM in
 					1)PASS1="$LINE";;
 					2)PASS2="$LINE";;
-					3)PASS3="$LINE"
+					3)PASS3="$LINE";;
+					4)PASS4="$LINE";;
+					5)PASS5="$LINE"
 			esac
 		
 			LNUM=$(( LNUM + 1 ))
@@ -341,7 +356,9 @@ fencryptmsg()															#Encrypt messages
 
 	openssl enc -aes-256-cbc -a -salt -in tmp3 -out $DIRR$KEY/$ENCDIR/tmp01 -k "$PASS1" 2> /dev/null
 	openssl enc -camellia-256-cbc -a -salt -in $DIRR$KEY/$ENCDIR/tmp01  -out $DIRR$KEY/$ENCDIR/tmp02 -k "$PASS2" 2> /dev/null
-	openssl enc -aes-256-cbc -a -salt -in $DIRR$KEY/$ENCDIR/tmp02  -out $DIRR$KEY/$ENCDIR/$ENCCMSGF -k "$PASS3" 2> /dev/null	
+	openssl enc -aes-256-cbc -a -salt -in $DIRR$KEY/$ENCDIR/tmp02  -out $DIRR$KEY/$ENCDIR/tmp03 -k "$PASS3" 2> /dev/null
+	openssl enc -camellia-256-cbc -a -salt -in $DIRR$KEY/$ENCDIR/tmp03  -out $DIRR$KEY/$ENCDIR/tmp04 -k "$PASS4" 2> /dev/null
+	openssl enc -aes-256-cbc -a -salt -in $DIRR$KEY/$ENCDIR/tmp04  -out $DIRR$KEY/$ENCDIR/$ENCCMSGF -k "$PASS5" 2> /dev/null	
 	
 	shred -zfun 3 tmp*
 	clear
@@ -485,17 +502,21 @@ fdecryptmsg()															#Decrypt messages
 			case $LNUM in
 					1)PASS1="$LINE";;
 					2)PASS2="$LINE";;
-					3)PASS3="$LINE"
+					3)PASS3="$LINE";;
+					4)PASS4="$LINE";;
+					5)PASS5="$LINE"
 			esac
 		
 			LNUM=$(( LNUM + 1 ))
 		done <"$FILE"
 		
-	openssl enc -aes-256-cbc -d -a -salt -in $DIRR$KEY/$ENCDIR/tmp01  -out $DIRR$KEY/$ENCDIR/tmp02 -k "$PASS3" 2> /dev/null	
-	openssl enc -camellia-256-cbc -d -a -salt -in $DIRR$KEY/$ENCDIR/tmp02  -out $DIRR$KEY/$ENCDIR/tmp03 -k "$PASS2" 2> /dev/null
-	openssl enc -aes-256-cbc -d -a -salt -in $DIRR$KEY/$ENCDIR/tmp03 -out $DIRR$KEY/$ENCDIR/tmp04 -k "$PASS1" 2> /dev/null
+	openssl enc -aes-256-cbc -d -a -salt -in $DIRR$KEY/$ENCDIR/tmp01  -out $DIRR$KEY/$ENCDIR/tmp02 -k "$PASS5" 2> /dev/null	
+	openssl enc -camellia-256-cbc -d -a -salt -in $DIRR$KEY/$ENCDIR/tmp02  -out $DIRR$KEY/$ENCDIR/tmp03 -k "$PASS4" 2> /dev/null
+	openssl enc -aes-256-cbc -d -a -salt -in $DIRR$KEY/$ENCDIR/tmp03  -out $DIRR$KEY/$ENCDIR/tmp04 -k "$PASS3" 2> /dev/null
+	openssl enc -camellia-256-cbc -d -a -salt -in $DIRR$KEY/$ENCDIR/tmp04  -out $DIRR$KEY/$ENCDIR/tmp05 -k "$PASS2" 2> /dev/null
+	openssl enc -aes-256-cbc -d -a -salt -in $DIRR$KEY/$ENCDIR/tmp05 -out $DIRR$KEY/$ENCDIR/tmp06 -k "$PASS1" 2> /dev/null
 
-	mv $DIRR$KEY/$ENCDIR/tmp04 $PWD/tmp04
+	mv $DIRR$KEY/$ENCDIR/tmp06 $PWD/tmp04
 	shred -zfun 3 $KEY/$ENCDIR/tmp0*
 	
 	ENCCLEN=$(wc -c tmp04)
@@ -540,6 +561,7 @@ fdecryptmsg()															#Decrypt messages
 		
 	DEKD=$(cat tmp03)
 	echo "${DEKD%?}" > $KEY/$DECDIR/$DECMSGF
+	shred -zfun 3 $PWD/tmp04
 	clear
 	cat $KEY/$DECDIR/$DECMSGF
 	echo
@@ -556,7 +578,6 @@ fdecpaste()
 	DATEFILE="$DIRR""$KEY"/"$ENCDIR"/"$DATER"
 	touch $DATEFILE
 	xclip -sel clip -o > $DATEFILE
-	echo "$DIRR""$KEY"/"$ENCDIR"/"$DATER"
 	ISDONE=1
 }
 
@@ -1021,10 +1042,14 @@ fimportcus()															#Import key using custom password
 	NPASS=$(echo $NPASS$NPASS | md5sum)
 	GPASS=$(echo NPASS | md5sum)
 	LPASS=$NPASS$GPASS$SPASS$GPASS
+	FPASS=$SPASS$GPASS$NPASS
+	MPASS=$FPASS$NPASS$SPASS
 	
 	openssl enc -aes-256-cbc -d -a -salt -in $KEYLOC -out tmp01 -k "$LPASS" 2> /dev/null
-	openssl enc -camellia-256-cbc -d -a -salt -in tmp01 -out tmp02 -k "$NPASS" 2> /dev/null
-	openssl enc -aes-256-cbc -d -a -salt -in tmp02 -out $DIRR$KEYFILE.zip -k "$SPASS" 2> /dev/null
+	openssl enc -camellia-256-cbc -d -a -salt -in tmp01 -out tmp02 -k "$MPASS" 2> /dev/null
+	openssl enc -aes-256-cbc -d -a -salt -in tmp02 -out tmp03 -k "$GPASS" 2> /dev/null
+	openssl enc -camellia-256-cbc -d -a -salt -in tmp03 -out tmp04 -k "$NPASS" 2> /dev/null
+	openssl enc -aes-256-cbc -d -a -salt -in tmp04 -out $DIRR$KEYFILE.zip -k "$SPASS" 2> /dev/null
 	
 	unzip -P $SPASS $KEYFILE.zip -d .  2> /dev/null
 	chown -hR $USER $KEYFILE
@@ -1148,11 +1173,16 @@ fexportcus()															#Export key using custom password
 					NPASS=$(echo $NPASS$NPASS | md5sum)
 					GPASS=$(echo NPASS | md5sum)
 					LPASS=$NPASS$GPASS$ZPASS$GPASS
-					zip -reP $ZPASS $KEY.zip $KEY 
+					FPASS=$ZPASS$GPASS$NPASS
+					MPASS=$FPASS$NPASS$ZPASS
 					
+					zip -reP $ZPASS $KEY.zip $KEY 
+
 					openssl enc -aes-256-cbc -a -salt -in $DIRR$KEY.zip -out "$WHSAV"/tmp01 -k "$ZPASS" 2> /dev/null
 					openssl enc -camellia-256-cbc -a -salt -in "$WHSAV"/tmp01 -out "$WHSAV"/tmp02 -k "$NPASS" 2> /dev/null
-					openssl enc -aes-256-cbc -a -salt -in "$WHSAV"/tmp02 -out $WHSAV/$KEY -k "$LPASS" 2> /dev/null
+					openssl enc -aes-256-cbc -a -salt -in "$WHSAV"/tmp02 -out "$WHSAV"/tmp03 -k "$GPASS" 2> /dev/null
+					openssl enc -camellia-256-cbc -a -salt -in "$WHSAV"/tmp03 -out "$WHSAV"/tmp04 -k "$MPASS" 2> /dev/null
+					openssl enc -aes-256-cbc -a -salt -in "$WHSAV"/tmp04 -out $WHSAV/$KEY -k "$LPASS" 2> /dev/null
 					
 			fi
 		done
