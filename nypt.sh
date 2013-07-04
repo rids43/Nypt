@@ -73,6 +73,7 @@ grep"""
 fmenu()
 {
 	clear
+	DOSSHSEND=0
 	if [ $DISPCOP = "1" ] 2> /dev/null
 		then
 			$COLOR 2
@@ -145,12 +146,14 @@ fmenu()
 		echo " [*] SSH Menu"
 		$COLOR 9
 		read -p """      ~~~~~~~~
- [1] Send file via SSH
- [2] Install openssh server
- [3] Start SSH server
- [4] Back
+ [1] Send file
+ [2] Send Encrypted message 
+ [3] Send Encrypted file
+ [4] Install openssh server
+ [5] Start SSH server
+ [6] Back
  >""" MENU
-		case $MENU in 1)fsshsend;;2)finstallssh;;3)fsshstart;;4)fmenu;esac
+		case $MENU in 1)fsshsend;;2)fsshencmsg;;3)fsshencfile;;4)finstallssh;;5)fsshstart;;6)fmenu;esac
 	;;
 	5)fexit
 	esac
@@ -390,8 +393,9 @@ fencryptmsg()															#Encrypt messages
 	$COLOR 2
 	echo " [*] Message is $RLEN lines long and stored at $DIRR$KEY/$ENCDIR/$ENCCMSGF"
 	$COLOR 9
-	read -p """ [>] Press c and Enter to copy to clipboard
- [>] Press Enter to return to menu
+	sleep 0.2
+	echo " [>] Press c and Enter to copy to clipboard"
+	read -p """ [>] Press Enter to return to menu
  >""" SMF
 	case $SMF in
 		"c") cat $KEY/$ENCDIR/$ENCCMSGF | xclip -sel clip; DISPCOPMSG=1;fmenu;;
@@ -1247,11 +1251,15 @@ fsshstart()
 fsshsend()
 {
 	clear
-	$COLOR 6
-	echo " [>] Please Enter the location of the file: e.g. $HOME/file"
-	$COLOR 9
-	read -e -p " >" INFILE
 	
+	if [ $DOSSHSEND = "0" ] 2> /dev/null
+		then
+			$COLOR 6
+			echo " [>] Please Enter the location of the file: e.g. $HOME/file"
+			$COLOR 9
+			read -e -p " >" INFILE
+	fi
+	DOSSHSEND=0
 	if [ $INFILE -z ] 2> /dev/null
 		then
 			$COLOR 1
@@ -1354,6 +1362,109 @@ fsshsend()
 	sleep 1.5
 	fmenu
 }
+
+fsshencmsg()
+{
+	clear
+	$COLOR 6
+	echo " [>] Which key?"
+	$COLOR 9
+	ls 	
+	read -e -p " >" KEY
+	if [ "${KEY: -1}" = "/" ] 2> /dev/null
+		then
+			KEY="${KEY%?}"
+	fi
+	if [ $KEY -z ] 2> /dev/null
+		then
+			$COLOR 1
+			echo " [*] You must Enter a key, try again..."
+			$COLOR 9
+			sleep 1.5
+			fsshencmsg
+	fi
+	if [ ! -d $KEY ]
+		then
+			$COLOR 1
+			echo " [*] $KEY is not a valid key, try again..."
+			$COLOR 9
+			sleep 1.5
+			fsshencmsg
+		else
+			clear
+			$COLOR 6
+			echo " [>] Which message do you want to send?"
+			$COLOR 9
+			cd $KEY/$ENCDIR;ls
+			read -e -p " >" ENCCAT
+			if [ -f $ENCCAT ]
+				then
+					INFILE=$KEY/$ENCDIR/$ENCCAT
+					DOSSHSEND=1
+					cd "$DIRR"
+					fsshsend
+				else
+					clear
+					$COLOR 1
+					echo " [*] There does not appear to be any file at $ENCCAT, try again..."
+					$COLOR 9
+					sleep 2
+					fsshencmsg
+			fi
+	fi
+}
+
+fsshencfile()
+{
+	clear
+	$COLOR 6
+	echo " [>] Which key?"
+	$COLOR 9
+	ls 	
+	read -e -p " >" KEY
+	if [ "${KEY: -1}" = "/" ] 2> /dev/null
+		then
+			KEY="${KEY%?}"
+	fi
+	if [ $KEY -z ] 2> /dev/null
+		then
+			$COLOR 1
+			echo " [*] You must Enter a key, try again..."
+			$COLOR 9
+			sleep 1.5
+			fsshencfile
+	fi
+	if [ ! -d $KEY ]
+		then
+			$COLOR 1
+			echo " [*] $KEY is not a valid key, try again..."
+			$COLOR 9
+			sleep 1.5
+			fsshencfile
+		else
+			clear
+			$COLOR 6
+			echo " [>] Which Encrypted file do you want to send?"
+			$COLOR 9
+			cd $KEY/$ENCDIR/0_Encrypted_Files;ls
+			read -e -p " >" ENCCAT
+			if [ -f $ENCCAT ]
+				then
+					INFILE=$KEY/$ENCDIR/0_Encrypted_Files/$ENCCAT
+					DOSSHSEND=1
+					cd "$DIRR"
+					fsshsend
+				else
+					clear
+					$COLOR 1
+					echo " [*] There does not appear to be any file at $ENCCAT, try again..."
+					$COLOR 9
+					sleep 2
+					fsshencfile
+			fi
+	fi
+}
+
 
 fsecuredelkey()															#Shred key
 {
