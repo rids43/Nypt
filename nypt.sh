@@ -394,11 +394,12 @@ fencryptmsg()															#Encrypt messages
 	$COLOR 2
 	echo " [*] Message is $RLEN lines long and stored at $DIRR$KEY/$ENCDIR/$ENCCMSGF"
 	$COLOR 9
-	sleep 0.2
 	echo " [>] Press c and Enter to copy to clipboard"
+	echo " [>] Press s and Enter to send via SSH"
 	read -p """ [>] Press Enter to return to menu
  >""" SMF
 	case $SMF in
+		"s")INFILE=$DIRR$KEY/$ENCDIR/$ENCCMSGF;DOSSHSEND=1;cd "$DIRR";fsshsend;;
 		"c") cat $KEY/$ENCDIR/$ENCCMSGF | xclip -sel clip; DISPCOPMSG=1;fmenu;;
 		"") fmenu
 	esac
@@ -691,10 +692,14 @@ fencryptfile()
 	echo " [*] File saved to $DIRR$KEY/$ENCDIR/0_Encrypted_Files/$ENCCMSGF"
 	$COLOR 9
 	echo
-	echo " [*] Press c and Enter to copy encrypted file to the clipboard"
-	read -p " [>] Press Enter to return to menu" DOFILE
+	echo " [>] Press c and Enter to copy encrypted file to the clipboard"
+	echo " [>] Press s and Enter to send via SSH"
+	read -p """ [>] Press Enter to return to menu
+ >""" DOFILE
 	echo
 	case $DOFILE in
+		"s")INFILE=$DIRR$KEY/$ENCDIR/0_Encrypted_Files/$ENCCMSGF;DOSSHSEND=1;cd "$DIRR";fsshsend;;
+		"S")INFILE=$DIRR$KEY/$ENCDIR/0_Encrypted_Files/$ENCCMSGF;DOSSHSEND=1;cd "$DIRR";fsshsend;;
 		"c")cat $KEY/$ENCDIR/0_Encrypted_Files/$ENCCMSGF | xclip -sel clip;DISPCOP=1;fmenu;;
 		"C")cat $KEY/$ENCDIR/0_Encrypted_Files/$ENCCMSGF | xclip -sel clip;DISPCOP=1;fmenu;;
 		"")fmenu
@@ -1164,14 +1169,25 @@ fexport()
 				"C")fexportcus;;
 			esac
 
-	clear
-	$COLOR 2
-	echo " [*] $KEY exported to $DIRR$WHSAV/$KEY"
-	$COLOR 9
-	shred -zfun 3 "$WHSAV"/tmp0*
-	shred -zfun 3 $KEY.zip
-	sleep 2.5
-	fmenu
+			shred -zfun 3 "$WHSAV"/tmp0*
+			shred -zfun 3 $KEY.zip
+			clear
+			$COLOR 2
+			echo " [*] $KEY exported to $DIRR$WHSAV/$KEY"
+			$COLOR 9
+			echo " [>] Press c and Enter to copy encrypted file to the clipboard"
+			echo " [>] Press s and Enter to send via SSH"
+			read -p """ [>] Press Enter to return to menu
+ >""" DOFILE
+			echo
+			case $DOFILE in
+				"s")INFILE=$DIRR$WHSAV/$KEY;DOSSHSEND=1;cd "$DIRR";fsshsend;;
+				"S")INFILE=$DIRR$WHSAV/$KEY;DOSSHSEND=1;cd "$DIRR";fsshsend;;
+				"c")cat $DIRR$WHSAV/$KEY | xclip -sel clip;DISPCOP=1;fmenu;;
+				"C")cat $DIRR$WHSAV/$KEY | xclip -sel clip;DISPCOP=1;fmenu;;
+				"")fmenu
+			esac
+			fmenu
 	fi
 }
 
@@ -1438,9 +1454,9 @@ fsshencmsg()
 	if [ ! -d $KEY/0_Exported_Keys ]
 		then
 			$COLOR 1
-			echo " [*] You need to export the key first..."
+			echo " [*] You need to export the key first, loading export..."
 			$COLOR 9
-			sleep 1.5
+			sleep 2
 			fexport
 		else
 			clear
