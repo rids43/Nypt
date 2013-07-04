@@ -1415,7 +1415,7 @@ fsshencmsg()
 	fi
 }
 
-fsshkey()
+ fsshkey()
 {
 	clear
 	$COLOR 6
