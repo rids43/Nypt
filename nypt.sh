@@ -5,9 +5,11 @@
 fstart()																#Startup function
 {
 	COLOR="tput setab"
-	DIRR=$HOME/Desktop/nypt/
+	DIRR=$HOME/Desktop/nypt/keys/
 	if [ ! -d $DIRR ]
 		then
+			mkdir $HOME/Desktop/nypt/
+			mkdir $HOME/Desktop/nypt/SSH_Recieved_Files
 			mkdir $DIRR
 	fi
 	
@@ -26,6 +28,8 @@ fstart()																#Startup function
 	DECDIR="0_Decrypted_Messages"
 	trap fexit 2
 	LIST="""shred
+ssh
+scp
 xclip
 openssl
 zip
@@ -41,10 +45,6 @@ grep"""
 		do
 			if [ $(which $COMMAND) -z ] 2> /dev/null
 				then
-					clear
-					$COLOR 6
-					read -p " [*] It looks like $COMMAND is not installed on your system, it is needed by Nypt. Do you want to install it? [Y/n]" INSTALL
-					$COLOR 9
 					if [ $(whoami) = "root" ]
 						then
 							case $INSTALL in
@@ -88,13 +88,14 @@ fmenu()
 	fi
 	cd $DIRR
 	$COLOR 6
-	echo "  [*] Nypt 1.34"		
+	echo "  [*] Nypt 1.35"		
 	$COLOR 9														#This is the main menu
 	read -p """      ~~~~~~~~
  [1] Encryption
  [2] Decryption
  [3] Keys
- [4] Quit
+ [4] SSH
+ [5] Quit
  >""" MENU
   
 		case $MENU in
@@ -138,8 +139,20 @@ fmenu()
  [5] Back
  >""" MENU 
 		case $MENU in 1)fkeygen;;2)fexport;;3)fimport;;4)fsecuredelkey;;5)fmenu;esac
-	;;	
-	4)fexit
+	;;
+	4)	clear
+		$COLOR 6
+		echo " [*] SSH Menu"
+		$COLOR 9
+		read -p """      ~~~~~~~~
+ [1] Send file via SSH
+ [2] Install openssh server
+ [3] Start SSH server
+ [4] Back
+ >""" MENU
+		case $MENU in 1)fsshsend;;2)finstallssh;;3)fsshstart;;4)fmenu;esac
+	;;
+	5)fexit
 	esac
 	fmenu
 }
@@ -158,7 +171,7 @@ fkeygen()																#Generate keys
 	if [ $KEY -z ] 2> /dev/null
 		then
 			$COLOR 1
-			echo " [*] You must enter a key name, try again..."
+			echo " [*] You must Enter a key name, try again..."
 			$COLOR 9
 			sleep 2
 			fkeygen
@@ -594,7 +607,7 @@ fencryptfile()
 	if [ $KEY -z ] 2> /dev/null
 		then
 			$COLOR 1
-			echo " [*] You must enter a key, try again..."
+			echo " [*] You must Enter a key, try again..."
 			$COLOR 9
 			sleep 1.5
 			fencryptfile
@@ -620,7 +633,7 @@ fencryptfile()
 	if [ $INFILE -z ] 2> /dev/null
 		then
 			$COLOR 1
-			echo " [*] You must enter the path to the keyfile e.g. $HOME/file, try again..."
+			echo " [*] You must Enter the path to the file e.g. $HOME/file, try again..."
 			$COLOR 9
 			sleep 1.5
 			fencryptfile
@@ -694,7 +707,7 @@ fdecryptfile()
 	if [ $KEY -z ] 2> /dev/null
 		then
 			$COLOR 1
-			echo " [*] You must enter a key, try again..."
+			echo " [*] You must Enter a key, try again..."
 			$COLOR 9
 			sleep 1.5
 			fdecryptfile
@@ -720,7 +733,7 @@ fdecryptfile()
 	if [ $INFILE -z ] 2> /dev/null
 		then
 			$COLOR 1
-			echo " [*] You must enter the location of the file e.g. $HOME/file, try again..."
+			echo " [*] You must Enter the location of the file e.g. $HOME/file, try again..."
 			$COLOR 9
 			sleep 1.5
 			fencryptfile
@@ -799,7 +812,7 @@ fcatenc()																#Read encrypted messages from the 0_Encrypted_Messages 
 	if [ $KEY -z ] 2> /dev/null
 		then
 			$COLOR 1
-			echo " [*] You must enter a key, try again..."
+			echo " [*] You must Enter a key, try again..."
 			$COLOR 9
 			sleep 1.5
 			fcatenc
@@ -920,7 +933,7 @@ fopenenc()
 	if [ $KEY -z ] 2> /dev/null
 		then
 			$COLOR 1
-			echo " [*] You must enter a key, try again..."
+			echo " [*] You must Enter a key, try again..."
 			$COLOR 9
 			sleep 2
 			fopenenc
@@ -959,7 +972,7 @@ fopendec()
 	if [ $KEY -z ] 2> /dev/null
 		then
 			$COLOR 1
-			echo " [*] You must enter a key, try again..."
+			echo " [*] You must Enter a key, try again..."
 			$COLOR 9
 			sleep 2
 			fopendec
@@ -987,7 +1000,7 @@ fimport()
 	if [ $KEYLOC -z ] 2> /dev/null
 		then
 			$COLOR 1
-			echo " [*] You must enter the path to key file eg. $HOME/Desktop/key, try again..."
+			echo " [*] You must Enter the path to key file eg. $HOME/Desktop/key, try again..."
 			$COLOR 9
 			sleep 2
 			fimport
@@ -1104,7 +1117,7 @@ fexport()
 	if [ $KEY -z ] 2> /dev/null
 		then
 			$COLOR 1
-			echo " [*] You must enter a key, try again..."
+			echo " [*] You must Enter a key, try again..."
 			$COLOR 9
 			sleep
 	fi
@@ -1204,6 +1217,137 @@ fexportdef()          													#Export key using default password
 	openssl enc -a -aes-256-cbc -salt -in $DIRR$KEY.zip -out $WHSAV/$KEY -k "FQhs2UOb6UfY6h4h20hf49LTS9EnkSuQP66357693hahal0lp4s501EfOoWCvjScbanpDrJ3sWXupryAQLj71Qt" 2> /dev/null
 }
 
+finstallssh()
+{
+	clear
+	if [ $(whoami) = 'root' ] 2> /dev/null
+		then
+			apt-get install openssh-server
+		else
+			sudo apt-get install openssh-server
+	fi
+}
+
+fsshstart()
+{
+	echo
+	$COLOR 4
+	if [ $(whoami) = 'root' ] 2> /dev/null
+		then
+			service ssh start
+		else
+			sudo service ssh start
+	fi
+	$COLOR 9
+	sleep 1.5
+	fmenu
+}
+
+fsshsend()
+{
+	clear
+	$COLOR 6
+	echo " [>] Please Enter the location of the file: e.g. $HOME/file"
+	$COLOR 9
+	read -e -p " >" INFILE
+	
+	if [ $INFILE -z ] 2> /dev/null
+		then
+			$COLOR 1
+			echo " [*] You must Enter the path to the file, try again..."
+			$COLOR 9
+			sleep 1.5
+			fsshsend
+	fi
+	
+	if [ ! -f $INFILE ]
+		then
+			$COLOR 1
+			echo " [*] There does not appear to be any file at $INFILE, try again..."
+			$COLOR 9
+			sleep 2
+			fsshsend
+	fi
+	BASEFILE=$(basename $INFILE)
+	clear
+	$COLOR 6
+	echo " [>] Please Enter the user you are logging in to"
+	$COLOR 9
+	read -e -p " >" RUSER
+	
+	if [ $RUSER -z ] 2> /dev/null
+		then
+			$COLOR 1
+			echo " [*] You must Enter the user you are logging in to, try again..."
+			$COLOR 9
+			sleep 1.5
+			fsshsend
+	fi
+	
+	clear
+	$COLOR 6
+	echo " [>] Please Enter the IP address you are connecting to"
+	$COLOR 9
+	read -e -p " >" IPSEND
+	if [ $IPSEND -z ] 2> /dev/null
+		then
+			$COLOR 1
+			echo " [*] You must Enter the IP address you are connecting to, try again..."
+			$COLOR 9
+			sleep 1.5
+			fsshsend
+	fi
+	
+	clear
+	$COLOR 6
+	echo " [>] Is there a custom port number? [N/y]:"
+	$COLOR 9
+	read -e -p " >" SSHPORTDO
+	
+	case $SSHPORTDO in
+		"")SSHPORT=22;;
+		"n")SSHPORT=22;;
+		"N")SSHPORT=22;;
+		"y")clear
+			$COLOR 6
+			echo " [>] Please Enter the port number"
+			$COLOR 9
+			read -e -p " >" SSHPORT
+			if [ $SSHPORT -z ] 2> /dev/null
+				then
+				$COLOR 1
+				echo " [*] You must Enter the port number you are connecting to, try again..."
+				$COLOR 9
+				sleep 1.5
+				fsshsend
+			fi;;
+		"Y")clear
+			$COLOR 6
+			echo " [>] Please Enter the port number"
+			$COLOR 9
+			read -e -p " >" SSHPORT
+			if [ $SSHPORT -z ] 2> /dev/null
+				then
+				$COLOR 1
+				echo " [*] You must Enter the port number you are connecting to, try again..."
+				$COLOR 9
+				sleep 1.5
+				fsshsend
+			fi
+	esac
+	clear
+	$COLOR 4
+	echo " [*] Sending $BASEFILE to "$RUSER"@"$IPSEND" on port number "$SSHPORT""
+	$COLOR 9
+	SSEND="scp -P $SSHPORT $INFILE "$RUSER"@"$IPSEND":/home/$RUSER/Desktop/nypt/SSH_Recieved_Files/$BASEFILE"
+	$SSEND
+	echo
+	$COLOR 2
+	echo " [*] $BASEFILE sent to "$RUSER"@"$IPSEND""
+	$COLOR 9
+	sleep 1.5
+	fmenu
+}
 
 fsecuredelkey()															#Shred key
 {
@@ -1220,7 +1364,7 @@ fsecuredelkey()															#Shred key
 	if [ $KEY -z ] 2> /dev/null
 		then
 			$COLOR 1
-			echo " [*] You must enter a key, try again..."
+			echo " [*] You must Enter a key, try again..."
 			$COLOR 9
 			sleep 1.5
 			fsecuredelkey
@@ -1277,7 +1421,7 @@ fsecuredelenc()															#Shred encrypted messages
 	if [ $KEY -z ] 2> /dev/null
 		then
 			$COLOR 1
-			echo " [*] You must enter a key, try again..."
+			echo " [*] You must Enter a key, try again..."
 			$COLOR 9
 			sleep 1.5
 			fsecuredelenc
@@ -1334,7 +1478,7 @@ fsecuredeldec()															#Shred decrypted messages
 	if [ $KEY -z ] 2> /dev/null
 		then
 			$COLOR 1
-			echo " [*] You must enter a key, try again..."
+			echo " [*] You must Enter a key, try again..."
 			$COLOR 9
 			sleep 1.5
 			fsecuredeldec

@@ -1,6 +1,6 @@
- Nypt 1.34
+ Nypt 1.35
  
-NOTE: V.1.34 is incompatible with previous versions
+NOTE: V.1.35 is incompatible with previous versions
 
 Custom wrapper for OpenSSL
 
@@ -22,7 +22,7 @@ Key Transmission:
 
 3. Keys can be encrypted with a custom password. The other party must know that the key is encrypted with a custom password and they must also know what this password is. This information must somehow be transmitted to them (see below).
 
-4. Keys and/or their secret password can be transferred via SSH, PGP, cryptocat private room, or any other suitable encrypted communication method.
+4. Keys and/or their secret password can be transferred via SSH, PGP, cryptocat private room, or any other suitable encrypted communication method. There is functionality to send files via SSH built into Nypt
 
 Programmers: Customizing certain parameters in this script is highly recommended to make it even more secure, just remember that the other party must have a copy of the edited script for it to work. This is another problem that must be solved by sending the edited script using secure encrypted communication methods.
 
