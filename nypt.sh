@@ -88,7 +88,7 @@ fmenu()
 	fi
 	cd $DIRR
 	$COLOR 6
-	echo "  [*] Nypt 1.35"		
+	echo "  [*] Nypt 1.34"		
 	$COLOR 9														#This is the main menu
 	read -p """      ~~~~~~~~
  [1] Encryption
