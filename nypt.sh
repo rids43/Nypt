@@ -582,7 +582,8 @@ fdecryptmsg()															#Decrypt messages
 	$COLOR 2
 	echo " [*] Message saved to $DIRR$KEY/$DECDIR/$DECMSGF"
 	$COLOR 9
-	read -p " [>] Press Enter to return to menu" SMF
+	echo " [>] Press Enter to return to menu"
+	read -p " >" SMF
 	fmenu
 }
 
@@ -1339,7 +1340,12 @@ fsshsend()
 	$COLOR 4
 	echo " [*] Sending $BASEFILE to "$RUSER"@"$IPSEND" on port number "$SSHPORT""
 	$COLOR 9
-	SSEND="scp -P $SSHPORT $INFILE "$RUSER"@"$IPSEND":/home/$RUSER/Desktop/nypt/SSH_Recieved_Files/$BASEFILE"
+	if [ $RUSER != 'root' ] 2> /dev/null
+		then
+			SSEND="scp -P $SSHPORT $INFILE "$RUSER"@"$IPSEND":/home/$RUSER/Desktop/nypt/SSH_Recieved_Files/$BASEFILE"
+		else
+			SSEND="scp -P $SSHPORT $INFILE "$RUSER"@"$IPSEND":/root/Desktop/nypt/SSH_Recieved_Files/$BASEFILE"
+	fi
 	$SSEND
 	echo
 	$COLOR 2
@@ -1558,7 +1564,7 @@ flistgen()																#Generate full list of 6 digit numbers to use for rand
 }
  
 fexit()																	#Delete left over tempory files when exitting
-{
+{    
 	$COLOR 9
 	cd $DIRR
 	shred -zfun 3 tmp* 2> /dev/null
