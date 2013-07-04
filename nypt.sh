@@ -149,11 +149,12 @@ fmenu()
  [1] Send file
  [2] Send Encrypted message 
  [3] Send Encrypted file
- [4] Install openssh server
- [5] Start SSH server
- [6] Back
+ [4] Send Encrypted key
+ [5] Install openssh server
+ [6] Start SSH server
+ [7] Back
  >""" MENU
-		case $MENU in 1)fsshsend;;2)fsshencmsg;;3)fsshencfile;;4)finstallssh;;5)fsshstart;;6)fmenu;esac
+		case $MENU in 1)fsshsend;;2)fsshencmsg;;3)fsshencfile;;4)fsshkey;;5)finstallssh;;6)fsshstart;;7)fmenu;esac
 	;;
 	5)fexit
 	esac
@@ -1272,7 +1273,7 @@ fsshsend()
 	if [ ! -f $INFILE ]
 		then
 			$COLOR 1
-			echo " [*] There does not appear to be any file at $INFILE, try again..."
+			echo " [*] There does not appear to be any file at $DIRR$INFILE, try again..."
 			$COLOR 9
 			sleep 2
 			fsshsend
@@ -1413,6 +1414,42 @@ fsshencmsg()
 			fi
 	fi
 }
+
+fsshkey()
+{
+	clear
+	$COLOR 6
+	echo " [>] Which key?"
+	$COLOR 9
+	ls 	
+	read -e -p " >" KEY
+	if [ "${KEY: -1}" = "/" ] 2> /dev/null
+		then
+			KEY="${KEY%?}"
+	fi
+	if [ $KEY -z ] 2> /dev/null
+		then
+			$COLOR 1
+			echo " [*] You must Enter a key, try again..."
+			$COLOR 9
+			sleep 1.5
+			fsshkey
+	fi
+	if [ ! -d $KEY/0_Exported_Keys ]
+		then
+			$COLOR 1
+			echo " [*] You need to export the key first..."
+			$COLOR 9
+			sleep 1.5
+			fexport
+		else
+			clear
+			INFILE=$KEY/0_Exported_Keys/$KEY
+			DOSSHSEND=1
+					cd "$DIRR"
+					fsshsend
+	fi
+	}
 
 fsshencfile()
 {
