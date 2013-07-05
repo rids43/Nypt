@@ -89,8 +89,8 @@ grep"""
 							$COLOR 2;echo " [*] $COMMAND found";$COLOR 9
 					fi
 				done < tmp1
-	sleep 1.5
-	rm -rf tmp1
+			sleep 1.5
+			rm -rf tmp1
 	fi
 	if [ $(find  -mindepth 1 -maxdepth 1 -type d -printf '\n' | wc -l) -lt "1" ]
 		then
@@ -104,28 +104,7 @@ fmenu()																	#Main menu
 	cd $DIRR
 	clear
 	SSHSEND=0
-	if [ $DISPCOP = "1" ] 2> /dev/null
-		then
-			$COLOR 2;echo "  [*] "$EMSGFILE"'s encrypted text copied to clipboard!";$COLOR 9
-			DISPCOP=0
-	elif [ $DISPCOPMSG = "1" ] 2> /dev/null
-		then
-			$COLOR 2;echo "  [*] Message copied to clipboard!";$COLOR 9
-			DISPCOPMSG=0
-	elif [ $DISPKEY = "1" ] 2> /dev/null
-		then
-			$COLOR 2;echo "  [*] $KEY Complete!";$COLOR 9
-			DISPKEY=0
-	elif [ $DISPSHRED = "1" ] 2> /dev/null
-		then
-			$COLOR 2;echo " [*] $DMSGFILE shredded!";$COLOR 9
-			DISPSHRED=0
-	elif [ $DISPSSH = "1" ] 2> /dev/null
-		then
-			$COLOR 2;echo " [*] $BASEFILE sent to "$RUSER"@"$IPSEND"";$COLOR 9
-			DISPSSH=0
-
-	fi
+	fdisplaymenu
 	$COLOR 6;echo " [*] Nypt 1.34";$COLOR 9															
 	read -e -p """      ~~~~~~~~
  [1] Encryption
@@ -187,6 +166,47 @@ fmenu()																	#Main menu
 	5)fexit
 	esac
 	fmenu
+}
+
+fdisplaymenu()															#Display information at top of menu
+{
+	if [ $DISPCOP = "1" ] 2> /dev/null
+		then
+			$COLOR 2;echo "  [*] "$EMSGFILE"'s encrypted text copied to clipboard!";$COLOR 9
+			DISPCOP=0
+	elif [ $DISPIMPORT = "1" ] 2> /dev/null
+		then
+			$COLOR 2;echo "  [*] $KEYFILE successfuly imported.";$COLOR 9
+			DISPIMPORT=0
+	elif [ $DISPERRORKEY = "1" ] 2> /dev/null
+		then
+			$COLOR 1;echo "  [*] ERROR: $KEYFILE not imported, wrong password or not an encrypted key.";$COLOR 9
+			DISPERRORKEY=0
+	elif [ $DISPERRORFILE = "1" ] 2> /dev/null
+		then
+			$COLOR 1;echo "  [*] ERROR: $DFILE not decrypted, wrong key or not an encrypted file.";$COLOR 9
+			DISPERRORFILE=0
+	elif [ $DISPERRORMSG = "1" ] 2> /dev/null
+		then
+			$COLOR 1;echo "  [*] ERROR: $DMSGFILE not decrypted, wrong key or not an encrypted message.";$COLOR 9
+			DISPERRORMSG=0
+	elif [ $DISPCOPYMSG = "1" ] 2> /dev/null
+		then
+			$COLOR 2;echo "  [*] Message copied to clipboard!";$COLOR 9
+			DISPCOPYMSG=0
+	elif [ $DISPKEY = "1" ] 2> /dev/null
+		then
+			$COLOR 2;echo "  [*] $KEY Complete!";$COLOR 9
+			DISPKEY=0
+	elif [ $DISPSHRED = "1" ] 2> /dev/null
+		then
+			$COLOR 2;echo "  [*] $DMSGFILE shredded!";$COLOR 9
+			DISPSHRED=0
+	elif [ $DISPSSH = "1" ] 2> /dev/null
+		then
+			$COLOR 2;echo "  [*] $BASEFILE sent to "$RUSER"@"$IPSEND"";$COLOR 9
+			DISPSSH=0
+	fi
 }
 
 fkeygen()																#Generate keys
@@ -376,8 +396,8 @@ fencryptmsg()															#Encrypt messages
 	case $SMF in
 		"s")INFILE=$DIRR$KEY/$ENCDIR/$EMSGFILE;SSHSEND=1;cd "$DIRR";fsshsend;;
 		"S")INFILE=$DIRR$KEY/$ENCDIR/$EMSGFILE;SSHSEND=1;cd "$DIRR";fsshsend;;
-		"c") cat $KEY/$ENCDIR/$EMSGFILE | xclip -sel clip; DISPCOPMSG=1;fmenu;;
-		"C") cat $KEY/$ENCDIR/$EMSGFILE | xclip -sel clip; DISPCOPMSG=1;fmenu;;
+		"c") cat $KEY/$ENCDIR/$EMSGFILE | xclip -sel clip; DISPCOPYMSG=1;fmenu;;
+		"C") cat $KEY/$ENCDIR/$EMSGFILE | xclip -sel clip; DISPCOPYMSG=1;fmenu;;
 		"") fmenu
 	esac
 }
@@ -532,7 +552,7 @@ fdecryptmsg()															#Decrypt messages
 	clear
 	if [ $( cat $KEY/$DECDIR/$DMSGFILE ) -z ] 2> /dev/null
 		then
-			$COLOR 1;echo " [*] ERROR: $DMSGFILE not decrypted, wrong key or not an encrypted message.";$COLOR 9;sleep 1.5;fmenu
+			DISPERRORMSG=1;fmenu
 		else
 			cat $KEY/$DECDIR/$DMSGFILE
 			echo
@@ -683,7 +703,7 @@ fdecryptfile()															#Decrypt files
 	clear
 	if [ $( cat $DIRR$KEY/$DECDIR/0_Decrypted_Files/$DFILE 2> /dev/null ) -z ] 
 		then
-			$COLOR 1;echo " [*] ERROR: $DFILE not decrypted, wrong key or not an encrypted file.";$COLOR 9;sleep 1.5;fmenu
+			DISPERRORFILE=1;fmenu
 		else
 			$COLOR 2;echo " [*] File saved to $DIRR$KEY/$DECDIR/0_Decrypted_Files/$DFILE";$COLOR 9
 			echo
@@ -746,8 +766,8 @@ fcat()																	#Read messages to the screen
 					case $SMF in
 						"s")INFILE=$DIRR$KEY/$CATDIR/$CATFILE;SSHSEND=1;cd "$DIRR";fsshsend;;
 						"S")INFILE=$DIRR$KEY/$CATDIR/$CATFILE;SSHSEND=1;cd "$DIRR";fsshsend;;
-						"c") cat $CATFILE | xclip -sel clip; DISPCOPMSG=1;fmenu;;
-						"C") cat $CATFILE | xclip -sel clip; DISPCOPMSG=1;fmenu;;
+						"c") cat $CATFILE | xclip -sel clip; DISPCOPYMSG=1;fmenu;;
+						"C") cat $CATFILE | xclip -sel clip; DISPCOPYMSG=1;fmenu;;
 						"") fmenu
 					esac
 					fmenu
@@ -824,12 +844,12 @@ fimportkey()															#Import keys
 			if [ $( cat tmp04 2> /dev/null ) -z ] 2> /dev/null
 				then
 					shred -zfun 3 $KEYFILE.zip
-					$COLOR 1;echo " [*] ERROR: $KEYFILE not imported, wrong password or not an encrypted key.";$COLOR 9;sleep 1.5;fmenu
+					DISPERRORKEY=1;fmenu
 				else
 					unzip -P $SPASS $KEYFILE.zip -d .  2> /dev/null
 					chown -hR $USER $KEYFILE
 					clear
-					$COLOR 2;echo " [*] $KEYFILE imported.";$COLOR 9
+					DISPIMPORT=1
 					shred -zfun 3 $KEYFILE.zip
 					sleep 2
 					fmenu
@@ -845,7 +865,7 @@ fexportkey()															#Export keys
 {
 	finputkey
 	
-	if [ ! -d $KEY/0_Exported_Keys ]
+	if [ ! -d $KEY/0_Exported_Keys ] 2> /dev/null
 		then
 			mkdir $KEY/0_Exported_Keys
 	fi			
@@ -1171,7 +1191,7 @@ flistgen()																#Generate full list of 6 digit numbers to use for rand
 	sleep 1.5
 }
 
-finputkey()
+finputkey()																#Select key to use
 {
 	clear
 	$COLOR 6;echo " [>] Which key?";$COLOR 9
