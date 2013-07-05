@@ -25,6 +25,7 @@ fstart()																#Startup function
 	if [ ! -d $DIRR ]
 		then
 			mkdir $HOME/Desktop/nypt/ 2> /dev/null
+			mkdir $HOME/Desktop/nypt/Exported_Keys 2> /dev/null
 			mkdir $HOME/Desktop/nypt/SSH_Recieved_Files 2> /dev/null
 			mkdir $DIRR
 			DEPCHK=1
@@ -295,7 +296,6 @@ fkeygen()																#Generate keys
 			echo $(strings /dev/urandom | grep -o '[[:alnum:]]' | head -n $RAND5 | tr -d '\n'; echo) >> $KEY/meta/meta
 
 			shred -zfun 3 $KEY/list
-			echo
 			DISPKEY=1
 			sleep 1.5
 			fmenu
@@ -800,7 +800,6 @@ fimportkey()															#Import keys
 			fimportkey
 		else
 			KEYLOC=$( echo $KEYLOC | tr -d \ )
-			echo $KEYLOC
 			KEYFILE=$(basename $KEYLOC)
 	fi
 	if [ -f $KEYLOC ]
@@ -822,6 +821,17 @@ fimportkey()															#Import keys
 							DONPS=1
 					fi
 				done
+			
+			clear
+			$COLOR 4;echo " [*] Decrypting "$KEYFILE", Please wait..";$COLOR 9
+
+			if [ -f $DIRR$KEYFILE.zip ] 2> /dev/null
+				then
+					shred -zfun 3 $DIRR$KEYFILE.zip
+			elif [ -d $DIRR$KEYFILE ] 2> /dev/null
+				then
+					rm -rf $DIRR$KEYFILE
+			fi
 		
 			NPASS=$(echo $SPASS | base64)
 			NPASS=$(echo $NPASS$NPASS | md5sum)
@@ -830,28 +840,29 @@ fimportkey()															#Import keys
 			FPASS=$SPASS$GPASS$NPASS
 			MPASS=$FPASS$NPASS$SPASS
 			
-			clear
-			$COLOR 4;echo " [*] Decrypting "$KEY", Please wait...";$COLOR 9
-	
 			openssl enc -aes-256-cbc -d -a -salt -in $KEYLOC -out tmp01 -k "$LPASS" 2> /dev/null
 			openssl enc -camellia-256-cbc -d -a -salt -in tmp01 -out tmp02 -k "$MPASS" 2> /dev/null
 			openssl enc -aes-256-cbc -d -a -salt -in tmp02 -out tmp03 -k "$GPASS" 2> /dev/null
 			openssl enc -camellia-256-cbc -d -a -salt -in tmp03 -out tmp04 -k "$NPASS" 2> /dev/null
 			openssl enc -aes-256-cbc -d -a -salt -in tmp04 -out $DIRR$KEYFILE.zip -k "$SPASS" 2> /dev/null
 			
-			shred -zfun 3 tmp0* 2> /dev/null
-			
 			if [ $( cat tmp04 2> /dev/null ) -z ] 2> /dev/null
 				then
 					shred -zfun 3 $KEYFILE.zip
+					shred -zfun 3 tmp0* 2> /dev/null
 					DISPERRORKEY=1;fmenu
 				else
 					unzip -P $SPASS $KEYFILE.zip -d .  2> /dev/null
 					chown -hR $USER $KEYFILE
+					mkdir $KEYFILE/$ENCDIR
+					mkdir $KEYFILE/$DECDIR
+					mkdir $KEYFILE/$ENCDIR/0_Encrypted_Files
+					mkdir $KEYFILE/$DECDIR/0_Decrypted_Files
 					clear
+					$COLOR 4;echo " [*] Decrypting "$KEYFILE", Please wait..";$COLOR 9
 					DISPIMPORT=1
 					shred -zfun 3 $KEYFILE.zip
-					sleep 2
+					shred -zfun 3 tmp0* 2> /dev/null
 					fmenu
 			fi
 		else
@@ -864,13 +875,7 @@ fimportkey()															#Import keys
 fexportkey()															#Export keys
 {
 	finputkey
-	
-	if [ ! -d $KEY/0_Exported_Keys ] 2> /dev/null
-		then
-			mkdir $KEY/0_Exported_Keys
-	fi			
-			
-	WHSAV="$KEY/0_Exported_Keys"
+	WHSAV=$HOME/Desktop/nypt/Exported_Keys
 	clear
 	PASSDON=0
 	while [ $PASSDON != "1" ]
@@ -903,11 +908,11 @@ fexportkey()															#Export keys
 					zip -reP $ZPASS $KEY.zip $KEY
 					clear
 					$COLOR 4;echo " [*] Encrypting "$KEY", Please wait...";$COLOR 9
-					openssl enc -aes-256-cbc -a -salt -in $DIRR$KEY.zip -out "$WHSAV"/tmp01 -k "$ZPASS" 2> /dev/null
-					openssl enc -camellia-256-cbc -a -salt -in "$WHSAV"/tmp01 -out "$WHSAV"/tmp02 -k "$NPASS" 2> /dev/null
-					openssl enc -aes-256-cbc -a -salt -in "$WHSAV"/tmp02 -out "$WHSAV"/tmp03 -k "$GPASS" 2> /dev/null
-					openssl enc -camellia-256-cbc -a -salt -in "$WHSAV"/tmp03 -out "$WHSAV"/tmp04 -k "$MPASS" 2> /dev/null
-					openssl enc -aes-256-cbc -a -salt -in "$WHSAV"/tmp04 -out $WHSAV/$KEY -k "$LPASS" 2> /dev/null
+					openssl enc -aes-256-cbc -a -salt -in $DIRR$KEY.zip -out $WHSAV/tmp01 -k "$ZPASS" 2> /dev/null
+					openssl enc -camellia-256-cbc -a -salt -in $WHSAV/tmp01 -out $WHSAV/tmp02 -k "$NPASS" 2> /dev/null
+					openssl enc -aes-256-cbc -a -salt -in $WHSAV/tmp02 -out $WHSAV/tmp03 -k "$GPASS" 2> /dev/null
+					openssl enc -camellia-256-cbc -a -salt -in $WHSAV/tmp03 -out $WHSAV/tmp04 -k "$MPASS" 2> /dev/null
+					openssl enc -aes-256-cbc -a -salt -in $WHSAV/tmp04 -out $WHSAV/$KEY -k "$LPASS" 2> /dev/null
 							
 					mv $DIRR$DECDIR "$DIRR""$KEY"/$DECDIR 
 					mv $DIRR$ENCDIR "$DIRR""$KEY"/$ENCDIR
@@ -915,19 +920,20 @@ fexportkey()															#Export keys
 			fi
 		done
 
-	shred -zfun 3 "$WHSAV"/tmp0*
+	shred -zfun 3 $WHSAV/tmp0*
 	shred -zfun 3 $KEY.zip
 	clear
-	$COLOR 2;echo " [*] $KEY exported to $DIRR$WHSAV/$KEY"
-	SIZE=$( du -h $DIRR$WHSAV/$KEY )
-	echo ${SIZE:0:4} " in size";$COLOR 9
+	$COLOR 2;echo " [*] $KEY exported to $WHSAV/$KEY"
+	SIZE=$( du -h $WHSAV/$KEY )
+	echo " [*] "${SIZE:0:4} "in size";$COLOR 9
+	echo
 	echo " [>] Press s and Enter to send via SSH"
 	read -e -p """ [>] Press Enter to return to menu
  >""" DOFILE
 	echo
 	case $DOFILE in
-		"s")INFILE=$DIRR$WHSAV/$KEY;SSHSEND=1;cd "$DIRR";fsshsend;;
-		"S")INFILE=$DIRR$WHSAV/$KEY;SSHSEND=1;cd "$DIRR";fsshsend;;
+		"s")INFILE=$WHSAV/$KEY;SSHSEND=1;cd "$DIRR";fsshsend;;
+		"S")INFILE=$WHSAV/$KEY;SSHSEND=1;cd "$DIRR";fsshsend;;
 		"")fmenu
 	esac
 	fmenu
@@ -1078,7 +1084,7 @@ fsshencmsg()															#Send encrypted message into fsshsend
 {
 	finputkey
 	clear
-	INFILE=$KEY/0_Exported_Keys/$KEY
+	INFILE=$KEY/Exported_Keys/$KEY
 	SSHSEND=1
 	cd "$DIRR"
 	fsshsend
