@@ -134,6 +134,12 @@ fmenu()																	#Main menu
 			echo "  [*] $KEY Complete!"
 			$COLOR 9
 			DISPKEY=0
+	elif [ $DISPSHRED = "1" ] 2> /dev/null
+		then
+			$COLOR 2
+			echo " [*] $DMSGFILE shredded"
+			$COLOR 9
+			DISPSHRED=0
 	fi
 	$COLOR 6
 	echo " [*] Nypt 1.34"		
@@ -311,35 +317,7 @@ fkeygen()																#Generate keys
 
 fencryptmsg()															#Encrypt messages
 {
-	clear
-	
-	$COLOR 6
-	echo " [>] Please choose your key"
-	$COLOR 9
-	ls 
-	echo
-	read -e -p " >" KEY
-
-	if [ ! -d $KEY ]
-		then
-			$COLOR 1
-			echo " [*] $KEY is not a valid key, try again..."
-			$COLOR 9
-			sleep 1.5
-			fencryptmsg
-	
-	elif [ $KEY -z ] 2> /dev/null
-		then
-			$COLOR 1
-			echo " [*] You must choose a key, try again..."
-			$COLOR 9
-			sleep 1.5
-			fencryptmsg
-	elif [ "${KEY: -1}" = "/" ] 2> /dev/null
-		then
-			KEY="${KEY%?}"
-	fi
-	
+	finputkey
 	clear
 	$COLOR 6
 	echo " [>] Please Enter your message:"
@@ -451,36 +429,7 @@ fencryptmsg()															#Encrypt messages
 
 fdecryptmsg()															#Decrypt messages
 {
-	clear
-	
-	$COLOR 6
-	echo " [>]  Which key?"
-	$COLOR 9
-	ls 
-	echo
-	read -e -p " >" KEY
-	
-	if [ ! -d $KEY ]
-		then
-			$COLOR 1
-			echo " [*] $KEY is not a valid key, try again..."
-			$COLOR 9
-			sleep 1.5
-			fdecryptmsg
-	
-	elif [ $KEY -z ] 2> /dev/null
-		then
-			$COLOR 1
-			echo " [*] You must choose a key, try again..."
-			$COLOR 9
-			sleep 1.5
-			fdecryptmsg
-	
-	elif [ "${KEY: -1}" = "/" ] 2> /dev/null
-		then
-			KEY="${KEY%?}"
-	fi
-	
+	finputkey
 	ISDONE=0
 	TMPCHK=0
 	
@@ -654,8 +603,8 @@ fdecryptmsg()															#Decrypt messages
 	clear
 	case $SMF in
 		"")fmenu;;
-		"d")$COLOR 4;echo " [*] Shredding $DMSGFILE...";shred -zfun 3 $DIRR$KEY/$DECDIR/$DMSGFILE;$COLOR 2;echo " [*] $DMSGFILE shredded";$COLOR 9;sleep 1.5;fmenu;;
-		"D")$COLOR 4;echo " [*] Shredding $DMSGFILE...";shred -zfun 3 $DIRR$KEY/$DECDIR/$DMSGFILE;$COLOR 2;echo " [*] $DMSGFILE shredded";$COLOR 9;sleep 1.5;fmenu
+		"d")$COLOR 4;echo " [*] Shredding $DMSGFILE...";$COLOR 9;shred -zfun 3 $DIRR$KEY/$DECDIR/$DMSGFILE;DISPSHRED=1;sleep 1.5;fmenu;;
+		"D")$COLOR 4;echo " [*] Shredding $DMSGFILE...";$COLOR 9;shred -zfun 3 $DIRR$KEY/$DECDIR/$DMSGFILE;DISPSHRED=1;sleep 1.5;fmenu
 	esac
 }
 
@@ -669,34 +618,7 @@ fdecpaste()																#Paste messages into fdecryptmsg
 
 fencryptfile()															#Encrypt files
 {
-	clear
-	
-	$COLOR 6
-	echo " [>] Which key?"
-	$COLOR 9
-	ls 	
-	read -e -p " >" KEY
-	
-	if [ $KEY -z ] 2> /dev/null
-		then
-			$COLOR 1
-			echo " [*] You must Enter a key, try again..."
-			$COLOR 9
-			sleep 1.5
-			fencryptfile
-	fi
-	
-	if [ ! -d $KEY ]
-		then
-			$COLOR 1
-			echo " [*] $KEY is not a valid key, try again..."
-			$COLOR 9
-			sleep 1.5
-			fencryptfile
-	elif [ "${KEY: -1}" = "/" ] 2> /dev/null
-		then
-			KEY="${KEY%?}"
-	fi
+	finputkey
 	clear
 	$COLOR 6
 	echo " [>] Please Enter the location of the file: e.g. $HOME/file"
@@ -774,34 +696,7 @@ fencryptfile()															#Encrypt files
 
 fdecryptfile()															#Decrypt files
 {
-	clear
-	
-	$COLOR 6
-	echo " [>] Which key?"
-	$COLOR 9
-	ls 	
-	read -e -p " >" KEY
-	
-	if [ $KEY -z ] 2> /dev/null
-		then
-			$COLOR 1
-			echo " [*] You must Enter a key, try again..."
-			$COLOR 9
-			sleep 1.5
-			fdecryptfile
-	fi
-	
-	if [ ! -d $KEY ]
-		then
-			$COLOR 1
-			echo " [*] $KEY is not a valid key, try again..."
-			$COLOR 9
-			sleep 1.5
-			fencryptfile
-	elif [ "${KEY: -1}" = "/" ] 2> /dev/null
-		then
-			KEY="${KEY%?}"
-	fi
+	finputkey
 	clear
 	$COLOR 6
 	echo " [>] Please Enter the location of the file: e.g. $HOME/file"
@@ -877,134 +772,83 @@ fdecryptfile()															#Decrypt files
 
 fcat()																	#Read messages to the screen
 {
+	finputkey
 	clear
-	$COLOR 6
-	echo " [>] Which key?"
-	$COLOR 9
-	ls 	
-	read -e -p " >" KEY
-	if [ "${KEY: -1}" = "/" ] 2> /dev/null
-		then
-			KEY="${KEY%?}"
-	fi
-	if [ $KEY -z ] 2> /dev/null
+	LSS=$(ls $KEY/$CATDIR)
+	if [ $LSS -z ] 2> /dev/null
 		then
 			$COLOR 1
-			echo " [*] $KEY is not a valid key, try again..."
+			echo " [*] There are no message files in $DIRR$KEY/$CATDIR"
 			$COLOR 9
 			sleep 1.5
-			fcat
-	fi
-	if [ ! -d $KEY ]
+			fmenu
+	elif [ $LSS = "0_Decrypted_Files" ] 2> /dev/null
 		then
 			$COLOR 1
-			echo " [*] $KEY is not a valid key, try again..."
+			echo " [*] There are no message files in $DIRR$KEY/$CATDIR"
 			$COLOR 9
 			sleep 1.5
-			fcat
-		else
-			clear
-			LSS=$(ls $KEY/$CATDIR)
-			if [ $LSS -z ] 2> /dev/null
-				then
-					$COLOR 1
-					echo " [*] There are no message files in $DIRR$KEY/$CATDIR"
-					$COLOR 9
-					sleep 1.5
-					fmenu
-			elif [ $LSS = "0_Decrypted_Files" ] 2> /dev/null
-				then
-					$COLOR 1
-					echo " [*] There are no message files in $DIRR$KEY/$CATDIR"
-					$COLOR 9
-					sleep 1.5
-					fmenu
-			elif [ $LSS = "0_Encrypted_Files" ] 2> /dev/null
-				then
-					$COLOR 1
-					echo " [*] There are no message files in $DIRR$KEY/$CATDIR"
-					$COLOR 9
-					sleep 1.5
-					fmenu
-			fi
+			fmenu
+	elif [ $LSS = "0_Encrypted_Files" ] 2> /dev/null
+		then
+			$COLOR 1
+			echo " [*] There are no message files in $DIRR$KEY/$CATDIR"
+			$COLOR 9
+			sleep 1.5
+			fmenu
+	fi
 				
-			$COLOR 6
-			echo " [>] Which file do you want to read?"
-			$COLOR 9
-			cd $KEY/$CATDIR; ls
-			read -e -p " >" CATFILE
-			
-			if [ -f $CATFILE ]
+	$COLOR 6
+	echo " [>] Which file do you want to read?"
+	$COLOR 9
+	cd $KEY/$CATDIR; ls
+	read -e -p " >" CATFILE
+		
+	if [ -f $CATFILE ]
+		then
+			clear
+			cat $CATFILE
+			echo
+			if [ $CATDIR = $DECDIR ]
 				then
+					echo " [>] Press d and Enter to securely delete $DMSGFILE"
+					echo " [>] Press Enter to return to menu"
+					read -e -p " >" SMF
 					clear
-					cat $CATFILE
-					echo
-					if [ $CATDIR = $DECDIR ]
-						then
-							echo " [>] Press d and Enter to securely delete $DMSGFILE"
-							echo " [>] Press Enter to return to menu"
-							read -e -p " >" SMF
-							clear
-							case $SMF in
-								"")fmenu;;
-								"d")$COLOR 4;echo " [*] Shredding $CATFILE...";shred -zfun 3 $DIRR$KEY/$CATDIR/$CATFILE;$COLOR 2;echo " [*] $CATFILE shredded";$COLOR 9;sleep 1.5;fmenu;;
-								"D")$COLOR 4;echo " [*] Shredding $CATFILE...";shred -zfun 3 $DIRR$KEY/$CATDIR/$CATFILE;$COLOR 2;echo " [*] $CATFILE shredded";$COLOR 9;sleep 1.5;fmenu
-							esac
-						else
-							echo " [>] Press c and Enter to copy to clipboard"
-							echo " [>] Press s and Enter to send via SSH"
-							read -e -p """ [>] Press Enter to return to menu
- >""" SMF
-							case $SMF in
-								"s")INFILE=$DIRR$KEY/$CATDIR/$CATFILE;SSHSEND=1;cd "$DIRR";fsshsend;;
-								"S")INFILE=$DIRR$KEY/$CATDIR/$CATFILE;SSHSEND=1;cd "$DIRR";fsshsend;;
-								"c") cat $CATFILE | xclip -sel clip; DISPCOPMSG=1;fmenu;;
-								"C") cat $CATFILE | xclip -sel clip; DISPCOPMSG=1;fmenu;;
-								"") fmenu
-							esac
-							fmenu
-					fi
+					case $SMF in
+						"")fmenu;;
+						"d")$COLOR 4;echo " [*] Shredding $CATFILE...";shred -zfun 3 $DIRR$KEY/$CATDIR/$CATFILE;$COLOR 2;echo " [*] $CATFILE shredded";$COLOR 9;sleep 1.5;fmenu;;
+						"D")$COLOR 4;echo " [*] Shredding $CATFILE...";shred -zfun 3 $DIRR$KEY/$CATDIR/$CATFILE;$COLOR 2;echo " [*] $CATFILE shredded";$COLOR 9;sleep 1.5;fmenu
+					esac
 				else
-					$COLOR 1
-					echo " [*] There does not appear to be any file at $CATFILE, try again..."
-					$COLOR 9
-					sleep 2
-					fcat
+					echo " [>] Press c and Enter to copy to clipboard"
+					echo " [>] Press s and Enter to send via SSH"
+					read -e -p """ [>] Press Enter to return to menu
+ >""" SMF
+					case $SMF in
+						"s")INFILE=$DIRR$KEY/$CATDIR/$CATFILE;SSHSEND=1;cd "$DIRR";fsshsend;;
+						"S")INFILE=$DIRR$KEY/$CATDIR/$CATFILE;SSHSEND=1;cd "$DIRR";fsshsend;;
+						"c") cat $CATFILE | xclip -sel clip; DISPCOPMSG=1;fmenu;;
+						"C") cat $CATFILE | xclip -sel clip; DISPCOPMSG=1;fmenu;;
+						"") fmenu
+					esac
+					fmenu
 			fi
+		else
+			$COLOR 1
+			echo " [*] There does not appear to be any file at $CATFILE, try again..."
+			$COLOR 9
+			sleep 2
+			fcat
 	fi
 }
 
 fopendir()																#Open message folder
 {
-	clear
-	$COLOR 6
-	echo " [>] Which key?"
-	$COLOR 9
-	ls 
-	read -e -p " >" KEY
-	if [ "${KEY: -1}" = "/" ] 2> /dev/null
-		then
-			KEY="${KEY%?}"
-	fi
-	if [ $KEY -z ] 2> /dev/null
-		then
-			$COLOR 1
-			echo " [*] You must Enter a key, try again..."
-			$COLOR 9
-			sleep 2
-			fopendir
-	fi
-	if [ ! -d $KEY/$OPENDIR ]
-		then
-			$COLOR 1
-			echo $KEY/$OPENDIR
-			echo " [*] $KEY is not a valid key, try again..."
-			$COLOR 9
-			sleep 2
-			fopendir
-		else
-			nautilus $KEY/$OPENDIR 2> /dev/null
-	fi
+	finputkey
+	
+	nautilus $KEY/$OPENDIR 2> /dev/null
+	
 	fmenu
 }
 
@@ -1090,115 +934,84 @@ fimportkey()															#Import keys
 
 fexportkey()															#Export keys
 {
-	clear
-	$COLOR 6
-	echo " [>] Which key?"
-	$COLOR 9
-	ls 
-	read -e -p " >" KEY
+	finputkey
 	
-	if [ "${KEY: -1}" = "/" ] 2> /dev/null
+	if [ ! -d $KEY/0_Exported_Keys ]
 		then
-			KEY="${KEY%?}"
-	fi
-	if [ $KEY -z ] 2> /dev/null
-		then
-			$COLOR 1
-			echo " [*] You must Enter a key, try again..."
-			$COLOR 9
-			sleep 1.5
-			fexportkey
-	fi
-	if [ ! -d $KEY ]
-		then
-			$COLOR 1
-			echo " [*] $KEY is not a valid key, try again..."
-			$COLOR 9
-			sleep 1.5
-			fexportkey
-		else
-			if [ ! -d $KEY/0_Exported_Keys ]
-				then
-					mkdir $KEY/0_Exported_Keys
-			fi			
+			mkdir $KEY/0_Exported_Keys
+	fi			
 			
-			WHSAV="$KEY/0_Exported_Keys"
+	WHSAV="$KEY/0_Exported_Keys"
+	clear
+	PASSDON=0
+	while [ $PASSDON != "1" ]
+		do
 			clear
-			clear
-			PASSDON=0
-			while [ $PASSDON != "1" ]
-				do
-					clear
-					$COLOR 6
-					echo " [>] Please Enter your password"
-					$COLOR 9
-					read -s  TPASS
-					$COLOR 6
-					echo " [>] Enter once more"  
-					$COLOR 9
-					read -s ZPASS
-					if [ $TPASS != $ZPASS ]
-						then
-							$COLOR 1
-							echo " [*] Passwords do not match, try again..."
-							$COLOR 9
-							sleep 2
-						else
-							PASSDON=1
-							NPASS=$(echo $ZPASS | base64)
-							NPASS=$(echo $NPASS$NPASS | md5sum)
-							GPASS=$(echo NPASS | md5sum)
-							LPASS=$NPASS$GPASS$ZPASS$GPASS
-							FPASS=$ZPASS$GPASS$NPASS
-							MPASS=$FPASS$NPASS$ZPASS
-							
-							mv "$DIRR""$KEY"/$DECDIR $DIRR$DECDIR
-							mv "$DIRR""$KEY"/$ENCDIR $DIRR$ENCDIR
-							mv "$DIRR""$KEY"/$ENCDIR/0_Encrypted_Files "$DIRR"0_Encrypted_Files
-							mv "$DIRR""$KEY"/$DECDIR/0_Decrypted_Files "$DIRR"0_Decrypted_Files
-							
-							if [ -f  $WHSAV/$KEY ] 2> /dev/null
-								then
-									shred -zfun 3 $WHSAV/$KEY
-							fi
-							zip -reP $ZPASS $KEY.zip $KEY
-							clear
-							$COLOR 4
-							echo " [*] Encrypting "$KEY", Please wait..."
-							$COLOR 9
-							openssl enc -aes-256-cbc -a -salt -in $DIRR$KEY.zip -out "$WHSAV"/tmp01 -k "$ZPASS" 2> /dev/null
-							openssl enc -camellia-256-cbc -a -salt -in "$WHSAV"/tmp01 -out "$WHSAV"/tmp02 -k "$NPASS" 2> /dev/null
-							openssl enc -aes-256-cbc -a -salt -in "$WHSAV"/tmp02 -out "$WHSAV"/tmp03 -k "$GPASS" 2> /dev/null
-							openssl enc -camellia-256-cbc -a -salt -in "$WHSAV"/tmp03 -out "$WHSAV"/tmp04 -k "$MPASS" 2> /dev/null
-							openssl enc -aes-256-cbc -a -salt -in "$WHSAV"/tmp04 -out $WHSAV/$KEY -k "$LPASS" 2> /dev/null
-							
-							mv $DIRR$DECDIR "$DIRR""$KEY"/$DECDIR 
-							mv $DIRR$ENCDIR "$DIRR""$KEY"/$ENCDIR
-							mv "$DIRR"0_Encrypted_Files "$DIRR""$KEY"/$ENCDIR/0_Encrypted_Files
-							mv "$DIRR"0_Decrypted_Files "$DIRR""$KEY"/$DECDIR/0_Decrypted_Files
-							
-					fi
-				done
-
-			shred -zfun 3 "$WHSAV"/tmp0*
-			shred -zfun 3 $KEY.zip
-			clear
-			$COLOR 2
-			echo " [*] $KEY exported to $DIRR$WHSAV/$KEY"
-			SIZE=$( du -h $DIRR$WHSAV/$KEY )
-			echo ${SIZE:0:4} " in size"
+			$COLOR 6
+			echo " [>] Please Enter your password"
 			$COLOR 9
-			echo " [>] Press s and Enter to send via SSH"
-			read -e -p """ [>] Press Enter to return to menu
+			read -s  TPASS
+			$COLOR 6
+			echo " [>] Enter once more"  
+			$COLOR 9
+			read -s ZPASS
+			if [ $TPASS != $ZPASS ]
+				then
+					$COLOR 1
+					echo " [*] Passwords do not match, try again..."
+					$COLOR 9
+					sleep 2
+				else
+					PASSDON=1
+					NPASS=$(echo $ZPASS | base64)
+					NPASS=$(echo $NPASS$NPASS | md5sum)
+					GPASS=$(echo NPASS | md5sum)
+					LPASS=$NPASS$GPASS$ZPASS$GPASS
+					FPASS=$ZPASS$GPASS$NPASS
+					MPASS=$FPASS$NPASS$ZPASS
+							
+					mv "$DIRR""$KEY"/$DECDIR $DIRR$DECDIR
+					mv "$DIRR""$KEY"/$ENCDIR $DIRR$ENCDIR
+							
+					if [ -f  $WHSAV/$KEY ] 2> /dev/null
+						then
+							shred -zfun 3 $WHSAV/$KEY
+					fi
+					zip -reP $ZPASS $KEY.zip $KEY
+					clear
+					$COLOR 4
+					echo " [*] Encrypting "$KEY", Please wait..."
+					$COLOR 9
+					openssl enc -aes-256-cbc -a -salt -in $DIRR$KEY.zip -out "$WHSAV"/tmp01 -k "$ZPASS" 2> /dev/null
+					openssl enc -camellia-256-cbc -a -salt -in "$WHSAV"/tmp01 -out "$WHSAV"/tmp02 -k "$NPASS" 2> /dev/null
+					openssl enc -aes-256-cbc -a -salt -in "$WHSAV"/tmp02 -out "$WHSAV"/tmp03 -k "$GPASS" 2> /dev/null
+					openssl enc -camellia-256-cbc -a -salt -in "$WHSAV"/tmp03 -out "$WHSAV"/tmp04 -k "$MPASS" 2> /dev/null
+					openssl enc -aes-256-cbc -a -salt -in "$WHSAV"/tmp04 -out $WHSAV/$KEY -k "$LPASS" 2> /dev/null
+							
+					mv $DIRR$DECDIR "$DIRR""$KEY"/$DECDIR 
+					mv $DIRR$ENCDIR "$DIRR""$KEY"/$ENCDIR
+					
+			fi
+		done
+
+	shred -zfun 3 "$WHSAV"/tmp0*
+	shred -zfun 3 $KEY.zip
+	clear
+	$COLOR 2
+	echo " [*] $KEY exported to $DIRR$WHSAV/$KEY"
+	SIZE=$( du -h $DIRR$WHSAV/$KEY )
+	echo ${SIZE:0:4} " in size"
+	$COLOR 9
+	echo " [>] Press s and Enter to send via SSH"
+	read -e -p """ [>] Press Enter to return to menu
  >""" DOFILE
-			echo
-			case $DOFILE in
-				"s")INFILE=$DIRR$WHSAV/$KEY;SSHSEND=1;cd "$DIRR";fsshsend;;
-				"S")INFILE=$DIRR$WHSAV/$KEY;SSHSEND=1;cd "$DIRR";fsshsend;;
-				"")fmenu
-			esac
-			fmenu
-	fi
+	echo
+	case $DOFILE in
+		"s")INFILE=$DIRR$WHSAV/$KEY;SSHSEND=1;cd "$DIRR";fsshsend;;
+		"S")INFILE=$DIRR$WHSAV/$KEY;SSHSEND=1;cd "$DIRR";fsshsend;;
+		"")fmenu
+	esac
+	fmenu
 }
 
 finstallssh()															#Install OpenSSH server
@@ -1353,139 +1166,61 @@ fsshsend()																#Send files via SSH
 
 fsshencmsg()															#Send encrypted message via SSH
 {
+	finputkey
 	clear
 	$COLOR 6
-	echo " [>] Which key?"
+	echo " [>] Which message do you want to send?"
 	$COLOR 9
-	ls 	
-	read -e -p " >" KEY
-	if [ "${KEY: -1}" = "/" ] 2> /dev/null
+	cd $KEY/$ENCDIR;ls
+	read -e -p " >" ENCCAT
+	if [ -f $ENCCAT ]
 		then
-			KEY="${KEY%?}"
-	fi
-	if [ $KEY -z ] 2> /dev/null
-		then
-			$COLOR 1
-			echo " [*] You must Enter a key, try again..."
-			$COLOR 9
-			sleep 1.5
-			fsshencmsg
-	fi
-	if [ ! -d $KEY ]
-		then
-			$COLOR 1
-			echo " [*] $KEY is not a valid key, try again..."
-			$COLOR 9
-			sleep 1.5
-			fsshencmsg
+			INFILE=$KEY/$ENCDIR/$ENCCAT
+			SSHSEND=1
+			cd "$DIRR"
+			fsshsend
 		else
 			clear
-			$COLOR 6
-			echo " [>] Which message do you want to send?"
+			$COLOR 1
+			echo " [*] There does not appear to be any file at $ENCCAT, try again..."
 			$COLOR 9
-			cd $KEY/$ENCDIR;ls
-			read -e -p " >" ENCCAT
-			if [ -f $ENCCAT ]
-				then
-					INFILE=$KEY/$ENCDIR/$ENCCAT
-					SSHSEND=1
-					cd "$DIRR"
-					fsshsend
-				else
-					clear
-					$COLOR 1
-					echo " [*] There does not appear to be any file at $ENCCAT, try again..."
-					$COLOR 9
-					sleep 2
-					fsshencmsg
-			fi
+			sleep 2
+			fsshencmsg
 	fi
 }
 
  fsshkey()																#Send encrypted keys vis SSH
 {
+	finputkey
 	clear
-	$COLOR 6
-	echo " [>] Which key?"
-	$COLOR 9
-	ls 	
-	read -e -p " >" KEY
-	if [ "${KEY: -1}" = "/" ] 2> /dev/null
-		then
-			KEY="${KEY%?}"
-	fi
-	if [ $KEY -z ] 2> /dev/null
-		then
-			$COLOR 1
-			echo " [*] You must Enter a key, try again..."
-			$COLOR 9
-			sleep 1.5
-			fsshkey
-	fi
-	if [ ! -d $KEY/0_Exported_Keys ]
-		then
-			$COLOR 1
-			echo " [*] You need to export the key first, loading export..."
-			$COLOR 9
-			sleep 2
-			fexportkey
-		else
-			clear
-			INFILE=$KEY/0_Exported_Keys/$KEY
-			SSHSEND=1
-			cd "$DIRR"
-			fsshsend
-	fi
-	}
+	INFILE=$KEY/0_Exported_Keys/$KEY
+	SSHSEND=1
+	cd "$DIRR"
+	fsshsend
+}
 
 fsshencfile()															#Send encrypted file via SSH
 {
+	finputkey
 	clear
 	$COLOR 6
-	echo " [>] Which key?"
+	echo " [>] Which Encrypted file do you want to send?"
 	$COLOR 9
-	ls 	
-	read -e -p " >" KEY
-	if [ "${KEY: -1}" = "/" ] 2> /dev/null
+	cd $KEY/$ENCDIR/0_Encrypted_Files;ls
+	read -e -p " >" ENCCAT
+	if [ -f $ENCCAT ]
 		then
-			KEY="${KEY%?}"
-	fi
-	if [ $KEY -z ] 2> /dev/null
-		then
-			$COLOR 1
-			echo " [*] You must Enter a key, try again..."
-			$COLOR 9
-			sleep 1.5
-			fsshencfile
-	fi
-	if [ ! -d $KEY ]
-		then
-			$COLOR 1
-			echo " [*] $KEY is not a valid key, try again..."
-			$COLOR 9
-			sleep 1.5
-			fsshencfile
+			INFILE=$KEY/$ENCDIR/0_Encrypted_Files/$ENCCAT
+			SSHSEND=1
+			cd "$DIRR"
+			fsshsend
 		else
 			clear
-			$COLOR 6
-			echo " [>] Which Encrypted file do you want to send?"
+			$COLOR 1
+			echo " [*] There does not appear to be any file at $ENCCAT, try again..."
 			$COLOR 9
-			cd $KEY/$ENCDIR/0_Encrypted_Files;ls
-			read -e -p " >" ENCCAT
-			if [ -f $ENCCAT ]
-				then
-					INFILE=$KEY/$ENCDIR/0_Encrypted_Files/$ENCCAT
-					SSHSEND=1
-					cd "$DIRR"
-					fsshsend
-				else
-					clear
-					$COLOR 1
-					echo " [*] There does not appear to be any file at $ENCCAT, try again..."
-					$COLOR 9
-					sleep 2
-					fsshencfile
-			fi
+			sleep 2
+			fsshencfile
 	fi
 }
 
@@ -1526,60 +1261,31 @@ fshred()																#Shred
 
 fshreddir()																#Shred messages and keys
 {
+	finputkey	
 	clear
-	$COLOR 6
-	echo " [>] Which key?"
+	$COLOR 1
+	if [ $SHREDDIR = $DECDIR ]
+		then
+			echo " [>] Warning, this will securely delete all of "$KEY"'s decrypted messages, are you sure? [Y/n]"
+	elif [ $SHREDDIR = $ENCDIR ]
+		then
+			echo " [>] Warning, this will securely delete all of "$KEY"'s encrypted messages, are you sure? [Y/n]"
+	elif [ $SHREDDIR = "KEY" ]
+		then
+			echo " [>] Warning, this will securely delete the key $KEY and all of its messages, are you sure? [Y/n]"
+			SHREDDIR=$KEY
+	fi
 	$COLOR 9
-	ls 
-	read -e -p " >" KEY
-	if [ "${KEY: -1}" = "/" ] 2> /dev/null
-		then
-			KEY="${KEY%?}"
-	fi
-	if [ $KEY -z ] 2> /dev/null
-		then
-			$COLOR 1
-			echo " [*] You must Enter a key, try again..."
-			$COLOR 9
-			sleep 1.5
-			fshreddir
-	fi
-			
-	if [ ! -d $KEY ]
-		then
-			$COLOR 1
-			echo " [*] $KEY is not a valid key, try again..."
-			$COLOR 9
-			sleep 1.5
-			fshreddir
-		else
-			clear
-			$COLOR 1
-			if [ $SHREDDIR = $DECDIR ]
-				then
-					echo " [>] Warning, this will securely delete all of "$KEY"'s decrypted messages, are you sure? [Y/n]"
-			elif [ $SHREDDIR = $ENCDIR ]
-				then
-					echo " [>] Warning, this will securely delete all of "$KEY"'s encrypted messages, are you sure? [Y/n]"
-			elif [ $SHREDDIR = "KEY" ]
-				then
-					echo " [>] Warning, this will securely delete the key $KEY and all of its messages, are you sure? [Y/n]"
-					SHREDDIR=$KEY
+	read -e -p " >" DODEL
+	clear
+	
+	case $DODEL in
+		"Y")	fshred;;
+		"y")	fshred;;
+		"")		fshred
+	esac
 
-			fi
-			$COLOR 9
-			read -e -p " >" DODEL
-			clear
-		
-			case $DODEL in
-				"Y")	fshred;;
-				"y")	fshred;;
-				"")		fshred
-			esac
-
-		fmenu
-					
-	fi
+	fmenu
 }
 
 flistgen()																#Generate full list of 6 digit numbers to use for random number cryptography
@@ -1611,6 +1317,37 @@ flistgen()																#Generate full list of 6 digit numbers to use for rand
 	echo " [*] Setup complete!"
 	$COLOR 9
 	sleep 1.5
+}
+
+finputkey()
+{
+	clear
+	$COLOR 6
+	echo " [>] Which key?"
+	$COLOR 9
+	ls 
+	read -e -p " >" KEY
+	
+	if [ "${KEY: -1}" = "/" ] 2> /dev/null
+		then
+			KEY="${KEY%?}"
+	fi
+	if [ $KEY -z ] 2> /dev/null
+		then
+			$COLOR 1
+			echo " [*] You must Enter a key, try again..."
+			$COLOR 9
+			sleep 1.5
+			finputkey
+	fi
+	if [ ! -d $KEY ]
+		then
+			$COLOR 1
+			echo " [*] $KEY is not a valid key, try again..."
+			$COLOR 9
+			sleep 1.5
+			finputkey
+	fi
 }
  
 fexit()																	#Delete left over tempory files when exitting
