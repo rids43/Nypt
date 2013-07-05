@@ -2,12 +2,17 @@
  
 NOTE: V.1.34 is incompatible with previous versions
 
+Custom wrapper for OpenSSL
+
+Nypt uses a custom random number symmetric encryption layer and five layers of OpenSSL 256-bit cipher block chaining AES and Camellia high grade encryption to encrypt messages, files and keys for transmission across the internet. The secret keys are stored locally on the drive, and so passwords are not needed to encrypt/decrypt messages or files. The passwords for the layers are generated from urandom, have a variable possible length and are unique to each layer and key. All openssl layers are salted. Nypt uses symmetric encryption, which means that both communicating parties are required to have the same copy of the secret key, in order to read each others messages.
+
 Use:
 
 Nypt is a command line and menu based bash script that is designed to be as user friendly as possible, thereby allowing new users of encryption to get access to strong encryption as quickly as possible.
 All of the features are accessable from the menu based command line and there is autocomplete for file names, message names, keys and paths by pressing the tab key.
 Received encrypted messages can be pasted in to Nypt from the clipboard, using the menu command at the "Decrypt message" menu.
 Nypt also accepts message files saved into the 0_Encrypted_Messages directory in the directory of the key that you will use to decrypt it.
+
 
 Key Transmission:
 
@@ -19,9 +24,6 @@ Key Transmission:
 
 4. Keys and/or their secret password can be transferred via SSH, PGP, cryptocat private room, or any other suitable encrypted communication method. There is functionality to send files via SSH built into Nypt.
 
-Custom wrapper for OpenSSL
-
-Nypt uses a custom random number symmetric encryption layer and five layers of OpenSSL 256-bit cipher block chaining AES and Camellia high grade encryption to encrypt messages, files and keys for transmission across the internet. The secret keys are stored locally on the drive, and so passwords are not needed to encrypt/decrypt messages or files. The passwords for the layers are generated from urandom, have a variable possible length and are unique to each layer and key. All openssl layers are salted. Nypt uses symmetric encryption, which means that both communicating parties are required to have the same copy of the secret key, in order to read each others messages.
 
 Random Number Encryption Layer:
 
