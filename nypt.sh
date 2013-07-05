@@ -801,10 +801,22 @@ fimportkey()															#Import keys
 		else
 			KEYLOC=$( echo $KEYLOC | tr -d \ )
 			KEYFILE=$(basename $KEYLOC)
+			if [ -d $KEYFILE ] 2> /dev/null
+				then
+					clear
+					$COLOR 1;echo " [*] ERROR: A key called $KEYFILE aleady exists, do you want to rename the local key? [Y/n]";$COLOR 9
+					read -p " >" RENAME
+					case $RENAME in
+						"")clear;$COLOR 6;read -p " [>] Rename to: " RNAME;$COLOR 9;mv $KEYFILE $RNAME;echo;$COLOR 2;echo " [*] Key $KEYFILE renamed to $RNAME";$COLOR 9;sleep 1.5;;
+						"Y")clear;$COLOR 6;read -p " [>] Rename to: " RNAME;$COLOR 9;mv $KEYFILE $RNAME;echo;$COLOR 2;echo " [*] Key $KEYFILE renamed to $RNAME";$COLOR 9;sleep 1.5;;
+						"y")clear;$COLOR 6;read -p " [>] Rename to: " RNAME;$COLOR 9;mv $KEYFILE $RNAME;echo;$COLOR 2;echo " [*] Key $KEYFILE renamed to $RNAME";$COLOR 9;sleep 1.5;;
+						"N")clear;$COLOR 1;echo " [*] ERROR: Could not import $KEYFILE";$COLOR 9;sleep 1.5;fmenu;;
+						"n")clear;$COLOR 1;echo " [*] ERROR: Could not import $KEYFILE";$COLOR 9;sleep 1.5;fmenu;;
+					esac
+			fi
 	fi
 	if [ -f $KEYLOC ]
 		then
-			clear
 			DONPS=0
 			while [ $DONPS != "1" ]
 				do
@@ -825,12 +837,9 @@ fimportkey()															#Import keys
 			clear
 			$COLOR 4;echo " [*] Decrypting "$KEYFILE", Please wait..";$COLOR 9
 
-			if [ -f $DIRR$KEYFILE.zip ] 2> /dev/null
+			if [ -f $KEYFILE.zip ] 2> /dev/null
 				then
 					shred -zfun 3 $DIRR$KEYFILE.zip
-			elif [ -d $DIRR$KEYFILE ] 2> /dev/null
-				then
-					rm -rf $DIRR$KEYFILE
 			fi
 		
 			NPASS=$(echo $SPASS | base64)
@@ -844,7 +853,7 @@ fimportkey()															#Import keys
 			openssl enc -camellia-256-cbc -d -a -salt -in tmp01 -out tmp02 -k "$MPASS" 2> /dev/null
 			openssl enc -aes-256-cbc -d -a -salt -in tmp02 -out tmp03 -k "$GPASS" 2> /dev/null
 			openssl enc -camellia-256-cbc -d -a -salt -in tmp03 -out tmp04 -k "$NPASS" 2> /dev/null
-			openssl enc -aes-256-cbc -d -a -salt -in tmp04 -out $DIRR$KEYFILE.zip -k "$SPASS" 2> /dev/null
+			openssl enc -aes-256-cbc -d -a -salt -in tmp04 -out $KEYFILE.zip -k "$SPASS" 2> /dev/null
 			
 			if [ $( cat tmp04 2> /dev/null ) -z ] 2> /dev/null
 				then
