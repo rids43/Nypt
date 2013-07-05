@@ -1165,7 +1165,13 @@ fexportkey()																#Export keys
 							LPASS=$NPASS$GPASS$ZPASS$GPASS
 							FPASS=$ZPASS$GPASS$NPASS
 							MPASS=$FPASS$NPASS$ZPASS
-					
+							mv "$DIRR""$KEY"/0_Decrypted_Messages "$DIRR"0_Decrypted_Messages
+							mv "$DIRR""$KEY"/0_Encrypted_Messages "$DIRR"0_Encrypted_Messages
+							
+							if [ -f  $WHSAV/$KEY ] 2> /dev/null
+								then
+									shred -zfun 3 $WHSAV/$KEY
+							fi
 							zip -reP $ZPASS $KEY.zip $KEY
 							clear
 							$COLOR 4
@@ -1176,7 +1182,9 @@ fexportkey()																#Export keys
 							openssl enc -aes-256-cbc -a -salt -in "$WHSAV"/tmp02 -out "$WHSAV"/tmp03 -k "$GPASS" 2> /dev/null
 							openssl enc -camellia-256-cbc -a -salt -in "$WHSAV"/tmp03 -out "$WHSAV"/tmp04 -k "$MPASS" 2> /dev/null
 							openssl enc -aes-256-cbc -a -salt -in "$WHSAV"/tmp04 -out $WHSAV/$KEY -k "$LPASS" 2> /dev/null
-					
+							
+							mv "$DIRR"0_Decrypted_Messages "$DIRR""$KEY"/0_Decrypted_Messages 
+							mv "$DIRR"0_Encrypted_Messages "$DIRR""$KEY"/0_Encrypted_Messages 
 					fi
 				done
 
