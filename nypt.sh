@@ -8,8 +8,8 @@ fstart()																#Startup function
 	DIRR=$HOME/Desktop/nypt/keys/
 	if [ ! -d $DIRR ]
 		then
-			mkdir $HOME/Desktop/nypt/
-			mkdir $HOME/Desktop/nypt/SSH_Recieved_Files
+			mkdir $HOME/Desktop/nypt/ 2> /dev/null
+			mkdir $HOME/Desktop/nypt/SSH_Recieved_Files 2> /dev/null
 			mkdir $DIRR
 	fi
 	
@@ -45,19 +45,34 @@ grep"""
 		do
 			if [ $(which $COMMAND) -z ] 2> /dev/null
 				then
+					$COLOR 4
+					echo " [*] $COMMAND not found, Installing..."
+					$COLOR 9
 					if [ $(whoami) = "root" ]
 						then
-							case $INSTALL in
-								"y") apt-get install $COMMAND;;
-								"Y") apt-get install $COMMAND;;
-								"") apt-get install $COMMAND
-							esac
+							apt-get install $COMMAND
+							if [ $(which $COMMAND) -z ] 2> /dev/null
+								then
+									$COLOR 1
+									echo " [*] Error $COMMAND could not be installed, please install manually"
+									$COLOR 9
+								else
+									$COLOR 2
+									echo " [*] $COMMAND Installed"
+									$COLOR 9
+							fi
 						else
-							case $INSTALL in
-								"y") sudo apt-get install $COMMAND;;
-								"Y") sudo apt-get install $COMMAND;;
-								"") sudo apt-get install $COMMAND
-							esac
+							sudo apt-get install $COMMAND
+							if [ $(which $COMMAND) -z ] 2> /dev/null
+								then
+									$COLOR 1
+									echo " [*] Error $COMMAND could not be installed, please install manually"
+									$COLOR 9
+								else
+									$COLOR 2
+									echo " [*] $COMMAND Installed"
+									$COLOR 9
+							fi
 					fi
 				else 
 					$COLOR 2
@@ -70,7 +85,7 @@ grep"""
 	fmenu
 }
 
-fmenu()
+fmenu()																	#This is the main menu
 {
 	clear
 	DOSSHSEND=0
@@ -90,7 +105,7 @@ fmenu()
 	cd $DIRR
 	$COLOR 6
 	echo "  [*] Nypt 1.34"		
-	$COLOR 9														#This is the main menu
+	$COLOR 9															
 	read -p """      ~~~~~~~~
  [1] Encryption
  [2] Decryption
@@ -139,7 +154,7 @@ fmenu()
  [4] Securely delete a Key.
  [5] Back
  >""" MENU 
-		case $MENU in 1)fkeygen;;2)fexport;;3)fimport;;4)fsecuredelkey;;5)fmenu;esac
+		case $MENU in 1)fkeygen;;2)fexportkey;;3)fimportkey;;4)fsecuredelkey;;5)fmenu;esac
 	;;
 	4)	clear
 		$COLOR 6
@@ -190,7 +205,7 @@ fkeygen()																#Generate keys
 		else
 			clear
 			$COLOR 4
-			echo " [*] Generating $KEY, please wait..."
+			echo " [*] Generating $KEY, Please wait..."
 			mkdir $KEY
 			mkdir $KEY/$ENCDIR
 			mkdir $KEY/$DECDIR
@@ -400,7 +415,9 @@ fencryptmsg()															#Encrypt messages
  >""" SMF
 	case $SMF in
 		"s")INFILE=$DIRR$KEY/$ENCDIR/$ENCCMSGF;DOSSHSEND=1;cd "$DIRR";fsshsend;;
+		"S")INFILE=$DIRR$KEY/$ENCDIR/$ENCCMSGF;DOSSHSEND=1;cd "$DIRR";fsshsend;;
 		"c") cat $KEY/$ENCDIR/$ENCCMSGF | xclip -sel clip; DISPCOPMSG=1;fmenu;;
+		"C") cat $KEY/$ENCDIR/$ENCCMSGF | xclip -sel clip; DISPCOPMSG=1;fmenu;;
 		"") fmenu
 	esac
 }
@@ -593,7 +610,7 @@ fdecryptmsg()															#Decrypt messages
 	fmenu
 }
 
-fdecpaste()
+fdecpaste()																#Paste messages into fdecryptmsg																	
 {
 	DATER=$( date +%Y_%d_%m_%H_%M_%S )
 	DATEFILE="$DIRR""$KEY"/"$ENCDIR"/"$DATER"
@@ -602,7 +619,7 @@ fdecpaste()
 	ISDONE=1
 }
 
-fencryptfile()
+fencryptfile()															#Encrypt files
 {
 	clear
 	$COLOR 6
@@ -658,7 +675,7 @@ fencryptfile()
 	PASS=$(cat $KEY/meta/meta)
 	ENCCMSGF=$(basename $INFILE)
 	$COLOR 4
-	echo " [*] Encrypting "$ENCCMSF", please wait.."
+	echo " [*] Encrypting "$ENCCMSF", Please wait.."
 	$COLOR 9
 	
 	if [ ! -d $KEY/$ENCDIR/0_Encrypted_Files ]
@@ -706,7 +723,7 @@ fencryptfile()
 	esac
 }
 
-fdecryptfile()
+fdecryptfile()															#Decrypt files
 {
 	clear
 	$COLOR 6
@@ -762,7 +779,7 @@ fdecryptfile()
 	PASS=$(cat $KEY/meta/meta)
 	clear
 	$COLOR 4
-	echo " [*] Decrypting "$DECMSGT", please wait.."
+	echo " [*] Decrypting "$DECMSGT", Please wait.."
 	$COLOR 9
 	
 	if [ ! -d $KEY/$DECDIR/0_Decrypted_Files ]
@@ -862,14 +879,19 @@ fcatenc()																#Read encrypted messages from the 0_Encrypted_Messages 
 					$COLOR 2
 					echo " [*] Message is $RLEN lines long and stored at $DIRR$KEY/$ENCDIR/$ENCCAT"
 					$COLOR 9
-					echo " [>] Press c and Enter to copy to clipboard"
+					echo
+					echo " [>] Press c and Enter to copy encrypted file to the clipboard"
+					echo " [>] Press s and Enter to send via SSH"
 					read -p """ [>] Press Enter to return to menu
- >""" SMF
-					case $SMF in
-						"c") cat $ENCCAT | xclip -sel clip;DISPCOPMSG=1;fmenu;;
-						"") fmenu
+ >""" DOFILE
+					case $DOFILE in
+						"s")INFILE=$DIRR$KEY/$ENCDIR/$ENCCAT;DOSSHSEND=1;cd "$DIRR";fsshsend;;
+						"S")INFILE=$DIRR$KEY/$ENCDIR/$ENCCAT;DOSSHSEND=1;cd "$DIRR";fsshsend;;
+						"c")cat $DIRR$KEY/$ENCDIR/$ENCCAT | xclip -sel clip;DISPCOPMSG=1;fmenu;;
+						"C")cat $DIRR$KEY/$ENCDIR/$ENCCAT | xclip -sel clip;DISPCOPMSG=1;fmenu;;
+						"")fmenu
 					esac
-					
+			
 				else
 					clear
 					$COLOR 1
@@ -933,7 +955,7 @@ fcatdec()																#Read decrypted messages from the 0_Decrypted_Messages 
 	fi
 }
 
-fopenenc()
+fopenenc()																#Open encrypted message folder
 {
 	clear
 	$COLOR 6
@@ -968,7 +990,7 @@ fopenenc()
 	fmenu	
 }
 
-fopendec()
+fopendec()																#Open decrypted message folder
 {
 	clear
 	$COLOR 6
@@ -1001,7 +1023,7 @@ fopendec()
 	fmenu
 }
 
-fimport()
+fimportkey()																#Import keys
 {
 	clear
 	$COLOR 6
@@ -1014,105 +1036,74 @@ fimport()
 			echo " [*] You must Enter the path to key file eg. $HOME/Desktop/key, try again..."
 			$COLOR 9
 			sleep 2
-			fimport
+			fimportkey
 		else
 			KEYFILE=$(basename $KEYLOC)
 	fi
 	if [ -f $KEYLOC ]
 		then
-			$COLOR 6
-			echo " [>] Do you have a custom key password? [Y/n]:" 
+			clear
+			DONPS=0
+			while [ $DONPS != "1" ]
+				do
+					clear
+					$COLOR 6
+					echo " [>] Please Enter the password"
+					$COLOR 9
+					read -s RPASS
+					$COLOR 6
+					echo " [>] Enter one more time"
+					$COLOR 9
+					read -s SPASS
+					if [ $RPASS != $SPASS ]
+						then
+							$COLOR 1
+							echo " [*] Passwords do not match, try again..."
+							$COLOR 9
+							sleep 2
+						else
+							DONPS=1
+					fi
+				done
+		
+			NPASS=$(echo $SPASS | base64)
+			NPASS=$(echo $NPASS$NPASS | md5sum)
+			GPASS=$(echo NPASS | md5sum)
+			LPASS=$NPASS$GPASS$SPASS$GPASS
+			FPASS=$SPASS$GPASS$NPASS
+			MPASS=$FPASS$NPASS$SPASS
+			
+			clear
+			$COLOR 4
+			echo " [*] Decrypting "$KEY", Please wait..."
 			$COLOR 9
-			read -p " >" CUSTP
-			
-			case $CUSTP in
-			
-				"Y")fimportcus;;
-			
-				"y")fimportcus;;
-				
-				"n")fimportdef;;
-			
-				"N")fimportdef;;
-			
-				"")fimportcus
-			
-			esac
+	
+			openssl enc -aes-256-cbc -d -a -salt -in $KEYLOC -out tmp01 -k "$LPASS" 2> /dev/null
+			openssl enc -camellia-256-cbc -d -a -salt -in tmp01 -out tmp02 -k "$MPASS" 2> /dev/null
+			openssl enc -aes-256-cbc -d -a -salt -in tmp02 -out tmp03 -k "$GPASS" 2> /dev/null
+			openssl enc -camellia-256-cbc -d -a -salt -in tmp03 -out tmp04 -k "$NPASS" 2> /dev/null
+			openssl enc -aes-256-cbc -d -a -salt -in tmp04 -out $DIRR$KEYFILE.zip -k "$SPASS" 2> /dev/null
+	
+			unzip -P $SPASS $KEYFILE.zip -d .  2> /dev/null
+			chown -hR $USER $KEYFILE
+			clear
+			$COLOR 2
+			echo " [*] $KEYFILE imported."
+			$COLOR 9
+			shred -zfun 3 $KEYFILE.zip
+			shred -zfun 3 tmp0*
+			sleep 2
+			fmenu
 		else
 			$COLOR 1
 			echo " [*] There does not appear to be any file at $KEYFILE, try again..."
 			$COLOR 9
 			sleep 2
-			fimport
+			fimportkey
 	fi
 }
 
-fimportcus()															#Import key using custom password
-{
-	clear
-	DONPS=0
-	while [ $DONPS != "1" ]
-		do
-			clear
-			$COLOR 6
-			echo " [>] Please Enter the password"
-			$COLOR 9
-			read -s RPASS
-			$COLOR 6
-			echo " [>] Enter one more time"
-			$COLOR 9
-			read -s SPASS
-			if [ $RPASS != $SPASS ]
-				then
-					$COLOR 1
-					echo " [*] Passwords do not match, try again..."
-					$COLOR 9
-					sleep 2
-				else
-					DONPS=1
-			fi
-		done
-	NPASS=$(echo $SPASS | base64)
-	NPASS=$(echo $NPASS$NPASS | md5sum)
-	GPASS=$(echo NPASS | md5sum)
-	LPASS=$NPASS$GPASS$SPASS$GPASS
-	FPASS=$SPASS$GPASS$NPASS
-	MPASS=$FPASS$NPASS$SPASS
-	
-	openssl enc -aes-256-cbc -d -a -salt -in $KEYLOC -out tmp01 -k "$LPASS" 2> /dev/null
-	openssl enc -camellia-256-cbc -d -a -salt -in tmp01 -out tmp02 -k "$MPASS" 2> /dev/null
-	openssl enc -aes-256-cbc -d -a -salt -in tmp02 -out tmp03 -k "$GPASS" 2> /dev/null
-	openssl enc -camellia-256-cbc -d -a -salt -in tmp03 -out tmp04 -k "$NPASS" 2> /dev/null
-	openssl enc -aes-256-cbc -d -a -salt -in tmp04 -out $DIRR$KEYFILE.zip -k "$SPASS" 2> /dev/null
-	
-	unzip -P $SPASS $KEYFILE.zip -d .  2> /dev/null
-	chown -hR $USER $KEYFILE
-	clear
-	$COLOR 2
-	echo " [*] $KEYFILE imported."
-	$COLOR 9
-	shred -zfun 3 $KEYFILE.zip
-	shred -zfun 3 tmp0*
-	sleep 2
-	fmenu
-}
-
-fimportdef()															#Import key using default password
-{
-	openssl enc -d -a -aes-256-cbc -salt -in $KEYLOC -out $DIRR$KEY.zip -k "FQhs2UOb6UfY6h4h20hf49LTS9EnkSuQP66357693hahal0lp4s501EfOoWCvjScbanpDrJ3sWXupryAQLj71Qt" 2> /dev/null
-	unzip -P "cPHQ0bkM2zEUZY245h9ZwgS7l98Hi0WqIeamJVhow1osQ" $KEY.zip -d .  2> /dev/null
-	shred -zfun 3 $KEY.zip
-	shred -zfun 3 $KEY
-	chown -hR $USER $KEYFILE
-	clear
-	$COLOR 2
-	echo " [*] $KEYFILE imported."
-	$COLOR 9
-	sleep 2
-	fmenu
-}
-
-fexport()
+fexportkey()																#Export keys
 {
 	clear
 	$COLOR 6
@@ -1138,7 +1129,7 @@ fexport()
 			echo " [*] $KEY is not a valid key, try again..."
 			$COLOR 9
 			sleep 1.5
-			fexport
+			fexportkey
 		else
 			if [ ! -d $KEY/0_Exported_Keys ]
 				then
@@ -1147,27 +1138,47 @@ fexport()
 			
 			WHSAV="$KEY/0_Exported_Keys"
 			clear
-			PASSCHI=""
-			$COLOR 1
-			echo " [*] Please note it is NOT safe to export keys over untrusted networks using the default password."
-			$COLOR 9
-			echo
-			$COLOR 6
-			echo " [>] Do you want to use the default or a custom password? [C/d]:"
-			$COLOR 9
-			read -p " >" PASSCHI
-
-			case $PASSCHI in
-				"")fexportcus;;
-			
-				"D")fexportdef;;
-			
-				"d")fexportdef;;
-			
-				"c")fexportcus;;
-			
-				"C")fexportcus;;
-			esac
+			clear
+			PASSDON=0
+			while [ $PASSDON != "1" ]
+				do
+					clear
+					$COLOR 6
+					echo " [>] Please Enter your password"
+					$COLOR 9
+					read -s  TPASS
+					$COLOR 6
+					echo " [>] Enter once more"  
+					$COLOR 9
+					read -s ZPASS
+					if [ $TPASS != $ZPASS ]
+						then
+							$COLOR 1
+							echo " [*] Passwords do not match, try again..."
+							$COLOR 9
+							sleep 2
+						else
+							PASSDON=1
+							NPASS=$(echo $ZPASS | base64)
+							NPASS=$(echo $NPASS$NPASS | md5sum)
+							GPASS=$(echo NPASS | md5sum)
+							LPASS=$NPASS$GPASS$ZPASS$GPASS
+							FPASS=$ZPASS$GPASS$NPASS
+							MPASS=$FPASS$NPASS$ZPASS
+					
+							zip -reP $ZPASS $KEY.zip $KEY
+							clear
+							$COLOR 4
+							echo " [*] Encrypting "$KEY", Please wait..."
+							$COLOR 9
+							openssl enc -aes-256-cbc -a -salt -in $DIRR$KEY.zip -out "$WHSAV"/tmp01 -k "$ZPASS" 2> /dev/null
+							openssl enc -camellia-256-cbc -a -salt -in "$WHSAV"/tmp01 -out "$WHSAV"/tmp02 -k "$NPASS" 2> /dev/null
+							openssl enc -aes-256-cbc -a -salt -in "$WHSAV"/tmp02 -out "$WHSAV"/tmp03 -k "$GPASS" 2> /dev/null
+							openssl enc -camellia-256-cbc -a -salt -in "$WHSAV"/tmp03 -out "$WHSAV"/tmp04 -k "$MPASS" 2> /dev/null
+							openssl enc -aes-256-cbc -a -salt -in "$WHSAV"/tmp04 -out $WHSAV/$KEY -k "$LPASS" 2> /dev/null
+					
+					fi
+				done
 
 			shred -zfun 3 "$WHSAV"/tmp0*
 			shred -zfun 3 $KEY.zip
@@ -1191,55 +1202,7 @@ fexport()
 	fi
 }
 
-fexportcus()															#Export key using custom password
-{
-	clear
-	PASSDON=0
-	while [ $PASSDON != "1" ]
-		do
-			clear
-			$COLOR 6
-			echo " [>] Please Enter your password"
-			$COLOR 9
-			read -s  TPASS
-			$COLOR 6
-			echo " [>] Enter once more"  
-			$COLOR 9
-			read -s ZPASS
-			if [ $TPASS != $ZPASS ]
-				then
-					$COLOR 1
-					echo " [*] Passwords do not match, try again..."
-					$COLOR 9
-					sleep 2
-				else
-					PASSDON=1
-					NPASS=$(echo $ZPASS | base64)
-					NPASS=$(echo $NPASS$NPASS | md5sum)
-					GPASS=$(echo NPASS | md5sum)
-					LPASS=$NPASS$GPASS$ZPASS$GPASS
-					FPASS=$ZPASS$GPASS$NPASS
-					MPASS=$FPASS$NPASS$ZPASS
-					
-					zip -reP $ZPASS $KEY.zip $KEY 
-
-					openssl enc -aes-256-cbc -a -salt -in $DIRR$KEY.zip -out "$WHSAV"/tmp01 -k "$ZPASS" 2> /dev/null
-					openssl enc -camellia-256-cbc -a -salt -in "$WHSAV"/tmp01 -out "$WHSAV"/tmp02 -k "$NPASS" 2> /dev/null
-					openssl enc -aes-256-cbc -a -salt -in "$WHSAV"/tmp02 -out "$WHSAV"/tmp03 -k "$GPASS" 2> /dev/null
-					openssl enc -camellia-256-cbc -a -salt -in "$WHSAV"/tmp03 -out "$WHSAV"/tmp04 -k "$MPASS" 2> /dev/null
-					openssl enc -aes-256-cbc -a -salt -in "$WHSAV"/tmp04 -out $WHSAV/$KEY -k "$LPASS" 2> /dev/null
-					
-			fi
-		done
-}
-
-fexportdef()          													#Export key using default password
-{
-	( zip -reP "cPHQ0bkM2zEUZY245h9ZwgS7l98Hi0WqIeamJVhow1osQ" $KEY.zip $KEY ) 2> /dev/null
-	openssl enc -a -aes-256-cbc -salt -in $DIRR$KEY.zip -out $WHSAV/$KEY -k "FQhs2UOb6UfY6h4h20hf49LTS9EnkSuQP66357693hahal0lp4s501EfOoWCvjScbanpDrJ3sWXupryAQLj71Qt" 2> /dev/null
-}
-
-finstallssh()
+finstallssh()															#Install OpenSSH server
 {
 	clear
 	if [ $(whoami) = 'root' ] 2> /dev/null
@@ -1250,7 +1213,7 @@ finstallssh()
 	fi
 }
 
-fsshstart()
+fsshstart()																#Start OpenSSH server
 {
 	echo
 	$COLOR 4
@@ -1265,10 +1228,10 @@ fsshstart()
 	fmenu
 }
 
-fsshsend()
+fsshsend()																#Send files via SSH
 {
 	clear
-	
+	cd "$DIRR"
 	if [ $DOSSHSEND = "0" ] 2> /dev/null
 		then
 			$COLOR 6
@@ -1295,40 +1258,49 @@ fsshsend()
 			fsshsend
 	fi
 	BASEFILE=$(basename $INFILE)
-	clear
-	$COLOR 6
-	echo " [>] Please Enter the user you are logging in to"
-	$COLOR 9
-	read -e -p " >" RUSER
-	
-	if [ $RUSER -z ] 2> /dev/null
-		then
-			$COLOR 1
-			echo " [*] You must Enter the user you are logging in to, try again..."
+	INUSER=0
+	while [ $INUSER != "1" ]
+		do
+			clear
+			$COLOR 6
+			echo " [>] Please Enter the user you are logging in to"
 			$COLOR 9
-			sleep 1.5
-			fsshsend
-	fi
+			read -p " >" RUSER
 	
-	clear
-	$COLOR 6
-	echo " [>] Please Enter the IP address you are connecting to"
-	$COLOR 9
-	read -e -p " >" IPSEND
-	if [ $IPSEND -z ] 2> /dev/null
-		then
-			$COLOR 1
-			echo " [*] You must Enter the IP address you are connecting to, try again..."
+			if [ $RUSER -z ] 2> /dev/null
+				then
+					$COLOR 1
+					echo " [*] You must Enter the user you are logging in to, try again..."
+					$COLOR 9
+					sleep 1.5
+				else
+					INUSER=1
+			fi
+		done
+	IPDONE=0
+	while [ $IPDONE != "1" ]
+		do
+			clear
+			$COLOR 6
+			echo " [>] Please Enter the IP address you are connecting to"
 			$COLOR 9
-			sleep 1.5
-			fsshsend
-	fi
-	
+			read -p " >" IPSEND
+			if [ $IPSEND -z ] 2> /dev/null
+				then
+					$COLOR 1
+					echo " [*] You must Enter the IP address you are connecting to, try again..."
+					$COLOR 9
+					sleep 1.5
+				else
+					IPDONE=1
+			fi
+		done
+		
 	clear
 	$COLOR 6
-	echo " [>] Is there a custom port number? [N/y]:"
+	echo " [>] Is there a custom port number? [N/y]"
 	$COLOR 9
-	read -e -p " >" SSHPORTDO
+	read -p " >" SSHPORTDO
 	
 	case $SSHPORTDO in
 		"")SSHPORT=22;;
@@ -1341,11 +1313,11 @@ fsshsend()
 			read -e -p " >" SSHPORT
 			if [ $SSHPORT -z ] 2> /dev/null
 				then
-				$COLOR 1
-				echo " [*] You must Enter the port number you are connecting to, try again..."
-				$COLOR 9
-				sleep 1.5
-				fsshsend
+					$COLOR 1
+					echo " [*] You must Enter the port number you are connecting to, try again..."
+					$COLOR 9
+					sleep 1.5
+					fsshsend
 			fi;;
 		"Y")clear
 			$COLOR 6
@@ -1354,11 +1326,11 @@ fsshsend()
 			read -e -p " >" SSHPORT
 			if [ $SSHPORT -z ] 2> /dev/null
 				then
-				$COLOR 1
-				echo " [*] You must Enter the port number you are connecting to, try again..."
-				$COLOR 9
-				sleep 1.5
-				fsshsend
+					$COLOR 1
+					echo " [*] You must Enter the port number you are connecting to, try again..."
+					$COLOR 9
+					sleep 1.5
+					fsshsend
 			fi
 	esac
 	clear
@@ -1380,7 +1352,7 @@ fsshsend()
 	fmenu
 }
 
-fsshencmsg()
+fsshencmsg()															#Send encrypted message via SSH
 {
 	clear
 	$COLOR 6
@@ -1431,7 +1403,7 @@ fsshencmsg()
 	fi
 }
 
- fsshkey()
+ fsshkey()																#Send encrypted keys vis SSH
 {
 	clear
 	$COLOR 6
@@ -1457,7 +1429,7 @@ fsshencmsg()
 			echo " [*] You need to export the key first, loading export..."
 			$COLOR 9
 			sleep 2
-			fexport
+			fexportkey
 		else
 			clear
 			INFILE=$KEY/0_Exported_Keys/$KEY
@@ -1467,7 +1439,7 @@ fsshencmsg()
 	fi
 	}
 
-fsshencfile()
+fsshencfile()															#Send encrypted file via SSH
 {
 	clear
 	$COLOR 6
@@ -1567,7 +1539,7 @@ fdoseckey()
 {
 	echo
 	$COLOR 4
-	echo " [*] Securely deleting $KEY, please wait.."
+	echo " [*] Securely deleting $KEY, Please wait.."
 	find $KEY/ -type f -exec shred -zfun 3 {} \;
 	rm -rf $KEY
 	$COLOR 2
@@ -1625,7 +1597,7 @@ fsecuredelenc()															#Shred encrypted messages
 fsecdelenc()
 {
 	$COLOR 4
-	echo " [*] Securely deleting "$KEY"'s encrypted messages, please wait.."
+	echo " [*] Securely deleting "$KEY"'s encrypted messages, Please wait.."
 	find $KEY/$ENCDIR -type f -exec shred -zfun 3 {} \;
 	$COLOR 2
 	echo " [*] "$KEY"'s encrypted messages securely deleted."
@@ -1683,7 +1655,7 @@ fsecuredeldec()															#Shred decrypted messages
 fsecdeldec()
 {
 	$COLOR 4
-	echo " [*] Securely deleting "$KEY"'s decrypted messages, please wait.."
+	echo " [*] Securely deleting "$KEY"'s decrypted messages, Please wait.."
 	find $KEY/$DECDIR -type f -exec shred -zfun 3 {} \;
 	$COLOR 2
 	echo " [*] "$KEY"'s decrypted messages securely deleted."
@@ -1710,7 +1682,7 @@ flistgen()																#Generate full list of 6 digit numbers to use for rand
 					PERCENT=$((DONENUM / 9000))
 					clear
 					$COLOR 2
-					echo " [*] Setting up Nypt for first use, please wait.."
+					echo " [*] Setting up Nypt for first use, Please wait.."
 					$COLOR 4
 					echo " [*] Done "$PERCENT"%   "$DONENUM"/900000 lines"
 					$COLOR 9
