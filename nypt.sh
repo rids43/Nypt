@@ -65,34 +65,28 @@ grep"""
 				do
 					if [ $(which $COMMAND) -z ] 2> /dev/null
 						then
-							$COLOR 4;				echo " [*] $COMMAND not found, Installing..."
-							$COLOR 9
+							$COLOR 4;echo " [*] $COMMAND not found, Installing...";$COLOR 9
 							if [ $(whoami) = "root" ]
 								then
 									apt-get install $COMMAND
 									if [ $(which $COMMAND) -z ] 2> /dev/null
 										then
-											$COLOR 1;										echo " [*] Error $COMMAND could not be installed, please install manually"
-											$COLOR 9
+											$COLOR 1;echo " [*] Error $COMMAND could not be installed, please install manually";$COLOR 9
 										else
-											$COLOR 2;										echo " [*] $COMMAND Installed"
-											$COLOR 9
+											$COLOR 2;echo " [*] $COMMAND Installed";$COLOR 9
 									fi
 								else
 									sudo apt-get install $COMMAND
 									if [ $(which $COMMAND) -z ] 2> /dev/null
 										then
-											$COLOR 1;										echo " [*] Error $COMMAND could not be installed, please install manually"
+											$COLOR 1;echo " [*] Error $COMMAND could not be installed, please install manually";$COLOR 9
 											sleep 0.4
-											$COLOR 9
 										else
-											$COLOR 2;										echo " [*] $COMMAND Installed"
-											$COLOR 9
+											$COLOR 2;echo " [*] $COMMAND Installed";$COLOR 9
 									fi
 							fi
 						else 
-							$COLOR 2;						echo " [*] $COMMAND found"
-							$COLOR 9
+							$COLOR 2;echo " [*] $COMMAND found";$COLOR 9
 					fi
 				done < tmp1
 	sleep 1.5
@@ -116,8 +110,8 @@ fmenu()																	#Main menu
 			DISPCOP=0
 	elif [ $DISPCOPMSG = "1" ] 2> /dev/null
 		then
-			$COLOR 2;echo "  [*] Message copied to clipboard!"
-			DISPCOPMSG=0;$COLOR 9
+			$COLOR 2;echo "  [*] Message copied to clipboard!";$COLOR 9
+			DISPCOPMSG=0
 	elif [ $DISPKEY = "1" ] 2> /dev/null
 		then
 			$COLOR 2;echo "  [*] $KEY Complete!";$COLOR 9
@@ -126,8 +120,13 @@ fmenu()																	#Main menu
 		then
 			$COLOR 2;echo " [*] $DMSGFILE shredded!";$COLOR 9
 			DISPSHRED=0
+	elif [ $DISPSSH = "1" ] 2> /dev/null
+		then
+			$COLOR 2;echo " [*] $BASEFILE sent to "$RUSER"@"$IPSEND"";$COLOR 9
+			DISPSSH=0
+
 	fi
-	$COLOR 6;echo " [*] Nypt 1.34"		;$COLOR 9															
+	$COLOR 6;echo " [*] Nypt 1.34";$COLOR 9															
 	read -e -p """      ~~~~~~~~
  [1] Encryption
  [2] Decryption
@@ -138,8 +137,7 @@ fmenu()																	#Main menu
   
 		case $MENU in
 	1)	clear
-		$COLOR 6;	echo " [*] Encryption Menu"
-		$COLOR 9
+		$COLOR 6;echo " [*] Encryption Menu";$COLOR 9
 		read -e -p """      ~~~~~~~~
  [1] Encrypt a message.
  [2] Encrypt a file.
@@ -151,8 +149,7 @@ fmenu()																	#Main menu
 		case $MENU in 1)fencryptmsg;;2)fencryptfile;;3)OPENDIR=$ENCDIR;fopendir;;4)CATDIR=$ENCDIR;fcat;;5)SHREDDIR=$ENCDIR;fshreddir;;6)fmenu;esac
 	;;
 	2)	clear
-		$COLOR 6;	echo " [*] Decryption Menu"
-		$COLOR 9
+		$COLOR 6;echo " [*] Decryption Menu";$COLOR 9
 		read -e -p """      ~~~~~~~~
  [1] Decrypt a message.
  [2] Decrypt a file.
@@ -164,8 +161,7 @@ fmenu()																	#Main menu
 		case $MENU in 1)fdecryptmsg;;2)fdecryptfile;;3)OPENDIR=$DECDIR;fopendir;;4)CATDIR=$DECDIR;fcat;;5)SHREDDIR=$DECDIR;fshreddir;;6)fmenu;esac
 	;;
 	3)	clear
-		$COLOR 6;	echo " [*] Key Menu"
-		$COLOR 9
+		$COLOR 6;echo " [*] Key Menu";$COLOR 9
 		read -e -p """      ~~~~~~~~
  [1] Generate a new Key.
  [2] Export a Key.
@@ -176,8 +172,7 @@ fmenu()																	#Main menu
 		case $MENU in 1)fkeygen;;2)fexportkey;;3)fimportkey;;4)SHREDDIR="KEY";fshreddir;;5)fmenu;esac
 	;;
 	4)	clear
-		$COLOR 6;	echo " [*] SSH Menu"
-		$COLOR 9
+		$COLOR 6;echo " [*] SSH Menu";$COLOR 9
 		read -e -p """      ~~~~~~~~
  [1] Send file
  [2] Send Encrypted message 
@@ -396,7 +391,7 @@ fdecryptmsg()															#Decrypt messages
 	while [ $ISDONE = "0" ]
 		do
 			clear
-			$COLOR 6;		echo " [>] Paste your message from clipboard or read message file from 0_Encrypted_Messages? [P/f]:";$COLOR 9
+			$COLOR 6;echo " [>] Paste your message from clipboard or read message file from 0_Encrypted_Messages? [P/f]:";$COLOR 9
 			read -e -p " >" DODEC
 			case $DODEC in
 				"P") fdecpaste;;
@@ -669,7 +664,7 @@ fdecryptfile()															#Decrypt files
 					5)PASS5=$LINE
 			esac
 		
-		LNUM=$(( LNUM + 1 ))
+			LNUM=$(( LNUM + 1 ))
 		done <$FILE
 		
 	openssl enc -aes-256-cbc -d -a -salt -in $INFILE -out $DIRR$KEY/$ENCDIR/tmp01 -k "$PASS5" 2> /dev/null
@@ -684,8 +679,7 @@ fdecryptfile()															#Decrypt files
 	echo
 	STRT=" [*] "
 	CHKFILE=$( file $KEY/$DECDIR/0_Decrypted_Files/$DFILE )
-	$COLOR 5
-	echo $STRT$CHKFILE;$COLOR 9
+	$COLOR 5;echo $STRT$CHKFILE;$COLOR 9
 	echo
 	read -e -p " [>] Press Enter to return to menu"
 	fmenu
@@ -783,14 +777,13 @@ fimportkey()															#Import keys
 			while [ $DONPS != "1" ]
 				do
 					clear
-					$COLOR 6;				echo " [>] Please Enter the password";$COLOR 9
+					$COLOR 6;echo " [>] Please Enter the password";$COLOR 9
 					read -s RPASS
-					$COLOR 6;				echo " [>] Enter one more time";$COLOR 9
+					$COLOR 6;echo " [>] Enter one more time";$COLOR 9
 					read -s SPASS
 					if [ $RPASS != $SPASS ]
 						then
-							$COLOR 1;						echo " [*] Passwords do not match, try again..."
-							$COLOR 9
+							$COLOR 1;echo " [*] Passwords do not match, try again...";$COLOR 9
 							sleep 2
 						else
 							DONPS=1
@@ -843,9 +836,9 @@ fexportkey()															#Export keys
 	while [ $PASSDON != "1" ]
 		do
 			clear
-			$COLOR 6;		echo " [>] Please Enter your password";$COLOR 9
+			$COLOR 6;echo " [>] Please Enter your password";$COLOR 9
 			read -s  TPASS
-			$COLOR 6;		echo " [>] Enter once more"  ;$COLOR 9
+			$COLOR 6;echo " [>] Enter once more"  ;$COLOR 9
 			read -s ZPASS
 			if [ $TPASS != $ZPASS ]
 				then
@@ -914,7 +907,8 @@ finstallssh()															#Install OpenSSH server
 fsshstart()																#Start OpenSSH server
 {
 	echo
-	$COLOR 4;if [ $(whoami) = 'root' ] 2> /dev/null
+	$COLOR 4
+	if [ $(whoami) = 'root' ] 2> /dev/null
 		then
 			service ssh start
 		else
@@ -930,7 +924,7 @@ fsshsend()																#Send files via SSH (SCP)
 	cd "$DIRR"
 	if [ $SSHSEND = "0" ] 2> /dev/null
 		then
-			$COLOR 6;		echo " [>] Please Enter the location of the file: e.g. $HOME/file";$COLOR 9
+			$COLOR 6;echo " [>] Please Enter the location of the file: e.g. $HOME/file";$COLOR 9
 			read -e -p " >" INFILE
 	fi
 	SSHSEND=0
@@ -952,7 +946,7 @@ fsshsend()																#Send files via SSH (SCP)
 	while [ $INUSER != "1" ]
 		do
 			clear
-			$COLOR 6;		echo " [>] Please Enter the user you are logging in to";$COLOR 9
+			$COLOR 6;echo " [>] Please Enter the user you are logging in to";$COLOR 9
 			read -e -p " >" RUSER
 	
 			if [ $RUSER -z ] 2> /dev/null
@@ -967,7 +961,7 @@ fsshsend()																#Send files via SSH (SCP)
 	while [ $IPDONE != "1" ]
 		do
 			clear
-			$COLOR 6;		echo " [>] Please Enter the IP address you are connecting to";$COLOR 9
+			$COLOR 6;echo " [>] Please Enter the IP address you are connecting to";$COLOR 9
 			read -e -p " >" IPSEND
 			if [ $IPSEND -z ] 2> /dev/null
 				then
@@ -987,7 +981,7 @@ fsshsend()																#Send files via SSH (SCP)
 		"n")SSHPORT=22;;
 		"N")SSHPORT=22;;
 		"y")clear
-			$COLOR 6;		echo " [>] Please Enter the port number";$COLOR 9
+			$COLOR 6;echo " [>] Please Enter the port number";$COLOR 9
 			read -e -p " >" SSHPORT
 			if [ $SSHPORT -z ] 2> /dev/null
 				then
@@ -996,7 +990,7 @@ fsshsend()																#Send files via SSH (SCP)
 					fsshsend
 			fi;;
 		"Y")clear
-			$COLOR 6;		echo " [>] Please Enter the port number";$COLOR 9
+			$COLOR 6;echo " [>] Please Enter the port number";$COLOR 9
 			read -e -p " >" SSHPORT
 			if [ $SSHPORT -z ] 2> /dev/null
 				then
@@ -1015,8 +1009,7 @@ fsshsend()																#Send files via SSH (SCP)
 	fi
 	$SSEND
 	echo
-	$COLOR 2;echo " [*] $BASEFILE sent to "$RUSER"@"$IPSEND"";$COLOR 9
-	sleep 1.5
+	DISPSSH=1
 	fmenu
 }
 
@@ -1074,7 +1067,8 @@ fsshencfile()															#Send encrypted file into fsshsend
 
 fshred()																#Shred
 {
-	$COLOR 4;if [ $SHREDDIR = $DECDIR ]
+	$COLOR 4
+	if [ $SHREDDIR = $DECDIR ]
 		then
 			echo " [*] Securely deleting "$KEY"'s decrypted messages, Please wait.."
 	elif [ $SHREDDIR = $ENCDIR ]
@@ -1091,7 +1085,8 @@ fshred()																#Shred
 			$COLOR 2;echo " [*] $KEY and all its messages securely deleted.";$COLOR 9
 		else
 			find $KEY/$SHREDDIR -type f -exec shred -zfun 3 {} \;
-			$COLOR 2;if [ $SHREDDIR = $DECDIR ]
+			$COLOR 2
+			if [ $SHREDDIR = $DECDIR ]
 				then
 					echo " [*] "$KEY"'s decrypted messages securely deleted."
 			elif [ $SHREDDIR = $ENCDIR ]
@@ -1106,7 +1101,8 @@ fshreddir()																#Shred messages and keys
 {
 	finputkey	
 	clear
-	$COLOR 1;if [ $SHREDDIR = $DECDIR ]
+	$COLOR 1
+	if [ $SHREDDIR = $DECDIR ]
 		then
 			echo " [>] Warning, this will securely delete all of "$KEY"'s decrypted messages, are you sure? [Y/n]"
 	elif [ $SHREDDIR = $ENCDIR ]
