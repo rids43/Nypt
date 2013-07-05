@@ -530,19 +530,25 @@ fdecryptmsg()															#Decrypt messages
 	echo "${DEKD%?}" > $KEY/$DECDIR/$DMSGFILE
 	shred -zfun 3 tmp* 2> /dev/null
 	clear
-	cat $KEY/$DECDIR/$DMSGFILE
-	echo
-	$COLOR 2;echo " [*] Message saved to $DIRR$KEY/$DECDIR/$DMSGFILE";$COLOR 9
-	echo
-	echo " [>] Press d and Enter to securely delete $DMSGFILE"
-	echo " [>] Press Enter to return to menu"
-	read -e -p " >" SMF
-	clear
-	case $SMF in
-		"")fmenu;;
-		"d")$COLOR 4;echo " [*] Shredding $DMSGFILE...";$COLOR 9;shred -zfun 3 $DIRR$KEY/$DECDIR/$DMSGFILE;DISPSHRED=1;sleep 1.5;fmenu;;
-		"D")$COLOR 4;echo " [*] Shredding $DMSGFILE...";$COLOR 9;shred -zfun 3 $DIRR$KEY/$DECDIR/$DMSGFILE;DISPSHRED=1;sleep 1.5;fmenu
-	esac
+	if [ $( cat $KEY/$DECDIR/$DMSGFILE ) -z ] 2> /dev/null
+		then
+			$COLOR 1;echo " [*] ERROR: $DMSGFILE not decrypted, wrong key or not an encrypted message.";$COLOR 9;sleep 1.5;fmenu
+		else
+			cat $KEY/$DECDIR/$DMSGFILE
+			echo
+			$COLOR 2;echo " [*] Message saved to $DIRR$KEY/$DECDIR/$DMSGFILE";$COLOR 9
+			echo
+			echo " [>] Press d and Enter to securely delete $DMSGFILE"
+			echo " [>] Press Enter to return to menu"
+			read -e -p " >" SMF
+			clear
+			case $SMF in
+				"")fmenu;;
+				"d")$COLOR 4;echo " [*] Shredding $DMSGFILE...";$COLOR 9;shred -zfun 3 $DIRR$KEY/$DECDIR/$DMSGFILE;DISPSHRED=1;sleep 1.5;fmenu;;
+				"D")$COLOR 4;echo " [*] Shredding $DMSGFILE...";$COLOR 9;shred -zfun 3 $DIRR$KEY/$DECDIR/$DMSGFILE;DISPSHRED=1;sleep 1.5;fmenu
+			esac
+	fi
+	
 }
 
 fdecpaste()																#Paste messages into fdecryptmsg from the clipboard																
@@ -673,16 +679,21 @@ fdecryptfile()															#Decrypt files
 	openssl enc -camellia-256-cbc -d -a -salt -in $DIRR$KEY/$ENCDIR/tmp03  -out $DIRR$KEY/$ENCDIR/tmp04 -k "$PASS2" 2> /dev/null
 	openssl enc -aes-256-cbc -d -a -salt -in $DIRR$KEY/$ENCDIR/tmp04  -out $DIRR$KEY/$DECDIR/0_Decrypted_Files/$DFILE -k "$PASS1" 2> /dev/null	
 
-	shred -zfun 3 $KEY/$ENCDIR/tmp0*
+	shred -zfun 3 $KEY/$ENCDIR/tmp0* 2> /dev/null
 	clear
-	$COLOR 2;echo " [*] File saved to $DIRR$KEY/$DECDIR/0_Decrypted_Files/$DFILE";$COLOR 9
-	echo
-	STRT=" [*] "
-	CHKFILE=$( file $KEY/$DECDIR/0_Decrypted_Files/$DFILE )
-	$COLOR 5;echo $STRT$CHKFILE;$COLOR 9
-	echo
-	read -e -p " [>] Press Enter to return to menu"
-	fmenu
+	if [ $( cat $DIRR$KEY/$DECDIR/0_Decrypted_Files/$DFILE 2> /dev/null ) -z ] 
+		then
+			$COLOR 1;echo " [*] ERROR: $DFILE not decrypted, wrong key or not an encrypted file.";$COLOR 9;sleep 1.5;fmenu
+		else
+			$COLOR 2;echo " [*] File saved to $DIRR$KEY/$DECDIR/0_Decrypted_Files/$DFILE";$COLOR 9
+			echo
+			STRT=" [*] "
+			CHKFILE=$( file $KEY/$DECDIR/0_Decrypted_Files/$DFILE )
+			$COLOR 5;echo $STRT$CHKFILE;$COLOR 9
+			echo
+			read -e -p " [>] Press Enter to return to menu"
+			fmenu
+	fi
 }
 
 fcat()																	#Read messages to the screen
@@ -768,6 +779,8 @@ fimportkey()															#Import keys
 			sleep 2
 			fimportkey
 		else
+			KEYLOC=$( echo $KEYLOC | tr -d \ )
+			echo $KEYLOC
 			KEYFILE=$(basename $KEYLOC)
 	fi
 	if [ -f $KEYLOC ]
@@ -805,15 +818,22 @@ fimportkey()															#Import keys
 			openssl enc -aes-256-cbc -d -a -salt -in tmp02 -out tmp03 -k "$GPASS" 2> /dev/null
 			openssl enc -camellia-256-cbc -d -a -salt -in tmp03 -out tmp04 -k "$NPASS" 2> /dev/null
 			openssl enc -aes-256-cbc -d -a -salt -in tmp04 -out $DIRR$KEYFILE.zip -k "$SPASS" 2> /dev/null
-	
-			unzip -P $SPASS $KEYFILE.zip -d .  2> /dev/null
-			chown -hR $USER $KEYFILE
-			clear
-			$COLOR 2;echo " [*] $KEYFILE imported.";$COLOR 9
-			shred -zfun 3 $KEYFILE.zip
-			shred -zfun 3 tmp0*
-			sleep 2
-			fmenu
+			
+			shred -zfun 3 tmp0* 2> /dev/null
+			
+			if [ $( cat tmp04 2> /dev/null ) -z ] 2> /dev/null
+				then
+					shred -zfun 3 $KEYFILE.zip
+					$COLOR 1;echo " [*] ERROR: $KEYFILE not imported, wrong password or not an encrypted key.";$COLOR 9;sleep 1.5;fmenu
+				else
+					unzip -P $SPASS $KEYFILE.zip -d .  2> /dev/null
+					chown -hR $USER $KEYFILE
+					clear
+					$COLOR 2;echo " [*] $KEYFILE imported.";$COLOR 9
+					shred -zfun 3 $KEYFILE.zip
+					sleep 2
+					fmenu
+			fi
 		else
 			$COLOR 1;echo " [*] There does not appear to be any file at $KEYFILE, try again...";$COLOR 9
 			sleep 2
