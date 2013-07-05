@@ -242,6 +242,8 @@ fkeygen()																#Generate keys
 			mkdir $KEY
 			mkdir $KEY/$ENCDIR
 			mkdir $KEY/$DECDIR
+			mkdir $KEY/$ENCDIR/0_Encrypted_Files
+			mkdir $KEY/$DECDIR/0_Decrypted_Files
 			sort -R list > $KEY/list
 			DIRNUM=10
 			
@@ -501,10 +503,17 @@ fdecryptmsg()															#Decrypt messages
 						$COLOR 9
 						sleep 2
 						fmenu
-					else
-						echo $LSS
-					
+
+				elif [ $LSS = "0_Encrypted_Files" ] 2> /dev/null
+					then
+						$COLOR 1
+						echo " [*] There are no message files in $DIRR$KEY/$ENCDIR"
+						$COLOR 9
+						sleep 1.5
+						fmenu
 				fi
+				
+				echo $LSS	
 				cd $KEY/$ENCDIR
 				read -e -p " >" DMSGFILE
 
@@ -525,10 +534,17 @@ fdecryptmsg()															#Decrypt messages
 						$COLOR 9
 						sleep 2
 						fmenu
-					else
-						echo $LSS
-					
+
+				elif [ $LSS = "0_Encrypted_Files" ] 2> /dev/null
+					then
+						$COLOR 1
+						echo " [*] There are no message files in $DIRR$KEY/$ENCDIR"
+						$COLOR 9
+						sleep 1.5
+						fmenu
 				fi
+				
+				echo $LSS	
 				cd $KEY/$ENCDIR
 				read -e -p " >" DMSGFILE
 
@@ -896,14 +912,27 @@ fcat()																	#Read messages to the screen
 					$COLOR 9
 					sleep 1.5
 					fmenu
-				else
-					$COLOR 6
-					echo " [>] Which file do you want to read?"
+			elif [ $LSS = "0_Decrypted_Files" ] 2> /dev/null
+				then
+					$COLOR 1
+					echo " [*] There are no message files in $DIRR$KEY/$CATDIR"
 					$COLOR 9
-					cd $KEY/$CATDIR; ls
-					read -e -p " >" CATFILE
-			
+					sleep 1.5
+					fmenu
+			elif [ $LSS = "0_Encrypted_Files" ] 2> /dev/null
+				then
+					$COLOR 1
+					echo " [*] There are no message files in $DIRR$KEY/$CATDIR"
+					$COLOR 9
+					sleep 1.5
+					fmenu
 			fi
+				
+			$COLOR 6
+			echo " [>] Which file do you want to read?"
+			$COLOR 9
+			cd $KEY/$CATDIR; ls
+			read -e -p " >" CATFILE
 			
 			if [ -f $CATFILE ]
 				then
@@ -1077,7 +1106,8 @@ fexportkey()															#Export keys
 			$COLOR 1
 			echo " [*] You must Enter a key, try again..."
 			$COLOR 9
-			sleep
+			sleep 1.5
+			fexportkey
 	fi
 	if [ ! -d $KEY ]
 		then
@@ -1121,8 +1151,11 @@ fexportkey()															#Export keys
 							LPASS=$NPASS$GPASS$ZPASS$GPASS
 							FPASS=$ZPASS$GPASS$NPASS
 							MPASS=$FPASS$NPASS$ZPASS
-							mv "$DIRR""$KEY"/0_Decrypted_Messages "$DIRR"0_Decrypted_Messages
-							mv "$DIRR""$KEY"/0_Encrypted_Messages "$DIRR"0_Encrypted_Messages
+							
+							mv "$DIRR""$KEY"/$DECDIR $DIRR$DECDIR
+							mv "$DIRR""$KEY"/$ENCDIR $DIRR$ENCDIR
+							mv "$DIRR""$KEY"/$ENCDIR/0_Encrypted_Files "$DIRR"0_Encrypted_Files
+							mv "$DIRR""$KEY"/$DECDIR/0_Decrypted_Files "$DIRR"0_Decrypted_Files
 							
 							if [ -f  $WHSAV/$KEY ] 2> /dev/null
 								then
@@ -1139,8 +1172,11 @@ fexportkey()															#Export keys
 							openssl enc -camellia-256-cbc -a -salt -in "$WHSAV"/tmp03 -out "$WHSAV"/tmp04 -k "$MPASS" 2> /dev/null
 							openssl enc -aes-256-cbc -a -salt -in "$WHSAV"/tmp04 -out $WHSAV/$KEY -k "$LPASS" 2> /dev/null
 							
-							mv "$DIRR"0_Decrypted_Messages "$DIRR""$KEY"/0_Decrypted_Messages 
-							mv "$DIRR"0_Encrypted_Messages "$DIRR""$KEY"/0_Encrypted_Messages 
+							mv $DIRR$DECDIR "$DIRR""$KEY"/$DECDIR 
+							mv $DIRR$ENCDIR "$DIRR""$KEY"/$ENCDIR
+							mv "$DIRR"0_Encrypted_Files "$DIRR""$KEY"/$ENCDIR/0_Encrypted_Files
+							mv "$DIRR"0_Decrypted_Files "$DIRR""$KEY"/$DECDIR/0_Decrypted_Files
+							
 					fi
 				done
 
