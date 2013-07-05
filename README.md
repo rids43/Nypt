@@ -15,7 +15,7 @@ Key Transmission:
 
 2. SSH can be used to send keys over a peer-to-peer secure encrypted connection.
 
-3. Keys can be encrypted with a custom password and sent across the internet in an email. The strength of this method will reley on the strength of the password used.
+3. Keys can be encrypted with a custom password and sent across the internet in an email. The strength of this method will rely on the strength of the password and method used to transmit it.
 
 4. Keys and/or their secret password can be transferred via SSH, PGP, cryptocat private room, or any other suitable encrypted communication method. There is functionality to send files via SSH built into Nypt.
 
