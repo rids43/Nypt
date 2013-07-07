@@ -1,6 +1,6 @@
- Nypt 1.34
+ Nypt 1.35
  
-NOTE: V.1.34 is incompatible with previous versions
+NOTE: V.1.35 is incompatible with versions 1.33 and below
 
 Custom wrapper for OpenSSL
 
