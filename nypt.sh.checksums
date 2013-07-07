@@ -1,4 +1,4 @@
-cat nypt.sh | sha512sum = 93a886a482ea23d4c7da07c03212720d440af6285fc4ebe55e4ed3538b7c7d45ce8d9fdd4a4a35ad6b91e2b8a9d9606dce043c62edbbf275e9e76d45b63bbda3
-cat nypt.sh | sha384sum = 77ec86ac91064388d01c56ed7c36e2e493d3cc13b4fdd1299896b27caa8be0033e078c9a9a4dd15a0049710a11f56e81
-cat nypt.sh | sha1sum = e4efa18b9a20ff65cd93b359b4e27edae354ebbf
-cat nypt.sh | md5sum = d91cf65867621089b43067a53be6ef32
+cat nypt.sh | sha512sum = 6d39dc74f1bc5012f25b1e8ec9098ed8f2af06f50ef2eb3e81c3be3847e77a7e9137d62622c63b44396a08ef75b75de38629ccee83dfd6f541748db3dce6377f
+cat nypt.sh | sha384sum = 9eee51a597e042d257c881e34ff336e2d8aa1fbd6ff368012ce89e5e667e888cc65a4faddd20cd951a2b4f37fb69a5d2
+cat nypt.sh | sha1sum = 10bd045b1faaafeeb927ac41ce1ca0031239eca1
+cat nypt.sh | md5sum = ada2eb3640493b672482ac1fb0fe3dc7
