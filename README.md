@@ -1,6 +1,14 @@
- Nypt 1.35
+ Nypt 1.36
  
-NOTE: V.1.35 is incompatible with versions 1.33 and below
+NOTE: V.1.36 is incompatible with previous versions
+
+Changelog:
+1.36
+
+Improved keygen by generating random lengths from urandom
+Improved key export/import password generation
+Cleaned up code
+
 
 Custom wrapper for OpenSSL
 
