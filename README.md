@@ -47,6 +47,9 @@ Thunderbird: http://www.mozilla.org/projects/thunderbird/
 Enigmail: http://www.enigmail.net/home/index.php
 
 
-Programmers: Customizing certain parameters in this script is highly recommended to make it even more secure, just remember that the other party must have a copy of the edited script for it to work. This is another problem that must be solved by sending the edited script using secure encrypted communication methods.
+Programmers: 
+As the determining method of encryption is a very important step in breaking it, customizing certain parameters in this script is highly recommended to make it even more secure. The other communicating party must have a copy of the edited script for it to work.
+Recommended areas of consideration for modification are commented ###Custom###
+Send the edited script using secure encrypted communication methods.
 
 rids@tormail.org 
