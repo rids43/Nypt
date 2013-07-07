@@ -5,8 +5,10 @@ NOTE: V.1.36 is incompatible with previous versions
 Changelog:
 1.36
 
-Improved keygen by generating random lengths from urandom\n
-Improved key export/import password generation\n
+Improved keygen by generating random lengths from urandom
+
+Improved key export/import password generation
+
 Cleaned up code
 
 
