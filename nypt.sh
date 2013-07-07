@@ -200,7 +200,7 @@ fkeygen()																#Generate keys
 			sort -R list > $KEY/list									#List of 6-digit numbers is sorted randomly
 			DIRNUM=10
 			
-			while [ $DIRNUM -le 99 ]
+			while [ $DIRNUM -le 98 ]
 				do
 					mkdir $KEY/$DIRNUM
 					DIRNUM=$(( DIRNUM + 1 ))
@@ -781,8 +781,8 @@ fexportkey()															#Export keys
 				else
 					PASSDON=1
 					NPASS=$(echo $ZPASS | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum)
+					FPASS=$(echo $NPASS$NPASS | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum)
 					NPASS=$(echo $NPASS$NPASS$NPASS | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum)
-					FPASS=$(echo $NPASS | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum)
 					GPASS=$(echo $NPASS$NPASS | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum)
 					GPASS=$(echo $GPASS$GPASS | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum)
 					MPASS=$(echo $GPASS$GPASS | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum)
@@ -886,8 +886,8 @@ fimportkey()															#Import keys
 			fi
 		
 			NPASS=$(echo $ZPASS | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum)
+			FPASS=$(echo $NPASS$NPASS | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum)
 			NPASS=$(echo $NPASS$NPASS$NPASS | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum)
-			FPASS=$(echo $NPASS | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum)
 			GPASS=$(echo $NPASS$NPASS | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum)
 			GPASS=$(echo $GPASS$GPASS | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum)
 			MPASS=$(echo $GPASS$GPASS | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum)
