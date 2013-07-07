@@ -780,15 +780,15 @@ fexportkey()															#Export keys
 					sleep 2
 				else
 					PASSDON=1
-					NPASS=$(echo $ZPASS | sha512sum)
-					FPASS=$NPASS$ZPASS$NPASS$ZPASS$NPASS$ZPASS$NPASS
-					NPASS=$(echo $NPASS$NPASS | sha512sum)
-					GPASS=$(echo $NPASS$NPASS | sha512sum)
-					GPASS=$(echo $GPASS$GPASS | sha512sum)
-					MPASS=$(echo $GPASS$GPASS | sha512sum)
-					MPASS=$(echo $MPASS$MPASS | sha512sum)
-					LPASS=$(echo $MPASS$MPASS | sha512sum)
-					LPASS=$(echo $LPASS$LPASS | sha512sum)
+					NPASS=$(echo $ZPASS | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum)
+					NPASS=$(echo $NPASS$NPASS$NPASS | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum)
+					FPASS=$(echo $NPASS | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum)
+					GPASS=$(echo $NPASS$NPASS | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum)
+					GPASS=$(echo $GPASS$GPASS | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum)
+					MPASS=$(echo $GPASS$GPASS | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum)
+					MPASS=$(echo $MPASS$MPASS | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum)
+					LPASS=$(echo $MPASS$MPASS | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum)
+					LPASS=$(echo $LPASS$LPASS | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum)
 							
 					mv "$DIRR""$KEY"/$DECDIR $DIRR$DECDIR
 					mv "$DIRR""$KEY"/$ENCDIR $DIRR$ENCDIR
@@ -885,15 +885,15 @@ fimportkey()															#Import keys
 					shred -zfun 3 $DIRR$KEYFILE.zip
 			fi
 		
-			NPASS=$(echo $ZPASS | sha512sum)
-			FPASS=$NPASS$ZPASS$NPASS$ZPASS$NPASS$ZPASS$NPASS
-			NPASS=$(echo $NPASS$NPASS | sha512sum)
-			GPASS=$(echo $NPASS$NPASS | sha512sum)
-			GPASS=$(echo $GPASS$GPASS | sha512sum)
-			MPASS=$(echo $GPASS$GPASS | sha512sum)
-			MPASS=$(echo $MPASS$MPASS | sha512sum)
-			LPASS=$(echo $MPASS$MPASS | sha512sum)
-			LPASS=$(echo $LPASS$LPASS | sha512sum)
+			NPASS=$(echo $ZPASS | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum)
+			NPASS=$(echo $NPASS$NPASS$NPASS | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum)
+			FPASS=$(echo $NPASS | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum)
+			GPASS=$(echo $NPASS$NPASS | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum)
+			GPASS=$(echo $GPASS$GPASS | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum)
+			MPASS=$(echo $GPASS$GPASS | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum)
+			MPASS=$(echo $MPASS$MPASS | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum)
+			LPASS=$(echo $MPASS$MPASS | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum)
+			LPASS=$(echo $LPASS$LPASS | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum)
 			
 			openssl enc -aes-256-cbc -d -a -salt -in $KEYLOC -out tmp01 -k "$LPASS" 2> /dev/null
 			openssl enc -camellia-256-cbc -d -a -salt -in tmp01 -out tmp02 -k "$MPASS" 2> /dev/null
