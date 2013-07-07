@@ -1,6 +1,6 @@
 #!/bin/bash
 
-## Nypt 1.35 Copyright 2013, Rids43 (rids@tormail.org)
+## Nypt 1.36 Copyright 2013, Rids43 (rids@tormail.org)
 #
 ## Crypt files, messages and keys using a layer of random number encryption 
 ## and five layers of openssl 256-bit AES and Camellia CBC encryption.
@@ -49,14 +49,13 @@ fstart()																#Startup function
 	if [ $DEPCHK = "1" ] 2> /dev/null									#Dependancy check
 		then		
 			LIST="""shred
+sha512sum
 ssh
 scp
 xclip
 openssl
 zip
 unzip
-base64
-md5sum
 awk
 sed
 grep"""
@@ -106,7 +105,7 @@ fmenu()																	#Main menu
 	clear
 	SSHSEND=0
 	fdisplaymenu
-	$COLOR 5;echo " [*] Nypt 1.35 [*] ";$COLOR 9															
+	$COLOR 5;echo " [*] Nypt 1.36 [*] ";$COLOR 9															
 	read -e -p """      ~~~~~~~~
  [1] Encryption
  [2] Decryption
@@ -207,7 +206,7 @@ fkeygen()																#Generate keys
 					DIRNUM=$(( DIRNUM + 1 ))
 				done
 				
-			LNUM=10110		
+			LNUM=10110													
 			DIRNUM=10
 			DIRNUMB=11
 	
@@ -222,35 +221,47 @@ fkeygen()																#Generate keys
 					DIRNUMB=$(( DIRNUMB + 1 ))
 					LNUM=$(( LNUM + 10110 ))
 				done
+																		##Openssl keys
+																		#Random password lengths are generated from urandom
+			RANDLENTH=$(strings /dev/urandom | grep -o '[0-9]' | head -n 45 | tr -d '\n'; echo)
+			RAND1=${RANDLENTH:0:3}										
+			RAND2=${RANDLENTH:3:3}
+			RAND3=${RANDLENTH:6:3}
+			RAND4=${RANDLENTH:9:3}
+			RAND5=${RANDLENTH:12:3}
+			RANDL1=${RANDLENTH:15:3}										
+			RANDL2=${RANDLENTH:18:3}
+			RANDL3=${RANDLENTH:21:3}
+			RANDL4=${RANDLENTH:24:3}
+			RANDL5=${RANDLENTH:27:3}
+			RANDA1=${RANDLENTH:30:3}										
+			RANDA2=${RANDLENTH:33:3}
+			RANDA3=${RANDLENTH:36:3}
+			RANDA4=${RANDLENTH:39:3}
+			RANDA5=${RANDLENTH:42:3}
 			
-																		##Openssl key
-			RAND1=${RANDOM:0:3}											#Random password lengths are gathered from $RANDOM
-			RAND2=${RANDOM:0:3}
-			RAND3=${RANDOM:0:3}
-			RAND4=${RANDOM:0:3}
-			RAND5=${RANDOM:0:3}
-			if [ $RAND1 -le 429 ]										#Make passwords longer
+			if [ $RAND1 -le $RANDL1 ]									#Make passwords randomly longer
 				then
-					RAND1=$(( RAND1 + 375 ))
+					RAND1=$(( RAND1 + RANDA1 ))
 			fi
-			if [ $RAND2 -le 744 ]
+			if [ $RAND2 -le $RANDL2 ]
 				then
-					RAND2=$(( RAND2 + 234 ))
+					RAND2=$(( RAND2 + RANDA2 ))
 			fi
-			if [ $RAND3 -le 654 ]
+			if [ $RAND3 -le $RANDL3 ]
 				then
-					RAND3=$(( RAND3 + 263 ))
+					RAND3=$(( RAND3 + RANDA3 ))
 			fi
-			if [ $RAND4 -le 428 ]
+			if [ $RAND4 -le $RANDL4 ]
 				then
-					RAND4=$(( RAND4 + 351 ))
+					RAND4=$(( RAND4 + RANDA4 ))
 			fi
-			if [ $RAND5 -le 246 ]
+			if [ $RAND5 -le $RANDL5 ]
 				then
-					RAND5=$(( RAND5 + 314 ))
+					RAND5=$(( RAND5 + RANDA5 ))
 			fi
 			mkdir $KEY/meta/
-																		#Passwords for openssl are gathered from urandom
+																		#Passwords for openssl layers are generated from urandom
 			echo $(strings /dev/urandom | grep -o '[[:alnum:]]' | head -n $RAND1 | tr -d '\n'; echo) > $KEY/meta/meta
 			echo $(strings /dev/urandom | grep -o '[[:alnum:]]' | head -n $RAND2 | tr -d '\n'; echo) >> $KEY/meta/meta
 			echo $(strings /dev/urandom | grep -o '[[:alnum:]]' | head -n $RAND3 | tr -d '\n'; echo) >> $KEY/meta/meta
@@ -301,7 +312,7 @@ fencryptmsg()															#Encrypt messages
 		do
 			CHAR=${MSG:$MSGCNT:1}
 			case $CHAR in
-				"a")ENCC="11";;"b")ENCC="12";;"c")ENCC="13";;"d")ENCC="14";;"e")ENCC="15";;"f")ENCC="16";;"g")ENCC="17";;"h")ENCC="18";;"i")ENCC="19";;"j")ENCC="20";;"k")ENCC="21";;"l")ENCC="22";;"m")ENCC="23";;"n")ENCC="24";;"o")ENCC="25";;"p")ENCC="26";;"q")ENCC="27";;"r")ENCC="28";;"s")ENCC="29";;"t")ENCC="30";;"u")ENCC="31";;"v")ENCC="32";;"w")ENCC="33";;"x")ENCC="34";;"y")ENCC="35";;"z")ENCC="36";;1)ENCC="37";;2)ENCC="38";;3)ENCC="39";;4)ENCC="40";;5)ENCC="41";;6)ENCC="42";;7)ENCC="43";;8)ENCC="44";;9)ENCC="45";;0)ENCC="10";;" ")ENCC="46";;"A")ENCC="47";;"B")ENCC="48";;"C")ENCC="49";;"D")ENCC="50";;"E")ENCC="51";;"F")ENCC="52";;"G")ENCC="53";;"H")ENCC="54";;"I")ENCC="55";;"J")ENCC="56";;"K")ENCC="57";;"L")ENCC="58";;"M")ENCC="59";;"N")ENCC="60";;"O")ENCC="61";;"P")ENCC="62";;"Q")ENCC="63";;"R")ENCC="64";;"S")ENCC="65";;"T")ENCC="66";;"U")ENCC="67";;"V")ENCC="68";;"W")ENCC="69";;"X")ENCC="70";;"Y")ENCC="71";;"Z")ENCC="72";;".")ENCC="73";;"?")ENCC="74";;",")ENCC="75";;"!")ENCC="76"		
+				"a")ENCC="11";;"b")ENCC="12";;"c")ENCC="13";;"d")ENCC="14";;"e")ENCC="15";;"f")ENCC="16";;"g")ENCC="17";;"h")ENCC="18";;"i")ENCC="19";;"j")ENCC="20";;"k")ENCC="21";;"l")ENCC="22";;"m")ENCC="23";;"n")ENCC="24";;"o")ENCC="25";;"p")ENCC="26";;"q")ENCC="27";;"r")ENCC="28";;"s")ENCC="29";;"t")ENCC="30";;"u")ENCC="31";;"v")ENCC="32";;"w")ENCC="33";;"x")ENCC="34";;"y")ENCC="35";;"z")ENCC="36";;1)ENCC="37";;2)ENCC="38";;3)ENCC="39";;4)ENCC="40";;5)ENCC="41";;6)ENCC="42";;7)ENCC="43";;8)ENCC="44";;9)ENCC="45";;0)ENCC="10";;" ")ENCC="46";;"A")ENCC="47";;"B")ENCC="48";;"C")ENCC="49";;"D")ENCC="50";;"E")ENCC="51";;"F")ENCC="52";;"G")ENCC="53";;"H")ENCC="54";;"I")ENCC="55";;"J")ENCC="56";;"K")ENCC="57";;"L")ENCC="58";;"M")ENCC="59";;"N")ENCC="60";;"O")ENCC="61";;"P")ENCC="62";;"Q")ENCC="63";;"R")ENCC="64";;"S")ENCC="65";;"T")ENCC="66";;"U")ENCC="67";;"V")ENCC="68";;"W")ENCC="69";;"X")ENCC="70";;"Y")ENCC="71";;"Z")ENCC="72";;".")ENCC="73";;"?")ENCC="74";;",")ENCC="75";;"!")ENCC="76";;";")ENCC="77";;"$")ENCC="78";;"£")ENCC="79";;"&")ENCC="80";;'(')ENNC="81";;')')ENC="82";;"-")ENC="83";;"+")ENCC="84";;"@")ENCC="85";;":")ENCC="86";;'"')ENCC="87";;"#")ENCC="88";;"%")ENCC="89";;"^")ENCC="90";;"'")ENCC="91";;"=")ENCC="92";;"~")ENCC="93";;"/")ENCC="94";;"<")ENCC="95";;">")ENCC="96";;"_")ENCC="97"
 			esac
 		
 			echo $ENCC >> tmp1
@@ -313,9 +324,9 @@ fencryptmsg()															#Encrypt messages
 			echo $(cat $KEY/$LINE/$LINE | sort -R | head -n 1) >> tmp2	#Random 6 digit number line is chosen from the character file
 		done <$FILE
 		
-	echo $(tr '\n' ' ' < tmp2 | sed -e 's/\s//g') > tmp3
+	echo $(tr '\n' ' ' < tmp2 | sed -e 's/\s//g') > tmp3				#Newlines are removed leaving a continuous stream of numbers
 		
-	FILE=$DIRR$KEY"/meta/meta"
+	FILE=$KEY/meta/meta
 	LNUM=1																##Openssl layer
 	while read LINE														#Passwords for openssl layers are imported from $KEY/meta/meta
 		do
@@ -330,14 +341,13 @@ fencryptmsg()															#Encrypt messages
 			LNUM=$(( LNUM + 1 ))
 		done <"$FILE"
 
-	openssl enc -aes-256-cbc -a -salt -in tmp3 -out $DIRR$KEY/$ENCDIR/tmp01 -k "$PASS1" 2> /dev/null
-	openssl enc -camellia-256-cbc -a -salt -in $DIRR$KEY/$ENCDIR/tmp01  -out $DIRR$KEY/$ENCDIR/tmp02 -k "$PASS2" 2> /dev/null
-	openssl enc -aes-256-cbc -a -salt -in $DIRR$KEY/$ENCDIR/tmp02  -out $DIRR$KEY/$ENCDIR/tmp03 -k "$PASS3" 2> /dev/null
-	openssl enc -camellia-256-cbc -a -salt -in $DIRR$KEY/$ENCDIR/tmp03  -out $DIRR$KEY/$ENCDIR/tmp04 -k "$PASS4" 2> /dev/null
-	openssl enc -aes-256-cbc -a -salt -in $DIRR$KEY/$ENCDIR/tmp04  -out $DIRR$KEY/$ENCDIR/$EMSGFILE -k "$PASS5" 2> /dev/null	
+	openssl enc -aes-256-cbc -a -salt -in tmp3 -out tmp01 -k "$PASS1" 2> /dev/null
+	openssl enc -camellia-256-cbc -a -salt -in tmp01 -out tmp02 -k "$PASS2" 2> /dev/null
+	openssl enc -aes-256-cbc -a -salt -in tmp02  -out tmp03 -k "$PASS3" 2> /dev/null
+	openssl enc -camellia-256-cbc -a -salt -in tmp03 -out tmp04 -k "$PASS4" 2> /dev/null
+	openssl enc -aes-256-cbc -a -salt -in tmp04 -out $KEY/$ENCDIR/$EMSGFILE -k "$PASS5" 2> /dev/null	
 	
 	shred -zfun 3 tmp* 2> /dev/null
-	shred -zfun 3 $DIRR$KEY/$ENCDIR/tmp* 2> /dev/null
 	clear
 	RLEN=$(wc -l $DIRR$KEY/$ENCDIR/$EMSGFILE)
 	DLENT=7
@@ -437,11 +447,11 @@ fdecryptmsg()															#Decrypt messages
 	$COLOR 4;echo " [*] Decrypting, Please wait..";$COLOR 9
 	DATEFILE="$DIRR""$KEY"/"$ENCDIR"/"$DATER"
 	case $DODEC in
-		"P") mv "$DATEFILE" "$DIRR""$KEY"/"$ENCDIR"/"tmp01" ; DMSGFILE="$DATER";;
-		"p") mv "$DATEFILE" "$DIRR""$KEY"/"$ENCDIR"/"tmp01" ; DMSGFILE="$DATER";;
-		"") mv "$DATEFILE" "$DIRR""$KEY"/"$ENCDIR"/"tmp01" ; DMSGFILE="$DATER";;
-		"f") cat $KEY/$ENCDIR/$DMSGFILE  > $KEY/$ENCDIR/tmp01;;
-		"F") cat $KEY/$ENCDIR/$DMSGFILE  > $KEY/$ENCDIR/tmp01
+		"P") mv "$DATEFILE" tmp01 ; DMSGFILE="$DATER";;
+		"p") mv "$DATEFILE" tmp01 ; DMSGFILE="$DATER";;
+		"") mv "$DATEFILE" tmp01 ; DMSGFILE="$DATER";;
+		"f") cat $KEY/$ENCDIR/$DMSGFILE  > tmp01;;
+		"F") cat $KEY/$ENCDIR/$DMSGFILE  > tmp01
 	esac
 	
 	FILE=$DIRR$KEY"/meta/meta"
@@ -459,17 +469,16 @@ fdecryptmsg()															#Decrypt messages
 			LNUM=$(( LNUM + 1 ))
 		done <"$FILE"
 		
-	openssl enc -aes-256-cbc -d -a -salt -in $DIRR$KEY/$ENCDIR/tmp01  -out $DIRR$KEY/$ENCDIR/tmp02 -k "$PASS5" 2> /dev/null	
-	openssl enc -camellia-256-cbc -d -a -salt -in $DIRR$KEY/$ENCDIR/tmp02  -out $DIRR$KEY/$ENCDIR/tmp03 -k "$PASS4" 2> /dev/null
-	openssl enc -aes-256-cbc -d -a -salt -in $DIRR$KEY/$ENCDIR/tmp03  -out $DIRR$KEY/$ENCDIR/tmp04 -k "$PASS3" 2> /dev/null
-	openssl enc -camellia-256-cbc -d -a -salt -in $DIRR$KEY/$ENCDIR/tmp04  -out $DIRR$KEY/$ENCDIR/tmp05 -k "$PASS2" 2> /dev/null
-	openssl enc -aes-256-cbc -d -a -salt -in $DIRR$KEY/$ENCDIR/tmp05 -out $DIRR$KEY/$ENCDIR/tmp06 -k "$PASS1" 2> /dev/null
+	openssl enc -aes-256-cbc -d -a -salt -in tmp01  -out tmp02 -k "$PASS5" 2> /dev/null	
+	openssl enc -camellia-256-cbc -d -a -salt -in tmp02  -out tmp03 -k "$PASS4" 2> /dev/null
+	openssl enc -aes-256-cbc -d -a -salt -in tmp03  -out tmp04 -k "$PASS3" 2> /dev/null
+	openssl enc -camellia-256-cbc -d -a -salt -in tmp04  -out tmp05 -k "$PASS2" 2> /dev/null
+	openssl enc -aes-256-cbc -d -a -salt -in tmp05 -out tmf -k "$PASS1" 2> /dev/null
 
-	mv $DIRR$KEY/$ENCDIR/tmp06 $PWD/tmp04
-	shred -zfun 3 $DIRR$KEY/$ENCDIR/tmp* 2> /dev/null
+	shred -zfun 3 tmp* 2> /dev/null
 	
-	ENCCLEN=$(wc -c tmp04)												##Random number layer
-	ENCCMSG=$(cat tmp04)
+	ENCCLEN=$(wc -c tmf)												##Random number layer
+	ENCCMSG=$(cat tmf)
   	CHARCNT=0
   	CHAR=0
   	DECCNT=0
@@ -502,7 +511,8 @@ fdecryptmsg()															#Decrypt messages
 	while read LINE														#Each file number is assigned a character 
 		do
 			case $LINE in
-				10)DECC="0";;11)DECC="a";;12)DECC="b";;13)DECC="c";;14)DECC="d";;15)DECC="e";;16)DECC="f";;17)DECC="g";;18)DECC="h";;19)DECC="i";;20)DECC="j";;21)DECC="k";;22)DECC="l";;23)DECC="m";;24)DECC="n";;25)DECC="o";;26)DECC="p";;27)DECC="q";;28)DECC="r";;29)DECC="s";;30)DECC="t";;31)DECC="u";;32)DECC="v";;33)DECC="w";;34)DECC="x";;35)DECC="y";;36)DECC="z";;37)DECC="1";;38)DECC="2";;39)DECC="3";;40)DECC="4";;41)DECC="5";;42)DECC="6";;43)DECC="7";;44)DECC="8";;45)DECC="9";;46)echo -n ' ' >> tmp03;DECC=" ";;47)DECC="A";;48)DECC="B";;49)DECC="C";;50)DECC="D";;51)DECC="E";;52)DECC="F";;53)DECC="G";;54)DECC="H";;55)DECC="I";;56)DECC="J";;57)DECC="K";;58)DECC="L";;59)DECC="M";;60)DECC="N";;61)DECC="O";;62)DECC="P";;63)DECC="Q";;64)DECC="R";;65)DECC="S";;66)DECC="T";;67)DECC="U";;68)DECC="V";;69)DECC="W";;70)DECC="X";;71)DECC="Y";;72)DECC="Z";;73)DECC=".";;74)DECC="?";;75)DECC=",";;76)DECC="!"
+				10)DECC="0";;11)DECC="a";;12)DECC="b";;13)DECC="c";;14)DECC="d";;15)DECC="e";;16)DECC="f";;17)DECC="g";;18)DECC="h";;19)DECC="i";;20)DECC="j";;21)DECC="k";;22)DECC="l";;23)DECC="m";;24)DECC="n";;25)DECC="o";;26)DECC="p";;27)DECC="q";;28)DECC="r";;29)DECC="s";;30)DECC="t";;31)DECC="u";;32)DECC="v";;33)DECC="w";;34)DECC="x";;35)DECC="y";;36)DECC="z";;37)DECC="1";;38)DECC="2";;39)DECC="3";;40)DECC="4";;41)DECC="5";;42)DECC="6";;43)DECC="7";;44)DECC="8";;45)DECC="9";;46)echo -n ' ' >> tmp03;DECC=" ";;47)DECC="A";;48)DECC="B";;49)DECC="C";;50)DECC="D";;51)DECC="E";;52)DECC="F";;53)DECC="G";;54)DECC="H";;55)DECC="I";;56)DECC="J";;57)DECC="K";;58)DECC="L";;59)DECC="M";;60)DECC="N";;61)DECC="O";;62)DECC="P";;63)DECC="Q";;64)DECC="R";;65)DECC="S";;66)DECC="T";;67)DECC="U";;68)DECC="V";;69)DECC="W";;70)DECC="X";;71)DECC="Y";;72)DECC="Z";;73)DECC=".";;74)DECC="?";;75)DECC=",";;76)DECC="!";;77)DECC=";";;78)DECC="$";;79)DECC="£";;80)DECC="&";;81)DECC='(';;82)DECC=')';;83)DECC="-";;84)DECC="+";;85)DECC="@";;86)DECC=":";;87)DECC='"';;88)DECC="#";;89)DECC="%";;90)DECC="^";;91)DECC="'";;92)DECC="=";;93)DECC="~";;94)DECC="/";;95)DECC="<";;96)DECC=">";;97)DECC="_"
+								
 			esac
 			
 			echo -n $DECC >> tmp03
@@ -510,7 +520,7 @@ fdecryptmsg()															#Decrypt messages
 		
 	DEKD=$(cat tmp03)
 	echo "${DEKD%?}" > $KEY/$DECDIR/$DMSGFILE							#Cleartext message
-	shred -zfun 3 tmp* 2> /dev/null
+	shred -zfun 3 tm* 2> /dev/null
 	clear
 	if [ $( cat $KEY/$DECDIR/$DMSGFILE ) -z ] 2> /dev/null
 		then
@@ -585,13 +595,13 @@ fencryptfile()															#Encrypt files
 		LNUM=$(( LNUM + 1 ))
 		done <$FILE
 
-	openssl enc -aes-256-cbc -a -salt -in $INFILE -out $DIRR$KEY/$ENCDIR/tmp01 -k "$PASS1" 2> /dev/null	
-	openssl enc -camellia-256-cbc -a -salt -in $DIRR$KEY/$ENCDIR/tmp01  -out $DIRR$KEY/$ENCDIR/tmp02 -k "$PASS2" 2> /dev/null
-	openssl enc -aes-256-cbc -a -salt -in $DIRR$KEY/$ENCDIR/tmp02  -out $DIRR$KEY/$ENCDIR/tmp03 -k "$PASS3" 2> /dev/null
-	openssl enc -camellia-256-cbc -a -salt -in $DIRR$KEY/$ENCDIR/tmp03  -out $DIRR$KEY/$ENCDIR/tmp04 -k "$PASS4" 2> /dev/null
-	openssl enc -aes-256-cbc -a -salt -in $DIRR$KEY/$ENCDIR/tmp04 -out $DIRR$KEY/$ENCDIR/0_Encrypted_Files/$EMSGFILE -k "$PASS5" 2> /dev/null
+	openssl enc -aes-256-cbc -a -salt -in $INFILE -out tmp01 -k "$PASS1" 2> /dev/null	
+	openssl enc -camellia-256-cbc -a -salt -in tmp01 -out tmp02 -k "$PASS2" 2> /dev/null
+	openssl enc -aes-256-cbc -a -salt -in tmp02 -out tmp03 -k "$PASS3" 2> /dev/null
+	openssl enc -camellia-256-cbc -a -salt -in tmp03 -out tmp04 -k "$PASS4" 2> /dev/null
+	openssl enc -aes-256-cbc -a -salt -in tmp04 -out $KEY/$ENCDIR/0_Encrypted_Files/$EMSGFILE -k "$PASS5" 2> /dev/null
 
-	shred -zfun 3 $DIRR$KEY/$ENCDIR/tmp* 2> /dev/null
+	shred -zfun 3 tmp* 2> /dev/null
 	clear
 	$COLOR 2;echo " [*] File saved to $DIRR$KEY/$ENCDIR/0_Encrypted_Files/$EMSGFILE";$COLOR 9
 	echo
@@ -643,7 +653,6 @@ fdecryptfile()															#Decrypt files
 	
 	while read LINE  													#Passwords for openssl layers are imported from $KEY/meta/meta
 		do
-		
 			case $LNUM in
 					1)PASS1=$LINE;;
 					2)PASS2=$LINE;;
@@ -655,22 +664,22 @@ fdecryptfile()															#Decrypt files
 			LNUM=$(( LNUM + 1 ))
 		done <$FILE
 		
-	openssl enc -aes-256-cbc -d -a -salt -in $INFILE -out $DIRR$KEY/$ENCDIR/tmp01 -k "$PASS5" 2> /dev/null
-	openssl enc -camellia-256-cbc -d -a -salt -in $DIRR$KEY/$ENCDIR/tmp01  -out $DIRR$KEY/$ENCDIR/tmp02 -k "$PASS4" 2> /dev/null
-	openssl enc -aes-256-cbc -d -a -salt -in $DIRR$KEY/$ENCDIR/tmp02  -out $DIRR$KEY/$ENCDIR/tmp03 -k "$PASS3" 2> /dev/null
-	openssl enc -camellia-256-cbc -d -a -salt -in $DIRR$KEY/$ENCDIR/tmp03  -out $DIRR$KEY/$ENCDIR/tmp04 -k "$PASS2" 2> /dev/null
-	openssl enc -aes-256-cbc -d -a -salt -in $DIRR$KEY/$ENCDIR/tmp04  -out $DIRR$KEY/$DECDIR/0_Decrypted_Files/$DFILE -k "$PASS1" 2> /dev/null	
+	openssl enc -aes-256-cbc -d -a -salt -in $INFILE -out tmp01 -k "$PASS5" 2> /dev/null
+	openssl enc -camellia-256-cbc -d -a -salt -in tmp01 -out tmp02 -k "$PASS4" 2> /dev/null
+	openssl enc -aes-256-cbc -d -a -salt -in tmp02  -out tmp03 -k "$PASS3" 2> /dev/null
+	openssl enc -camellia-256-cbc -d -a -salt -in tmp03 -out tmp04 -k "$PASS2" 2> /dev/null
+	openssl enc -aes-256-cbc -d -a -salt -in tmp04  -out $KEY/$DECDIR/0_Decrypted_Files/$DFILE -k "$PASS1" 2> /dev/null	
 
-	shred -zfun 3 $KEY/$ENCDIR/tmp0* 2> /dev/null
-	clear
-	if [ $( cat $DIRR$KEY/$DECDIR/0_Decrypted_Files/$DFILE 2> /dev/null ) -z ] 2> /dev/null
+	if [ $( cat tmp04 2> /dev/null ) -z ] 2> /dev/null
 		then
-			DISPERRORFILE=1;fmenu
+			clear;DISPERRORFILE=1;fmenu
 		else
+			shred -zfun 3 tmp* 2> /dev/null
+			clear
 			$COLOR 2;echo " [*] File saved to $DIRR$KEY/$DECDIR/0_Decrypted_Files/$DFILE";$COLOR 9
 			echo
 			STRT=" [*] "
-			CHKFILE=$( file $KEY/$DECDIR/0_Decrypted_Files/$DFILE )
+			CHKFILE=$( file $DIRR$KEY/$DECDIR/0_Decrypted_Files/$DFILE )
 			$COLOR 2;echo $STRT$CHKFILE;$COLOR 9
 			echo
 			read -e -p " [>] Press Enter to return to menu"
@@ -750,6 +759,78 @@ fopendir()																#Open message folder
 	fmenu
 }
 
+fexportkey()															#Export keys
+{
+	finputkey
+	WHSAV=$HOME/Desktop/nypt/Exported_Keys
+	clear
+	PASSDON=0
+	while [ $PASSDON != "1" ]
+		do
+			clear
+			$COLOR 1;echo " [*] WARNING: Please use a very strong password, at least 10 characters long including capitals and numbers";$COLOR 9
+			echo
+			$COLOR 5;echo " [>] Please Enter your password";$COLOR 9
+			read -s  TPASS
+			$COLOR 5;echo " [>] Enter once more"  ;$COLOR 9
+			read -s ZPASS
+			if [ $TPASS != $ZPASS ]
+				then
+					$COLOR 1;echo " [*] Passwords do not match, try again...";$COLOR 9
+					sleep 2
+				else
+					PASSDON=1
+					NPASS=$(echo $ZPASS | sha512sum)
+					FPASS=$NPASS$ZPASS$NPASS$ZPASS$NPASS$ZPASS$NPASS
+					NPASS=$(echo $NPASS$NPASS | sha512sum)
+					GPASS=$(echo $NPASS$NPASS | sha512sum)
+					GPASS=$(echo $GPASS$GPASS | sha512sum)
+					MPASS=$(echo $GPASS$GPASS | sha512sum)
+					MPASS=$(echo $MPASS$MPASS | sha512sum)
+					LPASS=$(echo $MPASS$MPASS | sha512sum)
+					LPASS=$(echo $LPASS$LPASS | sha512sum)
+							
+					mv "$DIRR""$KEY"/$DECDIR $DIRR$DECDIR
+					mv "$DIRR""$KEY"/$ENCDIR $DIRR$ENCDIR
+							
+					if [ -f  $WHSAV/$KEY ] 2> /dev/null
+						then
+							shred -zfun 3 $WHSAV/$KEY
+					fi
+					zip -reP $ZPASS $KEY.zip $KEY
+					clear
+					$COLOR 4;echo " [*] Encrypting "$KEY", Please wait...";$COLOR 9
+					openssl enc -aes-256-cbc -a -salt -in $KEY.zip -out tmp01 -k "$FPASS" 2> /dev/null
+					openssl enc -camellia-256-cbc -a -salt -in tmp01 -out tmp02 -k "$NPASS" 2> /dev/null
+					openssl enc -aes-256-cbc -a -salt -in tmp02 -out tmp03 -k "$GPASS" 2> /dev/null
+					openssl enc -camellia-256-cbc -a -salt -in tmp03 -out tmp04 -k "$MPASS" 2> /dev/null
+					openssl enc -aes-256-cbc -a -salt -in tmp04 -out $WHSAV/$KEY -k "$LPASS" 2> /dev/null
+							
+					mv $DIRR$DECDIR "$DIRR""$KEY"/$DECDIR 
+					mv $DIRR$ENCDIR "$DIRR""$KEY"/$ENCDIR
+					
+			fi
+		done
+
+	shred -zfun 3 tmp* 2> /dev/null
+	shred -zfun 3 $KEY.zip
+	clear
+	$COLOR 2;echo " [*] $KEY exported to $WHSAV/$KEY"
+	SIZE=$( du -h $WHSAV/$KEY )
+	echo " [*] "${SIZE:0:4} "in size";$COLOR 9
+	echo
+	echo " [>] Press s and Enter to send via SSH"
+	read -e -p """ [>] Press Enter to return to menu
+ >""" DOFILE
+	echo
+	case $DOFILE in
+		"s")INFILE=$WHSAV/$KEY;SSHSEND=1;cd "$DIRR";fsshsend;;
+		"S")INFILE=$WHSAV/$KEY;SSHSEND=1;cd "$DIRR";fsshsend;;
+		"")fmenu
+	esac
+	fmenu
+}
+
 fimportkey()															#Import keys
 {
 	clear
@@ -769,11 +850,11 @@ fimportkey()															#Import keys
 					$COLOR 1;echo " [*] ERROR: A key called $KEYFILE aleady exists, do you want to rename the local key? [Y/n]";$COLOR 9
 					read -p " >" RENAME
 					case $RENAME in
-						"")clear;$COLOR 5;read -p " [>] Rename to: " RNAME;$COLOR 9;mv $KEYFILE $RNAME;echo;$COLOR 2;echo " [*] Key $KEYFILE renamed to $RNAME";$COLOR 9;sleep 1.5;;
-						"Y")clear;$COLOR 5;read -p " [>] Rename to: " RNAME;$COLOR 9;mv $KEYFILE $RNAME;echo;$COLOR 2;echo " [*] Key $KEYFILE renamed to $RNAME";$COLOR 9;sleep 1.5;;
-						"y")clear;$COLOR 5;read -p " [>] Rename to: " RNAME;$COLOR 9;mv $KEYFILE $RNAME;echo;$COLOR 2;echo " [*] Key $KEYFILE renamed to $RNAME";$COLOR 9;sleep 1.5;;
-						"N")clear;$COLOR 1;echo " [*] ERROR: Could not import $KEYFILE";$COLOR 9;sleep 1.5;fmenu;;
-						"n")clear;$COLOR 1;echo " [*] ERROR: Could not import $KEYFILE";$COLOR 9;sleep 1.5;fmenu;;
+						"")clear;$COLOR 5;read -p " [>] Rename $KEYFILE to: " RNAME;$COLOR 9;mv $KEYFILE $RNAME;echo;$COLOR 2;echo " [*] Key $KEYFILE renamed to $RNAME";$COLOR 9;sleep 1.5;;
+						"Y")clear;$COLOR 5;read -p " [>] Rename $KEYFILE to: " RNAME;$COLOR 9;mv $KEYFILE $RNAME;echo;$COLOR 2;echo " [*] Key $KEYFILE renamed to $RNAME";$COLOR 9;sleep 1.5;;
+						"y")clear;$COLOR 5;read -p " [>] Rename $KEYFILE to: " RNAME;$COLOR 9;mv $KEYFILE $RNAME;echo;$COLOR 2;echo " [*] Key $KEYFILE renamed to $RNAME";$COLOR 9;sleep 1.5;;
+						"N")clear;$COLOR 1;echo " [*] ERROR: Could Not import $KEYFILE";$COLOR 9;sleep 1.5;fmenu;;
+						"n")clear;$COLOR 1;echo " [*] ERROR: Could Not import $KEYFILE";$COLOR 9;sleep 1.5;fmenu;;
 					esac
 			fi
 	fi
@@ -786,8 +867,8 @@ fimportkey()															#Import keys
 					$COLOR 5;echo " [>] Please Enter the password";$COLOR 9
 					read -s RPASS
 					$COLOR 5;echo " [>] Enter one more time";$COLOR 9
-					read -s SPASS
-					if [ $RPASS != $SPASS ]
+					read -s ZPASS
+					if [ $RPASS != $ZPASS ]
 						then
 							$COLOR 1;echo " [*] Passwords do not match, try again...";$COLOR 9
 							sleep 2
@@ -804,26 +885,29 @@ fimportkey()															#Import keys
 					shred -zfun 3 $DIRR$KEYFILE.zip
 			fi
 		
-			NPASS=$(echo $SPASS | base64)
-			NPASS=$(echo $NPASS$NPASS | md5sum)
-			GPASS=$(echo NPASS | md5sum)
-			LPASS=$NPASS$GPASS$SPASS$GPASS
-			FPASS=$SPASS$GPASS$NPASS
-			MPASS=$FPASS$NPASS$SPASS
+			NPASS=$(echo $ZPASS | sha512sum)
+			FPASS=$NPASS$ZPASS$NPASS$ZPASS$NPASS$ZPASS$NPASS
+			NPASS=$(echo $NPASS$NPASS | sha512sum)
+			GPASS=$(echo $NPASS$NPASS | sha512sum)
+			GPASS=$(echo $GPASS$GPASS | sha512sum)
+			MPASS=$(echo $GPASS$GPASS | sha512sum)
+			MPASS=$(echo $MPASS$MPASS | sha512sum)
+			LPASS=$(echo $MPASS$MPASS | sha512sum)
+			LPASS=$(echo $LPASS$LPASS | sha512sum)
 			
 			openssl enc -aes-256-cbc -d -a -salt -in $KEYLOC -out tmp01 -k "$LPASS" 2> /dev/null
 			openssl enc -camellia-256-cbc -d -a -salt -in tmp01 -out tmp02 -k "$MPASS" 2> /dev/null
 			openssl enc -aes-256-cbc -d -a -salt -in tmp02 -out tmp03 -k "$GPASS" 2> /dev/null
 			openssl enc -camellia-256-cbc -d -a -salt -in tmp03 -out tmp04 -k "$NPASS" 2> /dev/null
-			openssl enc -aes-256-cbc -d -a -salt -in tmp04 -out $KEYFILE.zip -k "$SPASS" 2> /dev/null
+			openssl enc -aes-256-cbc -d -a -salt -in tmp04 -out $KEYFILE.zip -k "$FPASS" 2> /dev/null
 			
 			if [ $( cat tmp04 2> /dev/null ) -z ] 2> /dev/null
 				then
 					shred -zfun 3 $KEYFILE.zip
-					shred -zfun 3 tmp0* 2> /dev/null
+					shred -zfun 3 tmp* 2> /dev/null
 					DISPERRORKEY=1;fmenu
 				else
-					unzip -P $SPASS $KEYFILE.zip -d .  2> /dev/null
+					unzip -P $ZPASS $KEYFILE.zip -d .  2> /dev/null
 					chown -hR $USER $KEYFILE
 					mkdir $KEYFILE/$ENCDIR
 					mkdir $KEYFILE/$DECDIR
@@ -833,7 +917,7 @@ fimportkey()															#Import keys
 					$COLOR 4;echo " [*] Decrypting "$KEYFILE", Please wait..";$COLOR 9
 					DISPIMPORT=1
 					shred -zfun 3 $KEYFILE.zip
-					shred -zfun 3 tmp0* 2> /dev/null
+					shred -zfun 3 tmp* 2> /dev/null
 					fmenu
 			fi
 		else
@@ -841,73 +925,6 @@ fimportkey()															#Import keys
 			sleep 2
 			fimportkey
 	fi
-}
-
-fexportkey()															#Export keys
-{
-	finputkey
-	WHSAV=$HOME/Desktop/nypt/Exported_Keys
-	clear
-	PASSDON=0
-	while [ $PASSDON != "1" ]
-		do
-			clear
-			$COLOR 5;echo " [>] Please Enter your password";$COLOR 9
-			read -s  TPASS
-			$COLOR 5;echo " [>] Enter once more"  ;$COLOR 9
-			read -s ZPASS
-			if [ $TPASS != $ZPASS ]
-				then
-					$COLOR 1;echo " [*] Passwords do not match, try again...";$COLOR 9
-					sleep 2
-				else
-					PASSDON=1
-					NPASS=$(echo $ZPASS | base64)
-					NPASS=$(echo $NPASS$NPASS | md5sum)
-					GPASS=$(echo NPASS | md5sum)
-					LPASS=$NPASS$GPASS$ZPASS$GPASS
-					FPASS=$ZPASS$GPASS$NPASS
-					MPASS=$FPASS$NPASS$ZPASS
-							
-					mv "$DIRR""$KEY"/$DECDIR $DIRR$DECDIR
-					mv "$DIRR""$KEY"/$ENCDIR $DIRR$ENCDIR
-							
-					if [ -f  $WHSAV/$KEY ] 2> /dev/null
-						then
-							shred -zfun 3 $WHSAV/$KEY
-					fi
-					zip -reP $ZPASS $KEY.zip $KEY
-					clear
-					$COLOR 4;echo " [*] Encrypting "$KEY", Please wait...";$COLOR 9
-					openssl enc -aes-256-cbc -a -salt -in $DIRR$KEY.zip -out $WHSAV/tmp01 -k "$ZPASS" 2> /dev/null
-					openssl enc -camellia-256-cbc -a -salt -in $WHSAV/tmp01 -out $WHSAV/tmp02 -k "$NPASS" 2> /dev/null
-					openssl enc -aes-256-cbc -a -salt -in $WHSAV/tmp02 -out $WHSAV/tmp03 -k "$GPASS" 2> /dev/null
-					openssl enc -camellia-256-cbc -a -salt -in $WHSAV/tmp03 -out $WHSAV/tmp04 -k "$MPASS" 2> /dev/null
-					openssl enc -aes-256-cbc -a -salt -in $WHSAV/tmp04 -out $WHSAV/$KEY -k "$LPASS" 2> /dev/null
-							
-					mv $DIRR$DECDIR "$DIRR""$KEY"/$DECDIR 
-					mv $DIRR$ENCDIR "$DIRR""$KEY"/$ENCDIR
-					
-			fi
-		done
-
-	shred -zfun 3 $WHSAV/tmp0*
-	shred -zfun 3 $KEY.zip
-	clear
-	$COLOR 2;echo " [*] $KEY exported to $WHSAV/$KEY"
-	SIZE=$( du -h $WHSAV/$KEY )
-	echo " [*] "${SIZE:0:4} "in size";$COLOR 9
-	echo
-	echo " [>] Press s and Enter to send via SSH"
-	read -e -p """ [>] Press Enter to return to menu
- >""" DOFILE
-	echo
-	case $DOFILE in
-		"s")INFILE=$WHSAV/$KEY;SSHSEND=1;cd "$DIRR";fsshsend;;
-		"S")INFILE=$WHSAV/$KEY;SSHSEND=1;cd "$DIRR";fsshsend;;
-		"")fmenu
-	esac
-	fmenu
 }
 
 finstallssh()															#Install OpenSSH server
@@ -1091,12 +1108,10 @@ fshred()																#Shred
 	elif [ $SHREDDIR = $ENCDIR ]
 		then
 			echo " [*] Shreding "$KEY"'s encrypted messages, Please wait.."
-	elif [ $SHREDDIR = $KEY ]
-		then
-			echo " [*] Shreding $KEY, Please wait.."
 	fi
 	if [ $SHREDDIR = $KEY ]
 		then
+			echo " [*] Shreding $KEY, Please wait.."
 			find $KEY -type f -exec shred -zfun 3 {} \;
 			rm -rf $KEY
 			$COLOR 2;echo " [*] $KEY and all its messages shreded.";$COLOR 9
@@ -1170,6 +1185,7 @@ flistgen()																#Generate full list of 6 digit numbers
 
 finputkey()																#Select key to use
 {
+	cd $DIRR
 	clear
 	$COLOR 5;echo " [>] Which key? [<] ";$COLOR 9
 	ls 
@@ -1178,14 +1194,12 @@ finputkey()																#Select key to use
 	if [ "${KEY: -1}" = "/" ] 2> /dev/null
 		then
 			KEY="${KEY%?}"
-	fi
-	if [ $KEY -z ] 2> /dev/null
+	elif [ $KEY -z ] 2> /dev/null
 		then
 			$COLOR 1;echo " [*] You must Enter a key, try again...";$COLOR 9
 			sleep 1.5
 			finputkey
-	fi
-	if [ ! -d $KEY ]
+	elif [ ! -d $KEY ] 2> /dev/null
 		then
 			$COLOR 1;echo " [*] $KEY is not a valid key, try again...";$COLOR 9
 			sleep 1.5
@@ -1205,15 +1219,15 @@ fdisplaymenu()															#Display information at top of menu
 			DISPIMPORT=0
 	elif [ $DISPERRORKEY = "1" ] 2> /dev/null
 		then
-			$COLOR 1;echo "  [*] ERROR: $KEYFILE not imported, wrong password or not an encrypted key.";$COLOR 9
+			$COLOR 1;echo "  [*] ERROR: $KEYFILE Not imported, Wrong password or not an encrypted key.";$COLOR 9
 			DISPERRORKEY=0
 	elif [ $DISPERRORFILE = "1" ] 2> /dev/null
 		then
-			$COLOR 1;echo "  [*] ERROR: $DFILE not decrypted, wrong key or not an encrypted file.";$COLOR 9
+			$COLOR 1;echo "  [*] ERROR: $DFILE Not decrypted, Wrong key or not an encrypted file.";$COLOR 9
 			DISPERRORFILE=0
 	elif [ $DISPERRORMSG = "1" ] 2> /dev/null
 		then
-			$COLOR 1;echo "  [*] ERROR: $DMSGFILE not decrypted, wrong key or not an encrypted message.";$COLOR 9
+			$COLOR 1;echo "  [*] ERROR: $DMSGFILE Not decrypted, Wrong key or not an encrypted message.";$COLOR 9
 			DISPERRORMSG=0
 	elif [ $DISPCOPYMSG = "1" ] 2> /dev/null
 		then
