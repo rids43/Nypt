@@ -199,18 +199,18 @@ fkeygen()																#Generate keys
 																		##Random number key
 			sort -R list > $KEY/list									#List of 6-digit numbers is sorted randomly
 			DIRNUM=10
-			
-			while [ $DIRNUM -le 98 ]
+																		#Create directories for each character
+			while [ $DIRNUM -le 98 ]									###Custom###
 				do
 					mkdir $KEY/$DIRNUM
 					DIRNUM=$(( DIRNUM + 1 ))
 				done
-				
-			LNUM=10110													
+																		#Sorted list is cut into character files of 10110 lines each
+			LNUM=10110													###Custom###
 			DIRNUM=10
 			DIRNUMB=11
-	
-			while [ $LNUM -le 900000 ]									#Sorted list is cut into character files of 10110 lines each
+																		
+			while [ $LNUM -le 900000 ]									###Custom###
 				do 
 					echo -n $(head -"$LNUM" $KEY/list | tail -10110) > $KEY/$DIRNUM/$DIRNUM
 					sed -e 's/\s/\n/g' $KEY/$DIRNUM/$DIRNUM > $KEY/$DIRNUM/$DIRNUMB	
@@ -219,12 +219,12 @@ fkeygen()																#Generate keys
 
 					DIRNUM=$(( DIRNUM + 1 ))
 					DIRNUMB=$(( DIRNUMB + 1 ))
-					LNUM=$(( LNUM + 10110 ))
+					LNUM=$(( LNUM + 10110 ))							
 				done
 																		##Openssl keys
 																		#Random password lengths are generated from urandom
 			RANDLENTH=$(strings /dev/urandom | grep -o '[1-9]' | head -n 45 | tr -d '\n'; echo)
-			RAND1=${RANDLENTH:0:3}	
+			RAND1=${RANDLENTH:0:3}										###Custom###
 			RAND2=${RANDLENTH:3:3}
 			RAND3=${RANDLENTH:6:3}
 			RAND4=${RANDLENTH:9:3}
@@ -237,11 +237,11 @@ fkeygen()																#Generate keys
 			RANDA1=${RANDLENTH:30:3}	
 			RANDA2=${RANDLENTH:33:3}
 			RANDA3=${RANDLENTH:36:3}
-			RANDA4=${RANDLENTH:39:3}
+			RANDA4=${RANDLENTH:39:3}									
 			RANDA5=${RANDLENTH:42:3}
 
-			
-			if [ $RAND1 -le $RANDL1 ]									#Make passwords randomly longer
+																		#Make passwords randomly longer
+			if [ $RAND1 -le $RANDL1 ]									###Custom###
 				then
 					RAND1=$(( RAND1 + RANDA1 ))
 			fi
@@ -264,6 +264,7 @@ fkeygen()																#Generate keys
 			
 			mkdir $KEY/meta/
 																		#Passwords for openssl layers are generated from urandom
+																		###Custom###
 			echo $(strings /dev/urandom | grep -o '[[:alnum:]]' | head -n $RAND1 | tr -d '\n'; echo) > $KEY/meta/meta
 			echo $(strings /dev/urandom | grep -o '[[:alnum:]]' | head -n $RAND2 | tr -d '\n'; echo) >> $KEY/meta/meta
 			echo $(strings /dev/urandom | grep -o '[[:alnum:]]' | head -n $RAND3 | tr -d '\n'; echo) >> $KEY/meta/meta
@@ -311,7 +312,7 @@ fencryptmsg()															#Encrypt messages
 	$COLOR 4;echo " [*] Encrypting "$EMSGFILE", Please wait..";$COLOR 9
 																		##Random number layer##
 	while [ $MSGCNT -lt $MSGLEN ]										#Each character is assigned a number
-		do
+		do																###Custom###
 			CHAR=${MSG:$MSGCNT:1}
 			case $CHAR in
 				"a")ENCC="11";;"b")ENCC="12";;"c")ENCC="13";;"d")ENCC="14";;"e")ENCC="15";;"f")ENCC="16";;"g")ENCC="17";;"h")ENCC="18";;"i")ENCC="19";;"j")ENCC="20";;"k")ENCC="21";;"l")ENCC="22";;"m")ENCC="23";;"n")ENCC="24";;"o")ENCC="25";;"p")ENCC="26";;"q")ENCC="27";;"r")ENCC="28";;"s")ENCC="29";;"t")ENCC="30";;"u")ENCC="31";;"v")ENCC="32";;"w")ENCC="33";;"x")ENCC="34";;"y")ENCC="35";;"z")ENCC="36";;1)ENCC="37";;2)ENCC="38";;3)ENCC="39";;4)ENCC="40";;5)ENCC="41";;6)ENCC="42";;7)ENCC="43";;8)ENCC="44";;9)ENCC="45";;0)ENCC="10";;" ")ENCC="46";;"A")ENCC="47";;"B")ENCC="48";;"C")ENCC="49";;"D")ENCC="50";;"E")ENCC="51";;"F")ENCC="52";;"G")ENCC="53";;"H")ENCC="54";;"I")ENCC="55";;"J")ENCC="56";;"K")ENCC="57";;"L")ENCC="58";;"M")ENCC="59";;"N")ENCC="60";;"O")ENCC="61";;"P")ENCC="62";;"Q")ENCC="63";;"R")ENCC="64";;"S")ENCC="65";;"T")ENCC="66";;"U")ENCC="67";;"V")ENCC="68";;"W")ENCC="69";;"X")ENCC="70";;"Y")ENCC="71";;"Z")ENCC="72";;".")ENCC="73";;"?")ENCC="74";;",")ENCC="75";;"!")ENCC="76";;";")ENCC="77";;"$")ENCC="78";;"£")ENCC="79";;"&")ENCC="80";;'(')ENNC="81";;')')ENC="82";;"-")ENC="83";;"+")ENCC="84";;"@")ENCC="85";;":")ENCC="86";;'"')ENCC="87";;"#")ENCC="88";;"%")ENCC="89";;"^")ENCC="90";;"'")ENCC="91";;"=")ENCC="92";;"~")ENCC="93";;"/")ENCC="94";;"<")ENCC="95";;">")ENCC="96";;"_")ENCC="97"
@@ -324,14 +325,14 @@ fencryptmsg()															#Encrypt messages
 	while read LINE
 		do
 			echo $(cat $KEY/$LINE/$LINE | sort -R | head -n 1) >> tmp2	#Random 6 digit number line is chosen from the character file
-		done <$FILE
+		done <$FILE														###Custom###
 		
 	echo $(tr '\n' ' ' < tmp2 | sed -e 's/\s//g') > tmp3				#Newlines are removed leaving a continuous stream of numbers
 
 	FILE=$KEY/meta/meta
 	LNUM=1																##Openssl layer##
 	while read LINE														#Passwords for openssl layers are imported from $KEY/meta/meta
-		do
+		do																###Custom###
 			case $LNUM in
 					1)PASS1="$LINE";;
 					2)PASS2="$LINE";;
@@ -342,7 +343,7 @@ fencryptmsg()															#Encrypt messages
 		
 			LNUM=$(( LNUM + 1 ))
 		done <"$FILE"
-
+																		###Custom###
 	openssl enc -aes-256-cbc -salt -in tmp3 -out tmp01 -k "$PASS1" 2> /dev/null
 	openssl enc -camellia-256-cbc -salt -in tmp01 -out tmp02 -k "$PASS2" 2> /dev/null
 	openssl enc -aes-256-cbc -salt -in tmp02  -out tmp03 -k "$PASS3" 2> /dev/null
@@ -457,9 +458,9 @@ fdecryptmsg()															#Decrypt messages
 	esac
 	
 	FILE=$DIRR$KEY"/meta/meta"
-	LNUM=1																##Openssl layer
+	LNUM=1																##Openssl layer##
 	while read LINE														#Passwords for openssl layers are imported from $KEY/meta/meta
-		do
+		do																###Custom###
 			case $LNUM in
 					1)PASS1="$LINE";;
 					2)PASS2="$LINE";;
@@ -470,7 +471,7 @@ fdecryptmsg()															#Decrypt messages
 		
 			LNUM=$(( LNUM + 1 ))
 		done <"$FILE"
-		
+																		###Custom###
 	openssl enc -aes-256-cbc -d -a -salt -in tmp01  -out tmp02 -k "$PASS5" 2> /dev/null	
 	openssl enc -camellia-256-cbc -d -salt -in tmp02  -out tmp03 -k "$PASS4" 2> /dev/null
 	openssl enc -aes-256-cbc -d -salt -in tmp03  -out tmp04 -k "$PASS3" 2> /dev/null
@@ -479,7 +480,7 @@ fdecryptmsg()															#Decrypt messages
 
 	shred -zfun 3 tmp* 2> /dev/null
 	
-	ENCCLEN=$(wc -c tmf)												##Random number layer
+	ENCCLEN=$(wc -c tmf)												##Random number layer##
 	ENCCMSG=$(cat tmf)
   	CHARCNT=0
   	CHAR=0
@@ -493,7 +494,7 @@ fdecryptmsg()															#Decrypt messages
 	CHARCNT=$(( CHARCNT - 1 ))
 	ENLEN=${ENCCLEN:0:$CHARCNT} 
 	
-	while [ $DECCNT -le $ENLEN ]
+	while [ $DECCNT -le $ENLEN ]										###Custom###
 		do
 			CHAR=${ENCCMSG:$DECCNT:6}
 			echo $CHAR >> tmp01
@@ -511,7 +512,7 @@ fdecryptmsg()															#Decrypt messages
 	FILE=tmp02
 
 	while read LINE														#Each file number is assigned a character 
-		do
+		do																###Custom###
 			case $LINE in
 				10)DECC="0";;11)DECC="a";;12)DECC="b";;13)DECC="c";;14)DECC="d";;15)DECC="e";;16)DECC="f";;17)DECC="g";;18)DECC="h";;19)DECC="i";;20)DECC="j";;21)DECC="k";;22)DECC="l";;23)DECC="m";;24)DECC="n";;25)DECC="o";;26)DECC="p";;27)DECC="q";;28)DECC="r";;29)DECC="s";;30)DECC="t";;31)DECC="u";;32)DECC="v";;33)DECC="w";;34)DECC="x";;35)DECC="y";;36)DECC="z";;37)DECC="1";;38)DECC="2";;39)DECC="3";;40)DECC="4";;41)DECC="5";;42)DECC="6";;43)DECC="7";;44)DECC="8";;45)DECC="9";;46)echo -n ' ' >> tmp03;DECC=" ";;47)DECC="A";;48)DECC="B";;49)DECC="C";;50)DECC="D";;51)DECC="E";;52)DECC="F";;53)DECC="G";;54)DECC="H";;55)DECC="I";;56)DECC="J";;57)DECC="K";;58)DECC="L";;59)DECC="M";;60)DECC="N";;61)DECC="O";;62)DECC="P";;63)DECC="Q";;64)DECC="R";;65)DECC="S";;66)DECC="T";;67)DECC="U";;68)DECC="V";;69)DECC="W";;70)DECC="X";;71)DECC="Y";;72)DECC="Z";;73)DECC=".";;74)DECC="?";;75)DECC=",";;76)DECC="!";;77)DECC=";";;78)DECC="$";;79)DECC="£";;80)DECC="&";;81)DECC='(';;82)DECC=')';;83)DECC="-";;84)DECC="+";;85)DECC="@";;86)DECC=":";;87)DECC='"';;88)DECC="#";;89)DECC="%";;90)DECC="^";;91)DECC="'";;92)DECC="=";;93)DECC="~";;94)DECC="/";;95)DECC="<";;96)DECC=">";;97)DECC="_"
 								
@@ -574,7 +575,6 @@ fencryptfile()															#Encrypt files
 			fencryptfile
 	fi
 	clear
-	PASS=$(cat $KEY/meta/meta)
 	EMSGFILE=$(basename $INFILE)
 	$COLOR 4;echo " [*] Encrypting "$ENCCMSF", Please wait..";$COLOR 9
 	
@@ -586,7 +586,7 @@ fencryptfile()															#Encrypt files
 	LNUM=1
 	
 	while read LINE														#Passwords for openssl layers are imported from $KEY/meta/meta
-		do
+		do																###Custom###
 			case $LNUM in
 					1)PASS1=$LINE;;
 					2)PASS2=$LINE;;
@@ -596,7 +596,7 @@ fencryptfile()															#Encrypt files
 			esac
 		LNUM=$(( LNUM + 1 ))
 		done <$FILE
-
+																		###Custom###
 	openssl enc -aes-256-cbc -salt -in $INFILE -out tmp01 -k "$PASS1" 2> /dev/null	
 	openssl enc -camellia-256-cbc -salt -in tmp01 -out tmp02 -k "$PASS2" 2> /dev/null
 	openssl enc -aes-256-cbc -salt -in tmp02 -out tmp03 -k "$PASS3" 2> /dev/null
@@ -642,7 +642,6 @@ fdecryptfile()															#Decrypt files
 			fdecryptfile
 	fi
 	DFILE=$(basename $INFILE)
-	PASS=$(cat $KEY/meta/meta)
 	clear
 	$COLOR 4;echo " [*] Decrypting "$DFILE", Please wait..";$COLOR 9
 	
@@ -654,7 +653,7 @@ fdecryptfile()															#Decrypt files
 	LNUM=1
 	
 	while read LINE  													#Passwords for openssl layers are imported from $KEY/meta/meta
-		do
+		do																###Custom###
 			case $LNUM in
 					1)PASS1=$LINE;;
 					2)PASS2=$LINE;;
@@ -665,7 +664,7 @@ fdecryptfile()															#Decrypt files
 		
 			LNUM=$(( LNUM + 1 ))
 		done <$FILE
-		
+																		###Custom###
 	openssl enc -aes-256-cbc -d -a -salt -in $INFILE -out tmp01 -k "$PASS5" 2> /dev/null
 	openssl enc -camellia-256-cbc -d -salt -in tmp01 -out tmp02 -k "$PASS4" 2> /dev/null
 	openssl enc -aes-256-cbc -d -salt -in tmp02  -out tmp03 -k "$PASS3" 2> /dev/null
@@ -781,7 +780,7 @@ fexportkey()															#Export keys
 					$COLOR 1;echo " [*] Passwords do not match, try again...";$COLOR 9
 					sleep 2
 				else
-					PASSDON=1
+					PASSDON=1											###Custom###
 					NPASS=$(echo $ZPASS | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum)
 					FPASS=$(echo $NPASS$NPASS | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum)
 					NPASS=$(echo $NPASS$NPASS$NPASS | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum)
@@ -800,7 +799,7 @@ fexportkey()															#Export keys
 							shred -zfun 3 $WHSAV/$KEY
 					fi
 					zip -reP $ZPASS $KEY.zip $KEY
-					clear
+					clear												###Custom###
 					$COLOR 4;echo " [*] Encrypting "$KEY", Please wait...";$COLOR 9
 					openssl enc -aes-256-cbc -a -salt -in $KEY.zip -out tmp01 -k "$FPASS" 2> /dev/null
 					openssl enc -camellia-256-cbc -a -salt -in tmp01 -out tmp02 -k "$NPASS" 2> /dev/null
@@ -886,7 +885,7 @@ fimportkey()															#Import keys
 				then
 					shred -zfun 3 $DIRR$KEYFILE.zip
 			fi
-		
+																		###Custom###
 			NPASS=$(echo $ZPASS | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum)
 			FPASS=$(echo $NPASS$NPASS | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum)
 			NPASS=$(echo $NPASS$NPASS$NPASS | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum)
@@ -896,7 +895,7 @@ fimportkey()															#Import keys
 			MPASS=$(echo $MPASS$MPASS | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum)
 			LPASS=$(echo $MPASS$MPASS | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum)
 			LPASS=$(echo $LPASS$LPASS | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum)
-			
+																		###Custom###
 			openssl enc -aes-256-cbc -d -a -salt -in $KEYLOC -out tmp01 -k "$LPASS" 2> /dev/null
 			openssl enc -camellia-256-cbc -d -a -salt -in tmp01 -out tmp02 -k "$MPASS" 2> /dev/null
 			openssl enc -aes-256-cbc -d -a -salt -in tmp02 -out tmp03 -k "$GPASS" 2> /dev/null
