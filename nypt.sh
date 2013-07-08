@@ -147,9 +147,10 @@ fmenu()																	#Main menu
  [3] Import a Key.
  [4] Shred a Key.
  [5] Edit Key config
- [6] Back
+ [6] Lock/Unlock a Key
+ [7] Back
  >""" MENU 
-		case $MENU in 1)fkeygen;;2)fexportkey;;3)fimportkey;;4)SHREDDIR="KEY";fshreddir;;5)finputkey;gedit $KEY/config 2> /dev/null;;6)fmenu;esac
+		case $MENU in 1)fkeygen;;2)fexportkey;;3)fimportkey;;4)SHREDDIR="KEY";fshreddir;;5)finputkey;gedit $KEY/config 2> /dev/null;;6)fkeylock;;7)fmenu;esac
 	;;
 	4)	clear
 		$COLOR 5;echo " [*] SSH Menu ";$COLOR 9
@@ -314,9 +315,14 @@ aes-256-cbc
 fencryptmsg()															#Encrypt messages
 {
 	finputkey
+	flockcheck
 	clear
-	$COLOR 5;echo " [>] Please Enter your message:";$COLOR 9
+	$COLOR 5;echo " [>] Please Enter your message or press p and Enter to paste from clipboard";$COLOR 9
 	read -e -p " >" MSG
+	if [ $MSG = "p" ]
+		then
+			MSG=$(xclip -sel clip -o)
+	fi
 	MSGLEN=${#MSG}
 	MSGCNT=0	
 	FILE=tmp1
@@ -387,7 +393,7 @@ fencryptmsg()															#Encrypt messages
 																		###Custom###
 	openssl enc $CIPHER1 -salt -in tmp3 -out tmp01 -k "$PASS1" 2> /dev/null
 	openssl enc $CIPHER2 -salt -in tmp01 -out tmp02 -k "$PASS2" 2> /dev/null
-	openssl enc $CIPHER3 -salt -in tmp02  -out tmp03 -k "$PASS3" 2> /dev/null
+	openssl enc $CIPHER3 -salt -in tmp02 -out tmp03 -k "$PASS3" 2> /dev/null
 	openssl enc $CIPHER4 -salt -in tmp03 -out tmp04 -k "$PASS4" 2> /dev/null
 	openssl enc $CIPHER5 -a -salt -in tmp04 -out $KEY/$ENCDIR/$EMSGFILE -k "$PASS5" 2> /dev/null	
 	
@@ -421,6 +427,7 @@ fencryptmsg()															#Encrypt messages
 fdecryptmsg()															#Decrypt messages
 {
 	finputkey
+	flockcheck
 	ISDONE=0
 	TMPCHK=0
 	
@@ -537,7 +544,7 @@ fdecryptmsg()															#Decrypt messages
 			CHARCNT=$(( CHARCNT - 1 ))
 			ENLEN=${ENCCLEN:0:$CHARCNT} 
 	
-			while [ $DECCNT -le $ENLEN ]										###Custom###
+			while [ $DECCNT -le $ENLEN ]								###Custom###
 				do
 					CHAR=${ENCCMSG:$DECCNT:6}
 					echo $CHAR >> tmp01
@@ -547,15 +554,15 @@ fdecryptmsg()															#Decrypt messages
 			LINECNT=0
 			STPCNT=$(wc -l tmp01)
 	
-			while read LINE														#6 digit number is located using grep from the character files
+			while read LINE												#6 digit number is located using grep from the character files
 				do			
 					LONGLET=$(grep -rl $LINE $KEY/)
 					echo ${LONGLET: -2} >> tmp02 
 				done <$FILE
 			FILE=tmp02
 
-			while read LINE														#Each file number is assigned a character 
-				do																###Custom###
+			while read LINE												#Each file number is assigned a character 
+				do														###Custom###
 					case $LINE in
 						10)DECC="0";;11)DECC="a";;12)DECC="b";;13)DECC="c";;14)DECC="d";;15)DECC="e";;16)DECC="f";;17)DECC="g";;18)DECC="h";;19)DECC="i";;20)DECC="j";;21)DECC="k";;22)DECC="l";;23)DECC="m";;24)DECC="n";;25)DECC="o";;26)DECC="p";;27)DECC="q";;28)DECC="r";;29)DECC="s";;30)DECC="t";;31)DECC="u";;32)DECC="v";;33)DECC="w";;34)DECC="x";;35)DECC="y";;36)DECC="z";;37)DECC="1";;38)DECC="2";;39)DECC="3";;40)DECC="4";;41)DECC="5";;42)DECC="6";;43)DECC="7";;44)DECC="8";;45)DECC="9";;46)echo -n ' ' >> tmp03;DECC=" ";;47)DECC="A";;48)DECC="B";;49)DECC="C";;50)DECC="D";;51)DECC="E";;52)DECC="F";;53)DECC="G";;54)DECC="H";;55)DECC="I";;56)DECC="J";;57)DECC="K";;58)DECC="L";;59)DECC="M";;60)DECC="N";;61)DECC="O";;62)DECC="P";;63)DECC="Q";;64)DECC="R";;65)DECC="S";;66)DECC="T";;67)DECC="U";;68)DECC="V";;69)DECC="W";;70)DECC="X";;71)DECC="Y";;72)DECC="Z";;73)DECC=".";;74)DECC="?";;75)DECC=",";;76)DECC="!";;77)DECC=";";;78)DECC="$";;79)DECC="£";;80)DECC="&";;81)DECC='(';;82)DECC=')';;83)DECC="-";;84)DECC="+";;85)DECC="@";;86)DECC=":";;87)DECC='"';;88)DECC="#";;89)DECC="%";;90)DECC="^";;91)DECC="'";;92)DECC="=";;93)DECC="~";;94)DECC="/";;95)DECC="<";;96)DECC=">";;97)DECC="_"
 					esac
@@ -564,7 +571,7 @@ fdecryptmsg()															#Decrypt messages
 				done <$FILE
 		
 			DEKD=$(cat tmp03)
-			echo "${DEKD%?}" > $KEY/$DECDIR/$DMSGFILE							#Cleartext message
+			echo "${DEKD%?}" > $KEY/$DECDIR/$DMSGFILE					#Cleartext message
 		else
 			cat tmf > $KEY/$DECDIR/$DMSGFILE
 	fi
@@ -602,6 +609,7 @@ fdecpaste()																#Paste messages into fdecryptmsg from the clipboard
 fencryptfile()															#Encrypt files
 {
 	finputkey
+	flockcheck
 	clear
 	$COLOR 5;echo " [>] Please Enter the location of the file: e.g. $HOME/file";$COLOR 9
 	read -e -p " >" INFILE
@@ -669,6 +677,7 @@ fencryptfile()															#Encrypt files
 fdecryptfile()															#Decrypt files
 {
 	finputkey
+	flockcheck
 	clear
 	$COLOR 5;echo " [>] Please Enter the location of the file: e.g. $HOME/file";$COLOR 9
 	read -e -p " >" INFILE
@@ -805,9 +814,131 @@ fopendir()																#Open message folder
 	fmenu
 }
 
+fkeylock()																#Lock local keys by encrypting $KEY/meta/meta and $KEY/config
+{
+	finputkey
+	clear
+	PASSDON=0
+	if [ -f $KEY/lconfig ] 2> /dev/null
+		then
+			fkeyunlock
+	fi
+	while [ $PASSDON != "1" ]
+		do
+			$COLOR 5;echo " [*] Lock $KEY [*] ";$COLOR 9
+			$COLOR 1;echo " [*] WARNING: Please use a very strong password, at least 10 characters long including capitals and numbers";$COLOR 9
+			echo
+			$COLOR 5;echo " [>] Please Enter your password";$COLOR 9
+			read -s  TPASS
+			$COLOR 5;echo " [>] Enter once more"  ;$COLOR 9
+			read -s ZPASS
+			if [ $TPASS != $ZPASS ]
+				then
+					$COLOR 1;echo " [*] Passwords do not match, try again...";$COLOR 9
+					sleep 2
+				else
+					PASSDON=1											###Custom###
+					NPASS=$(echo $ZPASS | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum)
+					FPASS=$(echo $NPASS$NPASS | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum)
+					NPASS=$(echo $NPASS$NPASS$NPASS | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum)
+					GPASS=$(echo $NPASS$NPASS | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum)
+					GPASS=$(echo $GPASS$GPASS | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum)
+					MPASS=$(echo $GPASS$GPASS | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum)
+					MPASS=$(echo $MPASS$MPASS | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum)
+					LPASS=$(echo $MPASS$MPASS | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum)
+					LPASS=$(echo $LPASS$LPASS | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum)
+							
+					clear												###Custom###
+					$COLOR 4;echo " [*] Encrypting "$KEY", Please wait...";$COLOR 9
+					openssl enc -aes-256-cbc -salt -in $KEY/meta/meta -out tmp01 -k "$FPASS" 2> /dev/null
+					openssl enc -camellia-256-cbc -salt -in tmp01 -out tmp02 -k "$NPASS" 2> /dev/null
+					openssl enc -aes-256-cbc -salt -in tmp02 -out tmp03 -k "$GPASS" 2> /dev/null
+					openssl enc -camellia-256-cbc -salt -in tmp03 -out tmp04 -k "$MPASS" 2> /dev/null
+					openssl enc -aes-256-cbc -a -salt -in tmp04 -out $KEY/meta/lmeta -k "$LPASS" 2> /dev/null
+					
+					shred -zfun 3 tmp* 2> /dev/null
+					shred -zfun 3 $KEY/meta/meta 2> /dev/null
+					
+					openssl enc -aes-256-cbc -salt -in $KEY/config -out tmp01 -k "$FPASS" 2> /dev/null
+					openssl enc -camellia-256-cbc -salt -in tmp01 -out tmp02 -k "$NPASS" 2> /dev/null
+					openssl enc -aes-256-cbc -salt -in tmp02 -out tmp03 -k "$GPASS" 2> /dev/null
+					openssl enc -camellia-256-cbc -salt -in tmp03 -out tmp04 -k "$MPASS" 2> /dev/null
+					openssl enc -aes-256-cbc -a -salt -in tmp04 -out $KEY/lconfig -k "$LPASS" 2> /dev/null
+					
+					shred -zfun 3 tmp* 2> /dev/null
+					shred -zfun 3 $KEY/config 2> /dev/null
+					
+			fi
+		done
+	DISPKEYLOCK=1;fmenu
+}
+
+fkeyunlock()															#Unlock local keys
+{
+	DONPS=0
+	while [ $DONPS != "1" ]
+		do
+			clear
+			$COLOR 5;echo " [*] Unlock $KEY [*] ";$COLOR 9
+			echo
+			$COLOR 5;echo " [>] Please Enter the password ";$COLOR 9
+			read -s RPASS
+			$COLOR 5;echo " [>] Enter one more time ";$COLOR 9
+			read -s ZPASS
+			if [ $RPASS != $ZPASS ]
+				then
+					$COLOR 1;echo " [*] Passwords do not match, try again...";$COLOR 9
+					sleep 2
+				else
+					DONPS=1
+			fi
+		done
+			
+	clear
+	$COLOR 4;echo " [*] Decrypting "$KEY", Please wait...";$COLOR 9
+
+																		###Custom###
+	NPASS=$(echo $ZPASS | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum)
+	FPASS=$(echo $NPASS$NPASS | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum)
+	NPASS=$(echo $NPASS$NPASS$NPASS | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum)
+	GPASS=$(echo $NPASS$NPASS | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum)
+	GPASS=$(echo $GPASS$GPASS | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum)
+	MPASS=$(echo $GPASS$GPASS | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum)
+	MPASS=$(echo $MPASS$MPASS | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum)
+	LPASS=$(echo $MPASS$MPASS | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum)
+	LPASS=$(echo $LPASS$LPASS | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum)
+																		###Custom###
+	openssl enc -aes-256-cbc -d -a -salt -in $KEY/meta/lmeta -out tmp01 -k "$LPASS" 2> /dev/null
+	openssl enc -camellia-256-cbc -d -salt -in tmp01 -out tmp02 -k "$MPASS" 2> /dev/null
+	openssl enc -aes-256-cbc -d -salt -in tmp02 -out tmp03 -k "$GPASS" 2> /dev/null
+	openssl enc -camellia-256-cbc -d -salt -in tmp03 -out tmp04 -k "$NPASS" 2> /dev/null
+	openssl enc -aes-256-cbc -d -salt -in tmp04 -out $KEY/meta/meta -k "$FPASS" 2> /dev/null
+	
+	if [ $(cat tmp03) -z ] 2> /dev/null
+		then
+			DISPERRORUNLOCKKEY=1;shred -zfun 3 $KEY/meta/meta;shred -zfun 3 tmp* 2> /dev/null; sleep 2;fmenu
+	fi
+	
+	shred -zfun 3 tmp* 2> /dev/null
+	shred -zfun 3 $KEY/meta/lmeta 2> /dev/null
+		
+	openssl enc -aes-256-cbc -d -a -salt -in $KEY/lconfig -out tmp01 -k "$LPASS" 2> /dev/null
+	openssl enc -camellia-256-cbc -d -salt -in tmp01 -out tmp02 -k "$MPASS" 2> /dev/null
+	openssl enc -aes-256-cbc -d -salt -in tmp02 -out tmp03 -k "$GPASS" 2> /dev/null
+	openssl enc -camellia-256-cbc -d -salt -in tmp03 -out tmp04 -k "$NPASS" 2> /dev/null
+	openssl enc -aes-256-cbc -d -salt -in tmp04 -out $KEY/config -k "$FPASS" 2> /dev/null
+			
+	shred -zfun 3 tmp* 2> /dev/null
+	shred -zfun 3 $KEY/lconfig 2> /dev/null
+	
+	clear
+	DISPKEYUNLOCK=1;fmenu
+}
+
 fexportkey()															#Export keys
 {
 	finputkey
+	flockcheck
 	WHSAV=$HOME/Desktop/nypt/Exported_Keys
 	clear
 	PASSDON=0
@@ -1096,6 +1227,7 @@ fsshsend()																#Send files via SSH (SCP)
 fsshencmsg()															#Send encrypted message into fsshsend
 {
 	finputkey
+	flockcheck
 	clear
 	$COLOR 5;echo " [>] Which message do you want to send?";$COLOR 9
 	cd $KEY/$ENCDIR;ls
@@ -1117,6 +1249,7 @@ fsshencmsg()															#Send encrypted message into fsshsend
  fsshkey()																#Send encrypted keys into fsshsend
 {
 	finputkey
+	flockcheck
 	clear
 	INFILE=$KEY/Exported_Keys/$KEY
 	SSHSEND=1
@@ -1127,6 +1260,7 @@ fsshencmsg()															#Send encrypted message into fsshsend
 fsshencfile()															#Send encrypted file into fsshsend
 {
 	finputkey
+	flockcheck
 	clear
 	$COLOR 5;echo " [>] Which Encrypted file do you want to send?";$COLOR 9
 	cd $KEY/$ENCDIR/0_Encrypted_Files;ls
@@ -1273,6 +1407,18 @@ fdisplaymenu()															#Display information at top of menu
 		then
 			$COLOR 2;echo "  [*] "$EMSGFILE"'s encrypted text copied to clipboard!";$COLOR 9
 			DISPCOP=0
+	elif [ $DISPERRORUNLOCKKEY = "1" ] 2> /dev/null
+		then
+			$COLOR 1;echo "  [*] ERROR: $KEY Not unlocked, Wrong password.";$COLOR 9
+			DISPERRORUNLOCKKEY=0
+	elif [ $DISPKEYLOCK = "1" ] 2> /dev/null
+		then
+			$COLOR 2; echo " [*] $KEY locked!";$COLOR 9
+			DISPKEYLOCK=0
+	elif [ $DISPKEYUNLOCK = "1" ] 2> /dev/null
+		then
+			$COLOR 2; echo " [*] $KEY unlocked!"; $COLOR 9
+			DISPKEYUNLOCK=0
 	elif [ $DISPIMPORT = "1" ] 2> /dev/null
 		then
 			$COLOR 2;echo "  [*] $KEYFILE successfuly imported.";$COLOR 9
@@ -1305,6 +1451,21 @@ fdisplaymenu()															#Display information at top of menu
 		then
 			$COLOR 2;echo "  [*] $BASEFILE sent to "$RUSER"@"$IPSEND"";$COLOR 9
 			DISPSSH=0
+	fi
+}
+
+flockcheck()
+{
+	if [ -f $KEY/lconfig ] 2> /dev/null
+		then
+			clear;$COLOR 1;echo " [*] WARNING: $KEY is locked, do you want to unlock it? [Y/n]";$COLOR 9;read -p " >" UNLOCK
+			case $UNLOCK in
+				"")fkeyunlock;;
+				"y")fkeyunlock;;
+				"Y")fkeyunlock;;
+				"n")fmenu;;
+				"N")fmenu
+			esac
 	fi
 }
 
