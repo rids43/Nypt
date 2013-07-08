@@ -273,7 +273,39 @@ fkeygen()																#Generate keys
 
 			shred -zfun 3 $KEY/list
 			DISPKEY=1
-			sleep 1.5
+			echo """#Cipher commands
+#aes-128-cbc       aes-128-ecb       aes-192-cbc       aes-192-ecb       
+#aes-256-cbc       aes-256-ecb       base64            bf                
+#bf-cbc            bf-cfb            bf-ecb            bf-ofb            
+#camellia-128-cbc  camellia-128-ecb  camellia-192-cbc  camellia-192-ecb  
+#camellia-256-cbc  camellia-256-ecb  cast              cast-cbc          
+#cast5-cbc         cast5-cfb         cast5-ecb         cast5-ofb         
+#des               des-cbc           des-cfb           des-ecb           
+#des-ede           des-ede-cbc       des-ede-cfb       des-ede-ofb       
+#des-ede3          des-ede3-cbc      des-ede3-cfb      des-ede3-ofb 
+#des-ofb           des3              desx              rc2               
+#rc2-40-cbc        rc2-64-cbc        rc2-cbc           rc2-cfb           
+#rc2-ecb           rc2-ofb           rc4               rc4-40            
+#seed              seed-cbc          seed-cfb          seed-ecb          
+#seed-ofb          zlib  
+
+#CIPHER1 Variable
+aes-256-cbc
+
+#CIPHER2 Variable
+camellia-256-cbc
+
+#CIPHER3 Variable
+aes-256-cbc
+
+#CIPHER4 Variable
+camellia-256-cbc
+
+#CIPHER5 Variable
+aes-256-cbc
+
+#Enable random number cryptography layer for messages
+1""" > $KEY/config
 			fmenu
 	fi
 }
@@ -310,25 +342,33 @@ fencryptmsg()															#Encrypt messages
 		
 	clear
 	$COLOR 4;echo " [*] Encrypting "$EMSGFILE", Please wait..";$COLOR 9
-																		##Random number layer##
-	while [ $MSGCNT -lt $MSGLEN ]										#Each character is assigned a number
-		do																###Custom###
-			CHAR=${MSG:$MSGCNT:1}
-			case $CHAR in
-				"a")ENCC="11";;"b")ENCC="12";;"c")ENCC="13";;"d")ENCC="14";;"e")ENCC="15";;"f")ENCC="16";;"g")ENCC="17";;"h")ENCC="18";;"i")ENCC="19";;"j")ENCC="20";;"k")ENCC="21";;"l")ENCC="22";;"m")ENCC="23";;"n")ENCC="24";;"o")ENCC="25";;"p")ENCC="26";;"q")ENCC="27";;"r")ENCC="28";;"s")ENCC="29";;"t")ENCC="30";;"u")ENCC="31";;"v")ENCC="32";;"w")ENCC="33";;"x")ENCC="34";;"y")ENCC="35";;"z")ENCC="36";;1)ENCC="37";;2)ENCC="38";;3)ENCC="39";;4)ENCC="40";;5)ENCC="41";;6)ENCC="42";;7)ENCC="43";;8)ENCC="44";;9)ENCC="45";;0)ENCC="10";;" ")ENCC="46";;"A")ENCC="47";;"B")ENCC="48";;"C")ENCC="49";;"D")ENCC="50";;"E")ENCC="51";;"F")ENCC="52";;"G")ENCC="53";;"H")ENCC="54";;"I")ENCC="55";;"J")ENCC="56";;"K")ENCC="57";;"L")ENCC="58";;"M")ENCC="59";;"N")ENCC="60";;"O")ENCC="61";;"P")ENCC="62";;"Q")ENCC="63";;"R")ENCC="64";;"S")ENCC="65";;"T")ENCC="66";;"U")ENCC="67";;"V")ENCC="68";;"W")ENCC="69";;"X")ENCC="70";;"Y")ENCC="71";;"Z")ENCC="72";;".")ENCC="73";;"?")ENCC="74";;",")ENCC="75";;"!")ENCC="76";;";")ENCC="77";;"$")ENCC="78";;"£")ENCC="79";;"&")ENCC="80";;'(')ENNC="81";;')')ENC="82";;"-")ENC="83";;"+")ENCC="84";;"@")ENCC="85";;":")ENCC="86";;'"')ENCC="87";;"#")ENCC="88";;"%")ENCC="89";;"^")ENCC="90";;"'")ENCC="91";;"=")ENCC="92";;"~")ENCC="93";;"/")ENCC="94";;"<")ENCC="95";;">")ENCC="96";;"_")ENCC="97"
-			esac
+	if [ $USERAND = "1" ] 2> /dev/null
+		then															##Random number layer##
+			while [ $MSGCNT -lt $MSGLEN ]								#Each character is assigned a number
+				do														###Custom###
+					CHAR=${MSG:$MSGCNT:1}
+					case $CHAR in
+						"a")ENCC="11";;"b")ENCC="12";;"c")ENCC="13";;"d")ENCC="14";;"e")ENCC="15";;"f")ENCC="16";;"g")ENCC="17";;"h")ENCC="18";;"i")ENCC="19";;"j")ENCC="20";;"k")ENCC="21";;"l")ENCC="22";;"m")ENCC="23";;"n")ENCC="24";;"o")ENCC="25";;"p")ENCC="26";;"q")ENCC="27";;"r")ENCC="28";;"s")ENCC="29";;"t")ENCC="30";;"u")ENCC="31";;"v")ENCC="32";;"w")ENCC="33";;"x")ENCC="34";;"y")ENCC="35";;"z")ENCC="36";;1)ENCC="37";;2)ENCC="38";;3)ENCC="39";;4)ENCC="40";;5)ENCC="41";;6)ENCC="42";;7)ENCC="43";;8)ENCC="44";;9)ENCC="45";;0)ENCC="10";;" ")ENCC="46";;"A")ENCC="47";;"B")ENCC="48";;"C")ENCC="49";;"D")ENCC="50";;"E")ENCC="51";;"F")ENCC="52";;"G")ENCC="53";;"H")ENCC="54";;"I")ENCC="55";;"J")ENCC="56";;"K")ENCC="57";;"L")ENCC="58";;"M")ENCC="59";;"N")ENCC="60";;"O")ENCC="61";;"P")ENCC="62";;"Q")ENCC="63";;"R")ENCC="64";;"S")ENCC="65";;"T")ENCC="66";;"U")ENCC="67";;"V")ENCC="68";;"W")ENCC="69";;"X")ENCC="70";;"Y")ENCC="71";;"Z")ENCC="72";;".")ENCC="73";;"?")ENCC="74";;",")ENCC="75";;"!")ENCC="76";;";")ENCC="77";;"$")ENCC="78";;"£")ENCC="79";;"&")ENCC="80";;'(')ENNC="81";;')')ENC="82";;"-")ENC="83";;"+")ENCC="84";;"@")ENCC="85";;":")ENCC="86";;'"')ENCC="87";;"#")ENCC="88";;"%")ENCC="89";;"^")ENCC="90";;"'")ENCC="91";;"=")ENCC="92";;"~")ENCC="93";;"/")ENCC="94";;"<")ENCC="95";;">")ENCC="96";;"_")ENCC="97"
+					esac
 		
-			echo $ENCC >> tmp1
-			MSGCNT=$(( MSGCNT +1 ))
-		done
+					echo $ENCC >> tmp1
+					MSGCNT=$(( MSGCNT +1 ))
+				done
 		
-	while read LINE
-		do
-			echo $(cat $KEY/$LINE/$LINE | sort -R | head -n 1) >> tmp2	#Random 6 digit number line is chosen from the character file
-		done <$FILE														###Custom###
+			while read LINE												#Random 6 digit number line is chosen from the character file
+				do
+					RAND=$(strings /dev/urandom | grep -o '[0-9]' | head -n 4 | tr -d '\n'; echo)
+					if [ $RAND -gt "1001" ] 2> /dev/null
+						then
+							RAND=$((RAND - 1000))
+					fi
+					echo $(cat $KEY/$LINE/$LINE | sed -n "$RAND"p) >> tmp2	
+				done <$FILE												###Custom###
 		
-	echo $(tr '\n' ' ' < tmp2 | sed -e 's/\s//g') > tmp3				#Newlines are removed leaving a continuous stream of numbers
-
+			echo $(tr '\n' ' ' < tmp2 | sed -e 's/\s//g') > tmp3		#Newlines are removed leaving a continuous stream of numbers
+		else
+			echo $MSG > tmp3
+	fi
 	FILE=$KEY/meta/meta
 	LNUM=1																##Openssl layer##
 	while read LINE														#Passwords for openssl layers are imported from $KEY/meta/meta
@@ -344,11 +384,11 @@ fencryptmsg()															#Encrypt messages
 			LNUM=$(( LNUM + 1 ))
 		done <"$FILE"
 																		###Custom###
-	openssl enc -aes-256-cbc -salt -in tmp3 -out tmp01 -k "$PASS1" 2> /dev/null
-	openssl enc -camellia-256-cbc -salt -in tmp01 -out tmp02 -k "$PASS2" 2> /dev/null
-	openssl enc -aes-256-cbc -salt -in tmp02  -out tmp03 -k "$PASS3" 2> /dev/null
-	openssl enc -camellia-256-cbc -salt -in tmp03 -out tmp04 -k "$PASS4" 2> /dev/null
-	openssl enc -aes-256-cbc -a -salt -in tmp04 -out $KEY/$ENCDIR/$EMSGFILE -k "$PASS5" 2> /dev/null	
+	openssl enc $CIPHER1 -salt -in tmp3 -out tmp01 -k "$PASS1" 2> /dev/null
+	openssl enc $CIPHER2 -salt -in tmp01 -out tmp02 -k "$PASS2" 2> /dev/null
+	openssl enc $CIPHER3 -salt -in tmp02  -out tmp03 -k "$PASS3" 2> /dev/null
+	openssl enc $CIPHER4 -salt -in tmp03 -out tmp04 -k "$PASS4" 2> /dev/null
+	openssl enc $CIPHER5 -a -salt -in tmp04 -out $KEY/$ENCDIR/$EMSGFILE -k "$PASS5" 2> /dev/null	
 	
 	shred -zfun 3 tmp* 2> /dev/null
 	clear
@@ -472,57 +512,61 @@ fdecryptmsg()															#Decrypt messages
 			LNUM=$(( LNUM + 1 ))
 		done <"$FILE"
 																		###Custom###
-	openssl enc -aes-256-cbc -d -a -salt -in tmp01  -out tmp02 -k "$PASS5" 2> /dev/null	
-	openssl enc -camellia-256-cbc -d -salt -in tmp02  -out tmp03 -k "$PASS4" 2> /dev/null
-	openssl enc -aes-256-cbc -d -salt -in tmp03  -out tmp04 -k "$PASS3" 2> /dev/null
-	openssl enc -camellia-256-cbc -d -salt -in tmp04  -out tmp05 -k "$PASS2" 2> /dev/null
-	openssl enc -aes-256-cbc -d -salt -in tmp05 -out tmf -k "$PASS1" 2> /dev/null
+	openssl enc $CIPHER5 -d -a -salt -in tmp01 -out tmp02 -k "$PASS5" 2> /dev/null	
+	openssl enc $CIPHER4 -d -salt -in tmp02 -out tmp03 -k "$PASS4" 2> /dev/null
+	openssl enc $CIPHER3 -d -salt -in tmp03 -out tmp04 -k "$PASS3" 2> /dev/null
+	openssl enc $CIPHER2 -d -salt -in tmp04 -out tmp05 -k "$PASS2" 2> /dev/null
+	openssl enc $CIPHER1 -d -salt -in tmp05 -out tmf -k "$PASS1" 2> /dev/null
 
 	shred -zfun 3 tmp* 2> /dev/null
 	
-	ENCCLEN=$(wc -c tmf)												##Random number layer##
-	ENCCMSG=$(cat tmf)
-  	CHARCNT=0
-  	CHAR=0
-  	DECCNT=0
+	if [ $USERAND = "1" ]
+		then
+			ENCCLEN=$(wc -c tmf)										##Random number layer##
+			ENCCMSG=$(cat tmf)
+			CHARCNT=0
+			CHAR=0
+			DECCNT=0
 
-  	while [ $CHAR != " " ] 2> /dev/null
-		do
-			CHAR=${ENCCLEN:$CHARCNT:1}
-			CHARCNT=$(( CHARCNT + 1 ))
-		done
-	CHARCNT=$(( CHARCNT - 1 ))
-	ENLEN=${ENCCLEN:0:$CHARCNT} 
+			while [ $CHAR != " " ] 2> /dev/null
+				do
+					CHAR=${ENCCLEN:$CHARCNT:1}
+					CHARCNT=$(( CHARCNT + 1 ))
+				done
+			CHARCNT=$(( CHARCNT - 1 ))
+			ENLEN=${ENCCLEN:0:$CHARCNT} 
 	
-	while [ $DECCNT -le $ENLEN ]										###Custom###
-		do
-			CHAR=${ENCCMSG:$DECCNT:6}
-			echo $CHAR >> tmp01
-			DECCNT=$(( DECCNT + 6 ))
-		done 
-	FILE=tmp01
-	LINECNT=0
-	STPCNT=$(wc -l tmp01)
+			while [ $DECCNT -le $ENLEN ]										###Custom###
+				do
+					CHAR=${ENCCMSG:$DECCNT:6}
+					echo $CHAR >> tmp01
+					DECCNT=$(( DECCNT + 6 ))
+				done 
+			FILE=tmp01
+			LINECNT=0
+			STPCNT=$(wc -l tmp01)
 	
-	while read LINE														#6 digit number is located using grep from the character files
-		do			
-			LONGLET=$(grep -rl $LINE $KEY/)
-			echo ${LONGLET: -2} >> tmp02 
-		done <$FILE
-	FILE=tmp02
+			while read LINE														#6 digit number is located using grep from the character files
+				do			
+					LONGLET=$(grep -rl $LINE $KEY/)
+					echo ${LONGLET: -2} >> tmp02 
+				done <$FILE
+			FILE=tmp02
 
-	while read LINE														#Each file number is assigned a character 
-		do																###Custom###
-			case $LINE in
-				10)DECC="0";;11)DECC="a";;12)DECC="b";;13)DECC="c";;14)DECC="d";;15)DECC="e";;16)DECC="f";;17)DECC="g";;18)DECC="h";;19)DECC="i";;20)DECC="j";;21)DECC="k";;22)DECC="l";;23)DECC="m";;24)DECC="n";;25)DECC="o";;26)DECC="p";;27)DECC="q";;28)DECC="r";;29)DECC="s";;30)DECC="t";;31)DECC="u";;32)DECC="v";;33)DECC="w";;34)DECC="x";;35)DECC="y";;36)DECC="z";;37)DECC="1";;38)DECC="2";;39)DECC="3";;40)DECC="4";;41)DECC="5";;42)DECC="6";;43)DECC="7";;44)DECC="8";;45)DECC="9";;46)echo -n ' ' >> tmp03;DECC=" ";;47)DECC="A";;48)DECC="B";;49)DECC="C";;50)DECC="D";;51)DECC="E";;52)DECC="F";;53)DECC="G";;54)DECC="H";;55)DECC="I";;56)DECC="J";;57)DECC="K";;58)DECC="L";;59)DECC="M";;60)DECC="N";;61)DECC="O";;62)DECC="P";;63)DECC="Q";;64)DECC="R";;65)DECC="S";;66)DECC="T";;67)DECC="U";;68)DECC="V";;69)DECC="W";;70)DECC="X";;71)DECC="Y";;72)DECC="Z";;73)DECC=".";;74)DECC="?";;75)DECC=",";;76)DECC="!";;77)DECC=";";;78)DECC="$";;79)DECC="£";;80)DECC="&";;81)DECC='(';;82)DECC=')';;83)DECC="-";;84)DECC="+";;85)DECC="@";;86)DECC=":";;87)DECC='"';;88)DECC="#";;89)DECC="%";;90)DECC="^";;91)DECC="'";;92)DECC="=";;93)DECC="~";;94)DECC="/";;95)DECC="<";;96)DECC=">";;97)DECC="_"
-								
-			esac
+			while read LINE														#Each file number is assigned a character 
+				do																###Custom###
+					case $LINE in
+						10)DECC="0";;11)DECC="a";;12)DECC="b";;13)DECC="c";;14)DECC="d";;15)DECC="e";;16)DECC="f";;17)DECC="g";;18)DECC="h";;19)DECC="i";;20)DECC="j";;21)DECC="k";;22)DECC="l";;23)DECC="m";;24)DECC="n";;25)DECC="o";;26)DECC="p";;27)DECC="q";;28)DECC="r";;29)DECC="s";;30)DECC="t";;31)DECC="u";;32)DECC="v";;33)DECC="w";;34)DECC="x";;35)DECC="y";;36)DECC="z";;37)DECC="1";;38)DECC="2";;39)DECC="3";;40)DECC="4";;41)DECC="5";;42)DECC="6";;43)DECC="7";;44)DECC="8";;45)DECC="9";;46)echo -n ' ' >> tmp03;DECC=" ";;47)DECC="A";;48)DECC="B";;49)DECC="C";;50)DECC="D";;51)DECC="E";;52)DECC="F";;53)DECC="G";;54)DECC="H";;55)DECC="I";;56)DECC="J";;57)DECC="K";;58)DECC="L";;59)DECC="M";;60)DECC="N";;61)DECC="O";;62)DECC="P";;63)DECC="Q";;64)DECC="R";;65)DECC="S";;66)DECC="T";;67)DECC="U";;68)DECC="V";;69)DECC="W";;70)DECC="X";;71)DECC="Y";;72)DECC="Z";;73)DECC=".";;74)DECC="?";;75)DECC=",";;76)DECC="!";;77)DECC=";";;78)DECC="$";;79)DECC="£";;80)DECC="&";;81)DECC='(';;82)DECC=')';;83)DECC="-";;84)DECC="+";;85)DECC="@";;86)DECC=":";;87)DECC='"';;88)DECC="#";;89)DECC="%";;90)DECC="^";;91)DECC="'";;92)DECC="=";;93)DECC="~";;94)DECC="/";;95)DECC="<";;96)DECC=">";;97)DECC="_"
+					esac
 			
-			echo -n $DECC >> tmp03
-		done <$FILE
+					echo -n $DECC >> tmp03
+				done <$FILE
 		
-	DEKD=$(cat tmp03)
-	echo "${DEKD%?}" > $KEY/$DECDIR/$DMSGFILE							#Cleartext message
+			DEKD=$(cat tmp03)
+			echo "${DEKD%?}" > $KEY/$DECDIR/$DMSGFILE							#Cleartext message
+		else
+			cat tmf > $KEY/$DECDIR/$DMSGFILE
+	fi
 	shred -zfun 3 tm* 2> /dev/null
 	clear
 	if [ $( cat $KEY/$DECDIR/$DMSGFILE ) -z ] 2> /dev/null
@@ -597,11 +641,11 @@ fencryptfile()															#Encrypt files
 		LNUM=$(( LNUM + 1 ))
 		done <$FILE
 																		###Custom###
-	openssl enc -aes-256-cbc -salt -in $INFILE -out tmp01 -k "$PASS1" 2> /dev/null	
-	openssl enc -camellia-256-cbc -salt -in tmp01 -out tmp02 -k "$PASS2" 2> /dev/null
-	openssl enc -aes-256-cbc -salt -in tmp02 -out tmp03 -k "$PASS3" 2> /dev/null
-	openssl enc -camellia-256-cbc -salt -in tmp03 -out tmp04 -k "$PASS4" 2> /dev/null
-	openssl enc -aes-256-cbc -a -salt -in tmp04 -out $KEY/$ENCDIR/0_Encrypted_Files/$EMSGFILE -k "$PASS5" 2> /dev/null
+	openssl enc $CIPHER1 -salt -in $INFILE -out tmp01 -k "$PASS1" 2> /dev/null	
+	openssl enc $CIPHER2 -salt -in tmp01 -out tmp02 -k "$PASS2" 2> /dev/null
+	openssl enc $CIPHER3 -salt -in tmp02 -out tmp03 -k "$PASS3" 2> /dev/null
+	openssl enc $CIPHER4 -salt -in tmp03 -out tmp04 -k "$PASS4" 2> /dev/null
+	openssl enc $CIPHER5 -a -salt -in tmp04 -out $KEY/$ENCDIR/0_Encrypted_Files/$EMSGFILE -k "$PASS5" 2> /dev/null
 
 	shred -zfun 3 tmp* 2> /dev/null
 	clear
@@ -665,11 +709,11 @@ fdecryptfile()															#Decrypt files
 			LNUM=$(( LNUM + 1 ))
 		done <$FILE
 																		###Custom###
-	openssl enc -aes-256-cbc -d -a -salt -in $INFILE -out tmp01 -k "$PASS5" 2> /dev/null
-	openssl enc -camellia-256-cbc -d -salt -in tmp01 -out tmp02 -k "$PASS4" 2> /dev/null
-	openssl enc -aes-256-cbc -d -salt -in tmp02  -out tmp03 -k "$PASS3" 2> /dev/null
-	openssl enc -camellia-256-cbc -d -salt -in tmp03 -out tmp04 -k "$PASS2" 2> /dev/null
-	openssl enc -aes-256-cbc -d -salt -in tmp04  -out $KEY/$DECDIR/0_Decrypted_Files/$DFILE -k "$PASS1" 2> /dev/null	
+	openssl enc $CIPHER5 -d -a -salt -in $INFILE -out tmp01 -k "$PASS5" 2> /dev/null
+	openssl enc $CIPHER4 -d -salt -in tmp01 -out tmp02 -k "$PASS4" 2> /dev/null
+	openssl enc $CIPHER3 -d -salt -in tmp02  -out tmp03 -k "$PASS3" 2> /dev/null
+	openssl enc $CIPHER2 -d -salt -in tmp03 -out tmp04 -k "$PASS2" 2> /dev/null
+	openssl enc $CIPHER1 -d -salt -in tmp04  -out $KEY/$DECDIR/0_Decrypted_Files/$DFILE -k "$PASS1" 2> /dev/null	
 
 	if [ $( cat tmp04 2> /dev/null ) -z ] 2> /dev/null
 		then
@@ -801,10 +845,10 @@ fexportkey()															#Export keys
 					zip -reP $ZPASS $KEY.zip $KEY
 					clear												###Custom###
 					$COLOR 4;echo " [*] Encrypting "$KEY", Please wait...";$COLOR 9
-					openssl enc -aes-256-cbc -a -salt -in $KEY.zip -out tmp01 -k "$FPASS" 2> /dev/null
-					openssl enc -camellia-256-cbc -a -salt -in tmp01 -out tmp02 -k "$NPASS" 2> /dev/null
-					openssl enc -aes-256-cbc -a -salt -in tmp02 -out tmp03 -k "$GPASS" 2> /dev/null
-					openssl enc -camellia-256-cbc -a -salt -in tmp03 -out tmp04 -k "$MPASS" 2> /dev/null
+					openssl enc -aes-256-cbc -salt -in $KEY.zip -out tmp01 -k "$FPASS" 2> /dev/null
+					openssl enc -camellia-256-cbc -salt -in tmp01 -out tmp02 -k "$NPASS" 2> /dev/null
+					openssl enc -aes-256-cbc -salt -in tmp02 -out tmp03 -k "$GPASS" 2> /dev/null
+					openssl enc -camellia-256-cbc -salt -in tmp03 -out tmp04 -k "$MPASS" 2> /dev/null
 					openssl enc -aes-256-cbc -a -salt -in tmp04 -out $WHSAV/$KEY -k "$LPASS" 2> /dev/null
 							
 					mv $DECDIR $KEY/$DECDIR 
@@ -897,10 +941,10 @@ fimportkey()															#Import keys
 			LPASS=$(echo $LPASS$LPASS | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum)
 																		###Custom###
 			openssl enc -aes-256-cbc -d -a -salt -in $KEYLOC -out tmp01 -k "$LPASS" 2> /dev/null
-			openssl enc -camellia-256-cbc -d -a -salt -in tmp01 -out tmp02 -k "$MPASS" 2> /dev/null
-			openssl enc -aes-256-cbc -d -a -salt -in tmp02 -out tmp03 -k "$GPASS" 2> /dev/null
-			openssl enc -camellia-256-cbc -d -a -salt -in tmp03 -out tmp04 -k "$NPASS" 2> /dev/null
-			openssl enc -aes-256-cbc -d -a -salt -in tmp04 -out $KEYFILE.zip -k "$FPASS" 2> /dev/null
+			openssl enc -camellia-256-cbc -d -salt -in tmp01 -out tmp02 -k "$MPASS" 2> /dev/null
+			openssl enc -aes-256-cbc -d -salt -in tmp02 -out tmp03 -k "$GPASS" 2> /dev/null
+			openssl enc -camellia-256-cbc -d -salt -in tmp03 -out tmp04 -k "$NPASS" 2> /dev/null
+			openssl enc -aes-256-cbc -d -salt -in tmp04 -out $KEYFILE.zip -k "$FPASS" 2> /dev/null
 			
 			if [ $( cat tmp04 2> /dev/null ) -z ] 2> /dev/null
 				then
@@ -1206,6 +1250,20 @@ finputkey()																#Select key to use
 			sleep 1.5
 			finputkey
 	fi
+	FILE=$KEY/config
+	LNUM=1
+	while read LINE														#Get variables from $KEY/config file
+		do
+			case $LNUM in
+				18)CIPHER1="-"$LINE;;
+				21)CIPHER2="-"$LINE;;
+				24)CIPHER3="-"$LINE;;
+				27)CIPHER4="-"$LINE;;
+				30)CIPHER5="-"$LINE;;
+				33)USERAND=$LINE
+			esac
+			LNUM=$((LNUM + 1))
+		done < $FILE
 }
 
 fdisplaymenu()															#Display information at top of menu
