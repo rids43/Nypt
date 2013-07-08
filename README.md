@@ -5,6 +5,8 @@ NOTE: V.1.36 is incompatible with previous versions
 Changelog:
 1.36
 
+Added key config files for easy customization
+
 Improved keygen by generating random lengths from urandom
 
 Improved key export/import password generation
@@ -14,7 +16,8 @@ Cleaned up code
 
 Custom wrapper for OpenSSL
 
-Nypt uses a custom random number symmetric encryption layer and five layers of OpenSSL 256-bit cipher block chaining AES and Camellia high grade encryption to encrypt messages, files and keys for transmission across the internet. The secret keys are stored locally on the drive, and so passwords are not needed to encrypt/decrypt messages or files. The passwords for the layers are generated from urandom, have a variable possible length and are unique to each layer and key. All openssl layers are salted. Nypt uses symmetric encryption, which means that both communicating parties are required to have the same copy of the secret key, in order to read each others messages.
+Nypt uses a custom random number symmetric encryption layer and five layers of customizable OpenSSL encryption to encrypt messages, files and keys for transmission across the internet. The secret keys are stored locally on the drive, and so passwords are not needed to encrypt/decrypt messages or files. The passwords for the layers are generated from urandom, have a variable possible length and are unique to each layer and key. All openssl layers are salted. Nypt uses symmetric encryption, which means that both communicating parties are required to have the same copy of the secret key, in order to read each others messages. Config files are located in each keys directory that can be edited to customize ciphers used for the openssl layers.
+
 
 Use:
 
@@ -48,7 +51,7 @@ Enigmail: http://www.enigmail.net/home/index.php
 
 
 Programmers: 
-As the determining method of encryption is a very important step in breaking it, customizing certain parameters in this script is highly recommended to make it even more secure. The other communicating party must have a copy of the edited script for it to work.
+As determining the method of encryption is a very important step in breaking it, customizing certain parameters in this script is highly recommended to make it even more secure. The other communicating party must have a copy of the edited script for it to work.
 Recommended areas of consideration for modification are commented ###Custom###
 Send the edited script using secure encrypted communication methods.
 
