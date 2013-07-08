@@ -3,7 +3,7 @@
 ## Nypt 1.36 Copyright 2013, Rids43 (rids@tormail.org)
 #
 ## Crypt files, messages and keys using a layer of random number encryption 
-## and five layers of openssl 256-bit AES and Camellia CBC encryption.
+## and five layers of custom openssl encryption.
 ## Uses SSH to transfer data.
 #
 ## This program is free software: you can redistribute it and/or modify
@@ -116,7 +116,7 @@ fmenu()																	#Main menu
   
 		case $MENU in
 	1)	clear
-		$COLOR 5;echo " [*] Encryption Menu ";$COLOR 9
+		$COLOR 5;echo " [*] Encryption Menu [*] ";$COLOR 9
 		read -e -p """      ~~~~~~~~
  [1] Encrypt a message.
  [2] Encrypt a file.
@@ -128,7 +128,7 @@ fmenu()																	#Main menu
 		case $MENU in 1)fencryptmsg;;2)fencryptfile;;3)OPENDIR=$ENCDIR;fopendir;;4)CATDIR=$ENCDIR;fcat;;5)SHREDDIR=$ENCDIR;fshreddir;;6)fmenu;esac
 	;;
 	2)	clear
-		$COLOR 5;echo " [*] Decryption Menu ";$COLOR 9
+		$COLOR 5;echo " [*] Decryption Menu [*] ";$COLOR 9
 		read -e -p """      ~~~~~~~~
  [1] Decrypt a message.
  [2] Decrypt a file.
@@ -140,7 +140,7 @@ fmenu()																	#Main menu
 		case $MENU in 1)fdecryptmsg;;2)fdecryptfile;;3)OPENDIR=$DECDIR;fopendir;;4)CATDIR=$DECDIR;fcat;;5)SHREDDIR=$DECDIR;fshreddir;;6)fmenu;esac
 	;;
 	3)	clear
-		$COLOR 5;echo " [*] Key Menu ";$COLOR 9
+		$COLOR 5;echo " [*] Key Menu [*] ";$COLOR 9
 		read -e -p """      ~~~~~~~~
  [1] Generate a new Key.
  [2] Export a Key.
@@ -153,7 +153,7 @@ fmenu()																	#Main menu
 		case $MENU in 1)fkeygen;;2)fexportkey;;3)fimportkey;;4)SHREDDIR="KEY";fshreddir;;5)finputkey;flockcheck;gedit $KEY/config 2> /dev/null;;6)fkeylock;;7)fmenu;esac
 	;;
 	4)	clear
-		$COLOR 5;echo " [*] SSH Menu ";$COLOR 9
+		$COLOR 5;echo " [*] SSH Menu [*] ";$COLOR 9
 		read -e -p """      ~~~~~~~~
  [1] Send file
  [2] Send Encrypted message 
@@ -273,9 +273,8 @@ fkeygen()																#Generate keys
 			echo $(strings /dev/urandom | grep -o '[[:alnum:]]' | head -n $RAND4 | tr -d '\n'; echo) >> $KEY/meta/meta
 			echo $(strings /dev/urandom | grep -o '[[:alnum:]]' | head -n $RAND5 | tr -d '\n'; echo) >> $KEY/meta/meta
 
-			shred -zfun 3 $KEY/list
-			DISPKEY=1
-			echo """#Cipher commands
+			shred -zfun 3 $KEY/list										#Write config file
+			echo """#Cipher commands									
 #aes-128-cbc       aes-128-ecb       aes-192-cbc       aes-192-ecb       
 #aes-256-cbc       aes-256-ecb       base64            bf                
 #bf-cbc            bf-cfb            bf-ecb            bf-ofb            
@@ -309,13 +308,13 @@ aes-256-cbc
 #Enable random number cryptography layer for messages
 1""" > $KEY/config
 			clear
-			$COLOR 1;echo " [*] Do you want to lock $KEY? [Y/n]";$COLOR 9;read -p " >" LOCK
+			$COLOR 5;echo " [*] Do you want to lock $KEY? [Y/n]";$COLOR 9;read -p " >" LOCK
 			case $LOCK in
 				"")DOLOCK=1;fkeylock;;
 				"Y")DOLOCK=1;fkeylock;;
 				"y")DOLOCK=1;fkeylock;;
-				"n")fmenu;;
-				"N")fmenu
+				"n")DISPKEY=1;fmenu;;
+				"N")DISPKEY=1;fmenu
 			esac
 	fi
 }
@@ -838,6 +837,7 @@ fkeylock()																#Lock local keys by encrypting $KEY/meta/meta and $KEY
 	fi
 	while [ $PASSDON != "1" ]
 		do
+			clear
 			$COLOR 5;echo " [*] Lock $KEY [*] ";$COLOR 9
 			$COLOR 1;echo " [*] WARNING: Please use a very strong password, at least 10 characters long including capitals and numbers";$COLOR 9
 			echo
@@ -1400,7 +1400,7 @@ finputkey()																#Select key to use
 	fi
 	FILE=$KEY/config 
 	LNUM=1
-	while read LINE 													#Get variables from $KEY/config file
+	while read LINE 													#Get cipher variables from $KEY/config file
 		do
 			case $LNUM in
 				18)CIPHER1="-"$LINE;;
@@ -1467,7 +1467,7 @@ fdisplaymenu()															#Display information at top of menu
 	fi
 }
 
-flockcheck()
+flockcheck()															#Check if Key is locked
 {
 	if [ -f $KEY/lconfig ] 2> /dev/null
 		then
