@@ -146,9 +146,10 @@ fmenu()																	#Main menu
  [2] Export a Key.
  [3] Import a Key.
  [4] Shred a Key.
- [5] Back
+ [5] Edit Key config
+ [6] Back
  >""" MENU 
-		case $MENU in 1)fkeygen;;2)fexportkey;;3)fimportkey;;4)SHREDDIR="KEY";fshreddir;;5)fmenu;esac
+		case $MENU in 1)fkeygen;;2)fexportkey;;3)fimportkey;;4)SHREDDIR="KEY";fshreddir;;5)finputkey;gedit $KEY/config 2> /dev/null;;6)fmenu;esac
 	;;
 	4)	clear
 		$COLOR 5;echo " [*] SSH Menu ";$COLOR 9
