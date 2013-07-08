@@ -150,7 +150,7 @@ fmenu()																	#Main menu
  [6] Lock/Unlock a Key
  [7] Back
  >""" MENU 
-		case $MENU in 1)fkeygen;;2)fexportkey;;3)fimportkey;;4)SHREDDIR="KEY";fshreddir;;5)finputkey;gedit $KEY/config 2> /dev/null;;6)fkeylock;;7)fmenu;esac
+		case $MENU in 1)fkeygen;;2)fexportkey;;3)fimportkey;;4)SHREDDIR="KEY";fshreddir;;5)finputkey;flockcheck;gedit $KEY/config 2> /dev/null;;6)fkeylock;;7)fmenu;esac
 	;;
 	4)	clear
 		$COLOR 5;echo " [*] SSH Menu ";$COLOR 9
@@ -308,7 +308,15 @@ aes-256-cbc
 
 #Enable random number cryptography layer for messages
 1""" > $KEY/config
-			fmenu
+			clear
+			$COLOR 1;echo " [*] Do you want to lock $KEY? [Y/n]";$COLOR 9;read -p " >" LOCK
+			case $LOCK in
+				"")DOLOCK=1;fkeylock;;
+				"Y")DOLOCK=1;fkeylock;;
+				"y")DOLOCK=1;fkeylock;;
+				"n")fmenu;;
+				"N")fmenu
+			esac
 	fi
 }
 
@@ -816,7 +824,12 @@ fopendir()																#Open message folder
 
 fkeylock()																#Lock local keys by encrypting $KEY/meta/meta and $KEY/config
 {
-	finputkey
+	if [ $DOLOCK = "1" ] 2> /dev/null
+		then
+			DOLOCK=0
+		else
+			finputkey
+	fi
 	clear
 	PASSDON=0
 	if [ -f $KEY/lconfig ] 2> /dev/null
@@ -1385,9 +1398,9 @@ finputkey()																#Select key to use
 			sleep 1.5
 			finputkey
 	fi
-	FILE=$KEY/config
+	FILE=$KEY/config 
 	LNUM=1
-	while read LINE														#Get variables from $KEY/config file
+	while read LINE 													#Get variables from $KEY/config file
 		do
 			case $LNUM in
 				18)CIPHER1="-"$LINE;;
@@ -1398,7 +1411,7 @@ finputkey()																#Select key to use
 				33)USERAND=$LINE
 			esac
 			LNUM=$((LNUM + 1))
-		done < $FILE
+		done < $FILE 
 }
 
 fdisplaymenu()															#Display information at top of menu
