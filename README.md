@@ -26,6 +26,8 @@ All of the features are accessable from the menu based command line and there is
 Received encrypted messages can be pasted in to Nypt from the clipboard, using the menu command at the "Decrypt message" menu.
 Nypt also accepts message files saved into the 0_Encrypted_Messages directory in the directory of the key that you will use to decrypt it.
 
+Video: http://www.youtube.com/watch?v=gQ0teiUdJjU
+
 
 Key Transmission:
 
