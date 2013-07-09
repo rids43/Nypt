@@ -18,7 +18,7 @@
 ## more details.
 
 
-fstart()																#Startup function
+fstart()																																#Startup function
 {
 	COLOR="tput setab"
 	DIRR=$HOME/Desktop/nypt/keys/
@@ -46,7 +46,7 @@ fstart()																#Startup function
 	DECDIR="0_Decrypted_Messages"
 	trap fexit 2
 	
-	if [ $DEPCHK = "1" ] 2> /dev/null									#Dependancy check
+	if [ $DEPCHK = "1" ] 2> /dev/null																			#Dependancy check
 		then		
 			LIST="""shred
 sha512sum
@@ -99,7 +99,7 @@ grep"""
 	fmenu
 }
 
-fmenu()																	#Main menu
+fmenu()																																	#Main menu
 {
 	cd $DIRR
 	clear
@@ -170,7 +170,7 @@ fmenu()																	#Main menu
 	fmenu
 }
 
-fkeygen()																#Generate keys
+fkeygen()																																#Generate keys
 {
 	clear
 	$COLOR 5;echo " [>] What shall we name your key?";$COLOR 9
@@ -198,21 +198,21 @@ fkeygen()																#Generate keys
 			mkdir $KEY/$DECDIR
 			mkdir $KEY/$ENCDIR/0_Encrypted_Files
 			mkdir $KEY/$DECDIR/0_Decrypted_Files
-																		##Random number key
-			sort -R list > $KEY/list									#List of 6-digit numbers is sorted randomly
+																																				##Random number key
+			sort -R list > $KEY/list																					#List of 6-digit numbers is sorted randomly
 			DIRNUM=10
-																		#Create directories for each character
-			while [ $DIRNUM -le 98 ]									###Custom###
+																																				#Create directories for each character
+			while [ $DIRNUM -le 98 ]																					###Custom###
 				do
 					mkdir $KEY/$DIRNUM
 					DIRNUM=$(( DIRNUM + 1 ))
 				done
-																		#Sorted list is cut into character files of 10110 lines each
-			LNUM=10110													###Custom###
+																																				#Sorted list is cut into character files of 10110 lines each
+			LNUM=10110																												###Custom###
 			DIRNUM=10
 			DIRNUMB=11
 																		
-			while [ $LNUM -le 900000 ]									###Custom###
+			while [ $LNUM -le 900000 ]																				###Custom###
 				do 
 					echo -n $(head -"$LNUM" $KEY/list | tail -10110) > $KEY/$DIRNUM/$DIRNUM
 					sed -e 's/\s/\n/g' $KEY/$DIRNUM/$DIRNUM > $KEY/$DIRNUM/$DIRNUMB	
@@ -223,10 +223,10 @@ fkeygen()																#Generate keys
 					DIRNUMB=$(( DIRNUMB + 1 ))
 					LNUM=$(( LNUM + 10110 ))							
 				done
-																		##Openssl keys
-																		#Random password lengths are generated from urandom
+																																				##Openssl keys
+																																				#Random password lengths are generated from urandom
 			RANDLENTH=$(strings /dev/urandom | grep -o '[1-9]' | head -n 45 | tr -d '\n'; echo)
-			RAND1=${RANDLENTH:0:3}										###Custom###
+			RAND1=${RANDLENTH:0:3}																						###Custom###
 			RAND2=${RANDLENTH:3:3}
 			RAND3=${RANDLENTH:6:3}
 			RAND4=${RANDLENTH:9:3}
@@ -242,8 +242,8 @@ fkeygen()																#Generate keys
 			RANDA4=${RANDLENTH:39:3}									
 			RANDA5=${RANDLENTH:42:3}
 
-																		#Make passwords randomly longer
-			if [ $RAND1 -le $RANDL1 ]									###Custom###
+																																				#Make passwords randomly longer
+			if [ $RAND1 -le $RANDL1 ]																					###Custom###
 				then
 					RAND1=$(( RAND1 + RANDA1 ))
 			fi
@@ -265,15 +265,15 @@ fkeygen()																#Generate keys
 			fi
 			
 			mkdir $KEY/meta/
-																		#Passwords for openssl layers are generated from urandom
-																		###Custom###
+																																				#Passwords for openssl layers are generated from urandom
+																																				###Custom###
 			echo $(strings /dev/urandom | grep -o '[[:alnum:]]' | head -n $RAND1 | tr -d '\n'; echo) > $KEY/meta/meta
 			echo $(strings /dev/urandom | grep -o '[[:alnum:]]' | head -n $RAND2 | tr -d '\n'; echo) >> $KEY/meta/meta
 			echo $(strings /dev/urandom | grep -o '[[:alnum:]]' | head -n $RAND3 | tr -d '\n'; echo) >> $KEY/meta/meta
 			echo $(strings /dev/urandom | grep -o '[[:alnum:]]' | head -n $RAND4 | tr -d '\n'; echo) >> $KEY/meta/meta
 			echo $(strings /dev/urandom | grep -o '[[:alnum:]]' | head -n $RAND5 | tr -d '\n'; echo) >> $KEY/meta/meta
 
-			shred -zfun 3 $KEY/list										#Write config file
+			shred -zfun 3 $KEY/list																						#Write config file
 			echo """#Cipher commands									
 #aes-128-cbc       aes-128-ecb       aes-192-cbc       aes-192-ecb       
 #aes-256-cbc       aes-256-ecb       base64            bf                
@@ -319,7 +319,7 @@ aes-256-cbc
 	fi
 }
 
-fencryptmsg()															#Encrypt messages
+fencryptmsg()																														#Encrypt messages
 {
 	finputkey
 	flockcheck
@@ -357,9 +357,9 @@ fencryptmsg()															#Encrypt messages
 	clear
 	$COLOR 4;echo " [*] Encrypting "$EMSGFILE", Please wait..";$COLOR 9
 	if [ $USERAND = "1" ] 2> /dev/null
-		then															##Random number layer##
-			while [ $MSGCNT -lt $MSGLEN ]								#Each character is assigned a number
-				do														###Custom###
+		then																																##Random number layer##
+			while [ $MSGCNT -lt $MSGLEN ]																			#Each character is assigned a number
+				do																															###Custom###
 					CHAR=${MSG:$MSGCNT:1}
 					case $CHAR in
 						"a")ENCC="11";;"b")ENCC="12";;"c")ENCC="13";;"d")ENCC="14";;"e")ENCC="15";;"f")ENCC="16";;"g")ENCC="17";;"h")ENCC="18";;"i")ENCC="19";;"j")ENCC="20";;"k")ENCC="21";;"l")ENCC="22";;"m")ENCC="23";;"n")ENCC="24";;"o")ENCC="25";;"p")ENCC="26";;"q")ENCC="27";;"r")ENCC="28";;"s")ENCC="29";;"t")ENCC="30";;"u")ENCC="31";;"v")ENCC="32";;"w")ENCC="33";;"x")ENCC="34";;"y")ENCC="35";;"z")ENCC="36";;1)ENCC="37";;2)ENCC="38";;3)ENCC="39";;4)ENCC="40";;5)ENCC="41";;6)ENCC="42";;7)ENCC="43";;8)ENCC="44";;9)ENCC="45";;0)ENCC="10";;" ")ENCC="46";;"A")ENCC="47";;"B")ENCC="48";;"C")ENCC="49";;"D")ENCC="50";;"E")ENCC="51";;"F")ENCC="52";;"G")ENCC="53";;"H")ENCC="54";;"I")ENCC="55";;"J")ENCC="56";;"K")ENCC="57";;"L")ENCC="58";;"M")ENCC="59";;"N")ENCC="60";;"O")ENCC="61";;"P")ENCC="62";;"Q")ENCC="63";;"R")ENCC="64";;"S")ENCC="65";;"T")ENCC="66";;"U")ENCC="67";;"V")ENCC="68";;"W")ENCC="69";;"X")ENCC="70";;"Y")ENCC="71";;"Z")ENCC="72";;".")ENCC="73";;"?")ENCC="74";;",")ENCC="75";;"!")ENCC="76";;";")ENCC="77";;"$")ENCC="78";;"£")ENCC="79";;"&")ENCC="80";;'(')ENNC="81";;')')ENC="82";;"-")ENC="83";;"+")ENCC="84";;"@")ENCC="85";;":")ENCC="86";;'"')ENCC="87";;"#")ENCC="88";;"%")ENCC="89";;"^")ENCC="90";;"'")ENCC="91";;"=")ENCC="92";;"~")ENCC="93";;"/")ENCC="94";;"<")ENCC="95";;">")ENCC="96";;"_")ENCC="97"
@@ -369,7 +369,7 @@ fencryptmsg()															#Encrypt messages
 					MSGCNT=$(( MSGCNT +1 ))
 				done
 		
-			while read LINE												#Random 6 digit number line is chosen from the character file
+			while read LINE																										#Random 6 digit number line is chosen from the character file
 				do
 					RAND=$(strings /dev/urandom | grep -o '[0-9]' | head -n 4 | tr -d '\n'; echo)
 					if [ $RAND -gt "1001" ] 2> /dev/null
@@ -377,16 +377,16 @@ fencryptmsg()															#Encrypt messages
 							RAND=$((RAND - 1000))
 					fi
 					echo $(cat $KEY/$LINE/$LINE | sed -n "$RAND"p) >> tmp2	
-				done <$FILE												###Custom###
+				done <$FILE																											###Custom###
 		
-			echo $(tr '\n' ' ' < tmp2 | sed -e 's/\s//g') > tmp3		#Newlines are removed leaving a continuous stream of numbers
+			echo $(tr '\n' ' ' < tmp2 | sed -e 's/\s//g') > tmp3							#Newlines are removed leaving a continuous stream of numbers
 		else
 			echo $MSG > tmp3
 	fi
 	FILE=$KEY/meta/meta
-	LNUM=1																##Openssl layer##
-	while read LINE														#Passwords for openssl layers are imported from $KEY/meta/meta
-		do																###Custom###
+	LNUM=1																																##Openssl layer##
+	while read LINE																												#Passwords for openssl layers are imported from $KEY/meta/meta
+		do																																	###Custom###
 			case $LNUM in
 					1)PASS1="$LINE";;
 					2)PASS2="$LINE";;
@@ -397,7 +397,7 @@ fencryptmsg()															#Encrypt messages
 		
 			LNUM=$(( LNUM + 1 ))
 		done <"$FILE"
-																		###Custom###
+																																				###Custom###
 	openssl enc $CIPHER1 -salt -in tmp3 -out tmp01 -k "$PASS1" 2> /dev/null
 	openssl enc $CIPHER2 -salt -in tmp01 -out tmp02 -k "$PASS2" 2> /dev/null
 	openssl enc $CIPHER3 -salt -in tmp02 -out tmp03 -k "$PASS3" 2> /dev/null
@@ -431,7 +431,7 @@ fencryptmsg()															#Encrypt messages
 	esac
 }
 
-fdecryptmsg()															#Decrypt messages
+fdecryptmsg()																														#Decrypt messages
 {
 	finputkey
 	flockcheck
@@ -513,9 +513,9 @@ fdecryptmsg()															#Decrypt messages
 	esac
 	
 	FILE=$DIRR$KEY"/meta/meta"
-	LNUM=1																##Openssl layer##
-	while read LINE														#Passwords for openssl layers are imported from $KEY/meta/meta
-		do																###Custom###
+	LNUM=1																																##Openssl layer##
+	while read LINE																												#Passwords for openssl layers are imported from $KEY/meta/meta
+		do																																	###Custom###
 			case $LNUM in
 					1)PASS1="$LINE";;
 					2)PASS2="$LINE";;
@@ -526,7 +526,7 @@ fdecryptmsg()															#Decrypt messages
 		
 			LNUM=$(( LNUM + 1 ))
 		done <"$FILE"
-																		###Custom###
+																																				###Custom###
 	openssl enc $CIPHER5 -d -a -salt -in tmp01 -out tmp02 -k "$PASS5" 2> /dev/null	
 	openssl enc $CIPHER4 -d -salt -in tmp02 -out tmp03 -k "$PASS4" 2> /dev/null
 	openssl enc $CIPHER3 -d -salt -in tmp03 -out tmp04 -k "$PASS3" 2> /dev/null
@@ -537,7 +537,7 @@ fdecryptmsg()															#Decrypt messages
 	
 	if [ $USERAND = "1" ]
 		then
-			ENCCLEN=$(wc -c tmf)										##Random number layer##
+			ENCCLEN=$(wc -c tmf)																							##Random number layer##
 			ENCCMSG=$(cat tmf)
 			CHARCNT=0
 			CHAR=0
@@ -551,7 +551,7 @@ fdecryptmsg()															#Decrypt messages
 			CHARCNT=$(( CHARCNT - 1 ))
 			ENLEN=${ENCCLEN:0:$CHARCNT} 
 	
-			while [ $DECCNT -le $ENLEN ]								###Custom###
+			while [ $DECCNT -le $ENLEN ]																			###Custom###
 				do
 					CHAR=${ENCCMSG:$DECCNT:6}
 					echo $CHAR >> tmp01
@@ -561,15 +561,15 @@ fdecryptmsg()															#Decrypt messages
 			LINECNT=0
 			STPCNT=$(wc -l tmp01)
 	
-			while read LINE												#6 digit number is located using grep from the character files
+			while read LINE																										#6 digit number is located using grep from the character files
 				do			
 					LONGLET=$(grep -rl $LINE $KEY/)
 					echo ${LONGLET: -2} >> tmp02 
 				done <$FILE
 			FILE=tmp02
 
-			while read LINE												#Each file number is assigned a character 
-				do														###Custom###
+			while read LINE																										#Each file number is assigned a character 
+				do																															###Custom###
 					case $LINE in
 						10)DECC="0";;11)DECC="a";;12)DECC="b";;13)DECC="c";;14)DECC="d";;15)DECC="e";;16)DECC="f";;17)DECC="g";;18)DECC="h";;19)DECC="i";;20)DECC="j";;21)DECC="k";;22)DECC="l";;23)DECC="m";;24)DECC="n";;25)DECC="o";;26)DECC="p";;27)DECC="q";;28)DECC="r";;29)DECC="s";;30)DECC="t";;31)DECC="u";;32)DECC="v";;33)DECC="w";;34)DECC="x";;35)DECC="y";;36)DECC="z";;37)DECC="1";;38)DECC="2";;39)DECC="3";;40)DECC="4";;41)DECC="5";;42)DECC="6";;43)DECC="7";;44)DECC="8";;45)DECC="9";;46)echo -n ' ' >> tmp03;DECC=" ";;47)DECC="A";;48)DECC="B";;49)DECC="C";;50)DECC="D";;51)DECC="E";;52)DECC="F";;53)DECC="G";;54)DECC="H";;55)DECC="I";;56)DECC="J";;57)DECC="K";;58)DECC="L";;59)DECC="M";;60)DECC="N";;61)DECC="O";;62)DECC="P";;63)DECC="Q";;64)DECC="R";;65)DECC="S";;66)DECC="T";;67)DECC="U";;68)DECC="V";;69)DECC="W";;70)DECC="X";;71)DECC="Y";;72)DECC="Z";;73)DECC=".";;74)DECC="?";;75)DECC=",";;76)DECC="!";;77)DECC=";";;78)DECC="$";;79)DECC="£";;80)DECC="&";;81)DECC='(';;82)DECC=')';;83)DECC="-";;84)DECC="+";;85)DECC="@";;86)DECC=":";;87)DECC='"';;88)DECC="#";;89)DECC="%";;90)DECC="^";;91)DECC="'";;92)DECC="=";;93)DECC="~";;94)DECC="/";;95)DECC="<";;96)DECC=">";;97)DECC="_"
 					esac
@@ -578,7 +578,7 @@ fdecryptmsg()															#Decrypt messages
 				done <$FILE
 		
 			DEKD=$(cat tmp03)
-			echo "${DEKD%?}" > $KEY/$DECDIR/$DMSGFILE					#Cleartext message
+			echo "${DEKD%?}" > $KEY/$DECDIR/$DMSGFILE													#Cleartext message
 		else
 			cat tmf > $KEY/$DECDIR/$DMSGFILE
 	fi
@@ -605,7 +605,7 @@ fdecryptmsg()															#Decrypt messages
 	
 }
 
-fdecpaste()																#Paste messages into fdecryptmsg from the clipboard																
+fdecpaste()																															#Paste messages into fdecryptmsg from the clipboard																
 {
 	DATER=$( date +%Y_%d_%m_%H_%M_%S )
 	DATEFILE="$DIRR""$KEY"/"$ENCDIR"/"$DATER"
@@ -613,7 +613,7 @@ fdecpaste()																#Paste messages into fdecryptmsg from the clipboard
 	ISDONE=1
 }
 
-fencryptfile()															#Encrypt files
+fencryptfile()																													#Encrypt files
 {
 	finputkey
 	flockcheck
@@ -645,8 +645,8 @@ fencryptfile()															#Encrypt files
 	FILE=$KEY/meta/meta
 	LNUM=1
 	
-	while read LINE														#Passwords for openssl layers are imported from $KEY/meta/meta
-		do																###Custom###
+	while read LINE																												#Passwords for openssl layers are imported from $KEY/meta/meta
+		do																																	###Custom###
 			case $LNUM in
 					1)PASS1=$LINE;;
 					2)PASS2=$LINE;;
@@ -656,7 +656,7 @@ fencryptfile()															#Encrypt files
 			esac
 		LNUM=$(( LNUM + 1 ))
 		done <$FILE
-																		###Custom###
+																																				###Custom###
 	openssl enc $CIPHER1 -salt -in $INFILE -out tmp01 -k "$PASS1" 2> /dev/null	
 	openssl enc $CIPHER2 -salt -in tmp01 -out tmp02 -k "$PASS2" 2> /dev/null
 	openssl enc $CIPHER3 -salt -in tmp02 -out tmp03 -k "$PASS3" 2> /dev/null
@@ -681,7 +681,7 @@ fencryptfile()															#Encrypt files
 	esac
 }
 
-fdecryptfile()															#Decrypt files
+fdecryptfile()																													#Decrypt files
 {
 	finputkey
 	flockcheck
@@ -713,8 +713,8 @@ fdecryptfile()															#Decrypt files
 	FILE=$KEY/meta/meta
 	LNUM=1
 	
-	while read LINE  													#Passwords for openssl layers are imported from $KEY/meta/meta
-		do																###Custom###
+	while read LINE  																											#Passwords for openssl layers are imported from $KEY/meta/meta
+		do																																	###Custom###
 			case $LNUM in
 					1)PASS1=$LINE;;
 					2)PASS2=$LINE;;
@@ -725,7 +725,7 @@ fdecryptfile()															#Decrypt files
 		
 			LNUM=$(( LNUM + 1 ))
 		done <$FILE
-																		###Custom###
+																																				###Custom###
 	openssl enc $CIPHER5 -d -a -salt -in $INFILE -out tmp01 -k "$PASS5" 2> /dev/null
 	openssl enc $CIPHER4 -d -salt -in tmp01 -out tmp02 -k "$PASS4" 2> /dev/null
 	openssl enc $CIPHER3 -d -salt -in tmp02  -out tmp03 -k "$PASS3" 2> /dev/null
@@ -749,7 +749,7 @@ fdecryptfile()															#Decrypt files
 	fi
 }
 
-fcat()																	#Read messages to the screen
+fcat()																																	#Read messages to the screen
 {
 	finputkey
 	clear
@@ -812,7 +812,7 @@ fcat()																	#Read messages to the screen
 	fi
 }
 
-fopendir()																#Open message folder
+fopendir()																															#Open message folder
 {
 	finputkey
 	
@@ -821,7 +821,7 @@ fopendir()																#Open message folder
 	fmenu
 }
 
-fkeylock()																#Lock local keys by encrypting $KEY/meta/meta and $KEY/config
+fkeylock()																															#Lock local keys by encrypting $KEY/meta/meta and $KEY/config
 {
 	if [ $DOLOCK = "1" ] 2> /dev/null
 		then
@@ -850,7 +850,7 @@ fkeylock()																#Lock local keys by encrypting $KEY/meta/meta and $KEY
 					$COLOR 1;echo " [*] Passwords do not match, try again...";$COLOR 9
 					sleep 2
 				else
-					PASSDON=1											###Custom###
+					PASSDON=1																											###Custom###
 					NPASS=$(echo $ZPASS | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum)
 					FPASS=$(echo $NPASS$NPASS | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum)
 					NPASS=$(echo $NPASS$NPASS$NPASS | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum)
@@ -861,7 +861,7 @@ fkeylock()																#Lock local keys by encrypting $KEY/meta/meta and $KEY
 					LPASS=$(echo $MPASS$MPASS | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum)
 					LPASS=$(echo $LPASS$LPASS | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum)
 							
-					clear												###Custom###
+					clear																													###Custom###
 					$COLOR 4;echo " [*] Encrypting "$KEY", Please wait...";$COLOR 9
 					openssl enc -aes-256-cbc -salt -in $KEY/meta/meta -out tmp01 -k "$FPASS" 2> /dev/null
 					openssl enc -camellia-256-cbc -salt -in tmp01 -out tmp02 -k "$NPASS" 2> /dev/null
@@ -886,7 +886,7 @@ fkeylock()																#Lock local keys by encrypting $KEY/meta/meta and $KEY
 	DISPKEYLOCK=1;fmenu
 }
 
-fkeyunlock()															#Unlock local keys
+fkeyunlock()																														#Unlock local keys
 {
 	DONPS=0
 	while [ $DONPS != "1" ]
@@ -910,7 +910,7 @@ fkeyunlock()															#Unlock local keys
 	clear
 	$COLOR 4;echo " [*] Decrypting "$KEY", Please wait...";$COLOR 9
 
-																		###Custom###
+																																				###Custom###
 	NPASS=$(echo $ZPASS | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum)
 	FPASS=$(echo $NPASS$NPASS | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum)
 	NPASS=$(echo $NPASS$NPASS$NPASS | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum)
@@ -920,7 +920,7 @@ fkeyunlock()															#Unlock local keys
 	MPASS=$(echo $MPASS$MPASS | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum)
 	LPASS=$(echo $MPASS$MPASS | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum)
 	LPASS=$(echo $LPASS$LPASS | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum)
-																		###Custom###
+																																				##Custom###
 	openssl enc -aes-256-cbc -d -a -salt -in $KEY/meta/lmeta -out tmp01 -k "$LPASS" 2> /dev/null
 	openssl enc -camellia-256-cbc -d -salt -in tmp01 -out tmp02 -k "$MPASS" 2> /dev/null
 	openssl enc -aes-256-cbc -d -salt -in tmp02 -out tmp03 -k "$GPASS" 2> /dev/null
@@ -948,7 +948,7 @@ fkeyunlock()															#Unlock local keys
 	DISPKEYUNLOCK=1;fmenu
 }
 
-fexportkey()															#Export keys
+fexportkey()																														#Export keys
 {
 	finputkey
 	flockcheck
@@ -969,7 +969,7 @@ fexportkey()															#Export keys
 					$COLOR 1;echo " [*] Passwords do not match, try again...";$COLOR 9
 					sleep 2
 				else
-					PASSDON=1											###Custom###
+					PASSDON=1																											###Custom###
 					NPASS=$(echo $ZPASS | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum)
 					FPASS=$(echo $NPASS$NPASS | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum)
 					NPASS=$(echo $NPASS$NPASS$NPASS | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum)
@@ -988,7 +988,7 @@ fexportkey()															#Export keys
 							shred -zfun 3 $WHSAV/$KEY
 					fi
 					zip -reP $ZPASS $KEY.zip $KEY
-					clear												###Custom###
+					clear																													###Custom###
 					$COLOR 4;echo " [*] Encrypting "$KEY", Please wait...";$COLOR 9
 					openssl enc -aes-256-cbc -salt -in $KEY.zip -out tmp01 -k "$FPASS" 2> /dev/null
 					openssl enc -camellia-256-cbc -salt -in tmp01 -out tmp02 -k "$NPASS" 2> /dev/null
@@ -1021,7 +1021,7 @@ fexportkey()															#Export keys
 	fmenu
 }
 
-fimportkey()															#Import keys
+fimportkey()																														#Import keys
 {
 	clear
 	$COLOR 5;echo " [>] Please Enter the location of the key file eg. $HOME/Desktop/key ";$COLOR 9
@@ -1074,7 +1074,7 @@ fimportkey()															#Import keys
 				then
 					shred -zfun 3 $DIRR$KEYFILE.zip
 			fi
-																		###Custom###
+																																				###Custom###
 			NPASS=$(echo $ZPASS | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum)
 			FPASS=$(echo $NPASS$NPASS | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum)
 			NPASS=$(echo $NPASS$NPASS$NPASS | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum)
@@ -1084,7 +1084,7 @@ fimportkey()															#Import keys
 			MPASS=$(echo $MPASS$MPASS | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum)
 			LPASS=$(echo $MPASS$MPASS | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum)
 			LPASS=$(echo $LPASS$LPASS | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum)
-																		###Custom###
+																																				###Custom###
 			openssl enc -aes-256-cbc -d -a -salt -in $KEYLOC -out tmp01 -k "$LPASS" 2> /dev/null
 			openssl enc -camellia-256-cbc -d -salt -in tmp01 -out tmp02 -k "$MPASS" 2> /dev/null
 			openssl enc -aes-256-cbc -d -salt -in tmp02 -out tmp03 -k "$GPASS" 2> /dev/null
@@ -1117,7 +1117,7 @@ fimportkey()															#Import keys
 	fi
 }
 
-finstallssh()															#Install OpenSSH server
+finstallssh()																														#Install OpenSSH server
 {
 	clear
 	if [ $(whoami) = 'root' ] 2> /dev/null
@@ -1128,7 +1128,7 @@ finstallssh()															#Install OpenSSH server
 	fi
 }
 
-fsshstart()																#Start OpenSSH server
+fsshstart()																															#Start OpenSSH server
 {
 	echo
 	$COLOR 4
@@ -1142,7 +1142,7 @@ fsshstart()																#Start OpenSSH server
 	fmenu
 }
 
-fsshsend()																#Send files via SSH (SCP)
+fsshsend()																															#Send files via SSH (SCP)
 {
 	clear
 	cd "$DIRR"
@@ -1237,7 +1237,7 @@ fsshsend()																#Send files via SSH (SCP)
 	fmenu
 }
 
-fsshencmsg()															#Send encrypted message into fsshsend
+fsshencmsg()																														#Send encrypted message into fsshsend
 {
 	finputkey
 	flockcheck
@@ -1259,7 +1259,7 @@ fsshencmsg()															#Send encrypted message into fsshsend
 	fi
 }
 
- fsshkey()																#Send encrypted keys into fsshsend
+ fsshkey()																															#Send encrypted keys into fsshsend
 {
 	finputkey
 	flockcheck
@@ -1270,7 +1270,7 @@ fsshencmsg()															#Send encrypted message into fsshsend
 	fsshsend
 }
 
-fsshencfile()															#Send encrypted file into fsshsend
+fsshencfile()																														#Send encrypted file into fsshsend
 {
 	finputkey
 	flockcheck
@@ -1292,7 +1292,7 @@ fsshencfile()															#Send encrypted file into fsshsend
 	fi
 }
 
-fshred()																#Shred
+fshred()																																#Shred
 {
 	$COLOR 4
 	if [ $SHREDDIR = $DECDIR ]
@@ -1322,7 +1322,7 @@ fshred()																#Shred
 	sleep 2
 }
 
-fshreddir()																#Shred messages and keys
+fshreddir()																															#Shred messages and keys
 {
 	finputkey	
 	clear
@@ -1350,7 +1350,7 @@ fshreddir()																#Shred messages and keys
 	fmenu
 }
 
-flistgen()																#Generate full list of 6 digit numbers
+flistgen()																															#Generate full list of 6 digit numbers
 {
 	cd $DIRR
 	clear
@@ -1376,7 +1376,7 @@ flistgen()																#Generate full list of 6 digit numbers
 	sleep 1.5
 }
 
-finputkey()																#Select key to use
+finputkey()																															#Select key to use
 {
 	cd $DIRR
 	clear
@@ -1400,7 +1400,7 @@ finputkey()																#Select key to use
 	fi
 	FILE=$KEY/config 
 	LNUM=1
-	while read LINE 													#Get cipher variables from $KEY/config file
+	while read LINE 																											#Get cipher variables from $KEY/config file
 		do
 			case $LNUM in
 				18)CIPHER1="-"$LINE;;
@@ -1414,7 +1414,7 @@ finputkey()																#Select key to use
 		done < $FILE 
 }
 
-fdisplaymenu()															#Display information at top of menu
+fdisplaymenu()																													#Display information at top of menu
 {
 	if [ $DISPCOP = "1" ] 2> /dev/null
 		then
@@ -1467,7 +1467,7 @@ fdisplaymenu()															#Display information at top of menu
 	fi
 }
 
-flockcheck()															#Check if Key is locked
+flockcheck()																														#Check if Key is locked
 {
 	if [ -f $KEY/lconfig ] 2> /dev/null
 		then
@@ -1482,7 +1482,7 @@ flockcheck()															#Check if Key is locked
 	fi
 }
 
-fexit()																	#Delete left over tempory files when exitting
+fexit()																																	#Delete left over tempory files when exitting
 {   
 	$COLOR 9
 	cd $DIRR
