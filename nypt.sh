@@ -296,13 +296,13 @@ aes-256-cbc
 #CIPHER2 Variable
 camellia-256-cbc
 
-#CIPHER3 Variable
+#CIPHER3 Variable 
 aes-256-cbc
 
 #CIPHER4 Variable
 camellia-256-cbc
 
-#CIPHER5 Variable
+#CIPHER5 Variable 
 aes-256-cbc
 
 #Enable random number cryptography layer for messages
