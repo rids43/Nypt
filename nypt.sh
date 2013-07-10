@@ -1,9 +1,9 @@
 #!/bin/bash
 
-## Nypt 1.36 Copyright 2013, Rids43 (rids@tormail.org)
+## Nypt 1.37 Copyright 2013, Rids43 (rids@tormail.org)
 #
-## Crypt files, messages and keys using a layer of random number encryption 
-## and five layers of custom openssl encryption.
+## Crypt files, messages and keys using a layer of custom random number  
+## encryption and five layers of custom openssl encryption.
 ## Uses SSH to transfer data.
 #
 ## This program is free software: you can redistribute it and/or modify
@@ -49,6 +49,7 @@ fstart()																																#Startup function
 	if [ $DEPCHK = "1" ] 2> /dev/null																			#Dependancy check
 		then		
 			LIST="""shred
+gedit
 sha512sum
 ssh
 scp
@@ -105,7 +106,7 @@ fmenu()																																	#Main menu
 	clear
 	SSHSEND=0
 	fdisplaymenu
-	$COLOR 5;echo " [*] Nypt 1.36 [*] ";$COLOR 9															
+	$COLOR 5;echo " [*] Nypt 1.37 [*] ";$COLOR 9															
 	read -e -p """      ~~~~~~~~
  [1] Encryption
  [2] Decryption
@@ -306,7 +307,13 @@ camellia-256-cbc
 aes-256-cbc
 
 #Enable random number cryptography layer for messages
-1""" > $KEY/config
+1
+
+#Enable dummy characters
+1
+
+#Dummy character placement (every n characters)
+5""" > $KEY/config
 			clear
 			$COLOR 5;echo " [*] Do you want to lock $KEY? [Y/n]";$COLOR 9;read -p " >" LOCK
 			case $LOCK in
@@ -326,7 +333,7 @@ fencryptmsg()																														#Encrypt messages
 	clear
 	$COLOR 5;echo " [>] Please Enter your message or press p and Enter to paste from clipboard";$COLOR 9
 	read -e -p " >" MSG
-	if [ $MSG = "p" ]
+	if [ $MSG = "p" ] 2> /dev/null
 		then
 			MSG=$(xclip -sel clip -o)
 	fi
@@ -356,7 +363,7 @@ fencryptmsg()																														#Encrypt messages
 		
 	clear
 	$COLOR 4;echo " [*] Encrypting "$EMSGFILE", Please wait..";$COLOR 9
-	if [ $USERAND = "1" ] 2> /dev/null
+	if [ $ENABLERAND = "1" ] 2> /dev/null
 		then																																##Random number layer##
 			while [ $MSGCNT -lt $MSGLEN ]																			#Each character is assigned a number
 				do																															###Custom###
@@ -368,15 +375,29 @@ fencryptmsg()																														#Encrypt messages
 					echo $ENCC >> tmp1
 					MSGCNT=$(( MSGCNT +1 ))
 				done
-		
+			
+			DUMCNT=0
 			while read LINE																										#Random 6 digit number line is chosen from the character file
 				do
-					RAND=$(strings /dev/urandom | grep -o '[0-9]' | head -n 4 | tr -d '\n'; echo)
-					if [ $RAND -gt "1001" ] 2> /dev/null
+					RAND=$(strings /dev/urandom | grep -o '[0-9]' | head -n 5 | tr -d '\n'; echo)
+					if [ $RAND -gt "10110" ] 2> /dev/null
 						then
-							RAND=$((RAND - 1000))
+							RAND=${RAND:0:4}
 					fi
-					echo $(cat $KEY/$LINE/$LINE | sed -n "$RAND"p) >> tmp2	
+					if [ $ENABLEDUMMY = "1" ] 2> /dev/null
+						then
+							if [ $DUMCNT = "$DUMMYPOSITION" ] 2> /dev/null
+								then
+									echo $(strings /dev/urandom | grep -o '[0-9]' | head -n 6 | tr -d '\n'; echo) >> tmp2
+									echo $(cat $KEY/$LINE/$LINE | sed -n "$RAND"p) >> tmp2
+									DUMCNT=1
+								else
+									echo $(cat $KEY/$LINE/$LINE | sed -n "$RAND"p) >> tmp2
+									DUMCNT=$(( DUMCNT + 1 ))
+							fi
+						else
+							echo $(cat $KEY/$LINE/$LINE | sed -n "$RAND"p) >> tmp2
+					fi
 				done <$FILE																											###Custom###
 		
 			echo $(tr '\n' ' ' < tmp2 | sed -e 's/\s//g') > tmp3							#Newlines are removed leaving a continuous stream of numbers
@@ -535,7 +556,7 @@ fdecryptmsg()																														#Decrypt messages
 
 	shred -zfun 3 tmp* 2> /dev/null
 	
-	if [ $USERAND = "1" ]
+	if [ $ENABLERAND = "1" ]
 		then
 			ENCCLEN=$(wc -c tmf)																							##Random number layer##
 			ENCCMSG=$(cat tmf)
@@ -556,15 +577,19 @@ fdecryptmsg()																														#Decrypt messages
 					CHAR=${ENCCMSG:$DECCNT:6}
 					echo $CHAR >> tmp01
 					DECCNT=$(( DECCNT + 6 ))
-				done 
+				done
+				
 			FILE=tmp01
-			LINECNT=0
-			STPCNT=$(wc -l tmp01)
-	
+			if [ $ENABLEDUMMY = "1" ] 2> /dev/null
+				then
+					REMOVEDUM=$( awk NR%$DUMMYREMOVE tmp01 )											#Remove dummy characters
+					echo "$REMOVEDUM" > tmp01
+			fi
+
 			while read LINE																										#6 digit number is located using grep from the character files
-				do			
+				do
 					LONGLET=$(grep -rl $LINE $KEY/)
-					echo ${LONGLET: -2} >> tmp02 
+					echo ${LONGLET: -2} >> tmp02
 				done <$FILE
 			FILE=tmp02
 
@@ -576,9 +601,14 @@ fdecryptmsg()																														#Decrypt messages
 			
 					echo -n $DECC >> tmp03
 				done <$FILE
-		
-			DEKD=$(cat tmp03)
-			echo "${DEKD%?}" > $KEY/$DECDIR/$DMSGFILE													#Cleartext message
+			if [ $ENABLEDUMMY = "1" ] 2> /dev/null
+				then
+					echo "$(cat tmp03)" > $KEY/$DECDIR/$DMSGFILE									#Cleartext message
+				else 
+					MSG="$(cat tmp03)"
+					MSG="${MSG%?}"
+					echo "$MSG" > $KEY/$DECDIR/$DMSGFILE
+			fi
 		else
 			cat tmf > $KEY/$DECDIR/$DMSGFILE
 	fi
@@ -920,7 +950,7 @@ fkeyunlock()																														#Unlock local keys
 	MPASS=$(echo $MPASS$MPASS | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum)
 	LPASS=$(echo $MPASS$MPASS | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum)
 	LPASS=$(echo $LPASS$LPASS | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum)
-																																				##Custom###
+																																				###Custom###
 	openssl enc -aes-256-cbc -d -a -salt -in $KEY/meta/lmeta -out tmp01 -k "$LPASS" 2> /dev/null
 	openssl enc -camellia-256-cbc -d -salt -in tmp01 -out tmp02 -k "$MPASS" 2> /dev/null
 	openssl enc -aes-256-cbc -d -salt -in tmp02 -out tmp03 -k "$GPASS" 2> /dev/null
@@ -1342,9 +1372,9 @@ fshreddir()																															#Shred messages and keys
 	clear
 	
 	case $DODEL in
-		"Y")	fshred;;
-		"y")	fshred;;
-		"")		fshred
+		"Y")fshred;;
+		"y")fshred;;
+		"")	fshred
 	esac
 
 	fmenu
@@ -1408,10 +1438,13 @@ finputkey()																															#Select key to use
 				24)CIPHER3="-"$LINE;;
 				27)CIPHER4="-"$LINE;;
 				30)CIPHER5="-"$LINE;;
-				33)USERAND=$LINE
+				33)ENABLERAND=$LINE;;
+				36)ENABLEDUMMY=$LINE;;
+				39)DUMMYPOSITION=$LINE
 			esac
 			LNUM=$((LNUM + 1))
 		done < $FILE 
+		DUMMYREMOVE=$((DUMMYPOSITION + 1))
 }
 
 fdisplaymenu()																													#Display information at top of menu
