@@ -1,17 +1,11 @@
- Nypt 1.36
+ Nypt 1.37
  
-NOTE: V.1.36 is incompatible with previous versions
+NOTE: V.1.37 is incompatible with previous versions
 
 Changelog:
-1.36
+1.37
 
-Added key config files for easy customization
-
-Improved keygen by generating random lengths from urandom
-
-Improved key export/import password generation
-
-Cleaned up code
+Added Dummy characters feature in Random Number Layer
 
 
 Custom wrapper for OpenSSL
