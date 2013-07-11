@@ -275,7 +275,11 @@ fkeygen()																																#Generate keys
 			echo $(strings /dev/urandom | grep -o '[[:alnum:]]' | head -n $RAND5 | tr -d '\n'; echo) >> $KEY/meta/meta
 
 			shred -zfun 3 $KEY/list																						#Write config file
-			echo """#Cipher commands									
+			PADDING1=$(strings /dev/urandom | grep -o '[0-9]' | head -n 2 | tr -d '\n'; echo)																					
+			PADDING2=$(strings /dev/urandom | grep -o '[0-9]' | head -n 2 | tr -d '\n'; echo)
+			PLACEMENT=$(strings /dev/urandom | grep -o '[1-9]' | head -n 1 | tr -d '\n'; echo)
+			
+			echo """#Cipher commands to be used with openssl  layers: CIPHER(1-5)							
 #aes-128-cbc       aes-128-ecb       aes-192-cbc       aes-192-ecb       
 #aes-256-cbc       aes-256-ecb       base64            bf                
 #bf-cbc            bf-cfb            bf-ecb            bf-ofb            
@@ -306,14 +310,23 @@ camellia-256-cbc
 #CIPHER5 Variable 
 aes-256-cbc
 
-#Enable random number cryptography layer for messages
+#Enable Random Number Layer cryptography for messages
 1
 
-#Enable dummy characters
+#Enable Dummmy characters
 1
 
 #Dummy character placement (every n characters)
-5""" > $KEY/config
+$PLACEMENT
+
+#Enable Random Padding
+1
+
+#Padding at start of message
+$PADDING1
+
+#Padding at end of message
+$PADDING2""" > $KEY/config
 			clear
 			$COLOR 5;echo " [*] Do you want to lock $KEY? [Y/n]";$COLOR 9;read -p " >" LOCK
 			case $LOCK in
@@ -384,7 +397,7 @@ fencryptmsg()																														#Encrypt messages
 						then
 							RAND=${RAND:0:4}
 					fi
-					if [ $ENABLEDUMMY = "1" ] 2> /dev/null
+					if [ $ENABLEDUMMY = "1" ] 2> /dev/null												#Dummy characters are added
 						then
 							if [ $DUMCNT = "$DUMMYPOSITION" ] 2> /dev/null
 								then
@@ -400,7 +413,15 @@ fencryptmsg()																														#Encrypt messages
 					fi
 				done <$FILE																											###Custom###
 		
-			echo $(tr '\n' ' ' < tmp2 | sed -e 's/\s//g') > tmp3							#Newlines are removed leaving a continuous stream of numbers
+				echo $(tr '\n' ' ' < tmp2 | sed -e 's/\s//g') > tmp3						#Newlines are removed leaving a continuous stream of numbers
+				if [ $ENABLEPADDING = "1" ] 2> /dev/null												#Random padding is added
+					then
+							FPAD=$(strings /dev/urandom | grep -o '[0-9]' | head -n $PADDING1 | tr -d '\n'; echo)
+							LPAD=$(strings /dev/urandom | grep -o '[0-9]' | head -n $PADDING2 | tr -d '\n'; echo)
+							CATMSG=$(cat tmp3)
+							MSG=$FPAD$CATMSG$LPAD
+							echo $MSG > tmp3
+				fi
 		else
 			echo $MSG > tmp3
 	fi
@@ -556,14 +577,19 @@ fdecryptmsg()																														#Decrypt messages
 
 	shred -zfun 3 tmp* 2> /dev/null
 	
-	if [ $ENABLERAND = "1" ]
+	if [ $ENABLERAND = "1" ] 2> /dev/null																	##Random number layer##
 		then
-			ENCCLEN=$(wc -c tmf)																							##Random number layer##
+			if [ $ENABLEPADDING = "1" ] 2> /dev/null													#Remove padding
+				then
+					ENCCMSG=$(cat tmf)
+					echo ${ENCCMSG:$PADDING1:-$PADDING2} > tmf				
+			fi
+			ENCCLEN=$(wc -c tmf)																							
 			ENCCMSG=$(cat tmf)
 			CHARCNT=0
 			CHAR=0
 			DECCNT=0
-
+			
 			while [ $CHAR != " " ] 2> /dev/null
 				do
 					CHAR=${ENCCLEN:$CHARCNT:1}
@@ -1440,7 +1466,10 @@ finputkey()																															#Select key to use
 				30)CIPHER5="-"$LINE;;
 				33)ENABLERAND=$LINE;;
 				36)ENABLEDUMMY=$LINE;;
-				39)DUMMYPOSITION=$LINE
+				39)DUMMYPOSITION=$LINE;;
+				42)ENABLEPADDING=$LINE;;
+				45)PADDING1=$LINE;;
+				48)PADDING2=$LINE
 			esac
 			LNUM=$((LNUM + 1))
 		done < $FILE 
