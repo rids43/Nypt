@@ -275,10 +275,18 @@ fkeygen()																																#Generate keys
 			echo $(strings /dev/urandom | grep -o '[[:alnum:]]' | head -n $RAND5 | tr -d '\n'; echo) >> $KEY/meta/meta
 
 			shred -zfun 3 $KEY/list																						#Write config file
-			PADDING1=$(strings /dev/urandom | grep -o '[0-9]' | head -n 2 | tr -d '\n'; echo)																					
-			PADDING2=$(strings /dev/urandom | grep -o '[0-9]' | head -n 2 | tr -d '\n'; echo)
-			PLACEMENT=$(strings /dev/urandom | grep -o '[1-9]' | head -n 1 | tr -d '\n'; echo)
-			
+			PADDING1="00"
+			while [ $PADDING1 = "00" ]
+				do
+					PADDING1=$(strings /dev/urandom | grep -o '[0-9]' | head -n 2 | tr -d '\n'; echo)
+				done
+			PADDING2="00"
+			while [ $PADDING2 = "00" ]
+				do
+					PADDING2=$(strings /dev/urandom | grep -o '[0-9]' | head -n 2 | tr -d '\n'; echo)
+				done
+			PLACEMENT=$(strings /dev/urandom | grep -o '[2-9]' | head -n 1 | tr -d '\n'; echo)
+					
 			echo """#Cipher commands to be used with openssl  layers: CIPHER(1-5)							
 #aes-128-cbc       aes-128-ecb       aes-192-cbc       aes-192-ecb       
 #aes-256-cbc       aes-256-ecb       base64            bf                
