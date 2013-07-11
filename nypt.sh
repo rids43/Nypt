@@ -275,16 +275,27 @@ fkeygen()																																#Generate keys
 			echo $(strings /dev/urandom | grep -o '[[:alnum:]]' | head -n $RAND5 | tr -d '\n'; echo) >> $KEY/meta/meta
 
 			shred -zfun 3 $KEY/list																						#Write config file
-			PADDING1="00"
+			
+			PADDINGL=$(strings /dev/urandom | grep -o '[0-9]' | head -n 4 | tr -d '\n'; echo)
+			PADDING1=${PADDINGL:0:2}
+			PADDING2=${PADDINGL:2:2}
 			while [ $PADDING1 = "00" ]
 				do
 					PADDING1=$(strings /dev/urandom | grep -o '[0-9]' | head -n 2 | tr -d '\n'; echo)
 				done
-			PADDING2="00"
+			if [ ${PADDING1:0:1} = "0" ] 2> /dev/null
+				then
+					PADDING1=${PADDING1:1:1}
+			fi
+
 			while [ $PADDING2 = "00" ]
 				do
 					PADDING2=$(strings /dev/urandom | grep -o '[0-9]' | head -n 2 | tr -d '\n'; echo)
 				done
+			if [ ${PADDING2:0:1} = "0" ] 2> /dev/null
+				then
+					PADDING2=${PADDING2:1:1}
+			fi
 			PLACEMENT=$(strings /dev/urandom | grep -o '[2-9]' | head -n 1 | tr -d '\n'; echo)
 					
 			echo """#Cipher commands to be used with openssl  layers: CIPHER(1-5)							
@@ -334,7 +345,10 @@ $PLACEMENT
 $PADDING1
 
 #Padding at end of message
-$PADDING2""" > $KEY/config
+$PADDING2
+
+#Enable Random Padding length
+1""" > $KEY/config
 			clear
 			$COLOR 5;echo " [*] Do you want to lock $KEY? [Y/n]";$COLOR 9;read -p " >" LOCK
 			case $LOCK in
@@ -429,6 +443,13 @@ fencryptmsg()																														#Encrypt messages
 							CATMSG=$(cat tmp3)
 							MSG=$FPAD$CATMSG$LPAD
 							echo $MSG > tmp3
+				fi
+				if [ $ENABLERANDLENGTH = "1" ] 2> /dev/null											#Random length is acheived by reading from $FPAD
+					then
+						ADD=${FPAD:0:2}
+						ADD=$(strings /dev/urandom | grep -o '[0-9]' | head -n $ADD | tr -d '\n'; echo)
+						MSG=$(cat tmp3)
+						echo $MSG$ADD > tmp3																				#Add random length to message
 				fi
 		else
 			echo $MSG > tmp3
@@ -587,6 +608,13 @@ fdecryptmsg()																														#Decrypt messages
 	
 	if [ $ENABLERAND = "1" ] 2> /dev/null																	##Random number layer##
 		then
+		
+			if [ $ENABLERANDLENGTH = "1" ] 2> /dev/null												#Remove extra random length
+					then
+						ENCCMSG=$(cat tmf)
+						REMOVE=${ENCCMSG:0:2}
+						echo ${ENCCMSG:0:-$REMOVE} > tmf
+			fi
 			if [ $ENABLEPADDING = "1" ] 2> /dev/null													#Remove padding
 				then
 					ENCCMSG=$(cat tmf)
@@ -1464,7 +1492,7 @@ finputkey()																															#Select key to use
 	fi
 	FILE=$KEY/config 
 	LNUM=1
-	while read LINE 																											#Get cipher variables from $KEY/config file
+	while read LINE 																											#Assign config variables from $KEY/config file
 		do
 			case $LNUM in
 				18)CIPHER1="-"$LINE;;
@@ -1477,7 +1505,8 @@ finputkey()																															#Select key to use
 				39)DUMMYPOSITION=$LINE;;
 				42)ENABLEPADDING=$LINE;;
 				45)PADDING1=$LINE;;
-				48)PADDING2=$LINE
+				48)PADDING2=$LINE;;
+				51)ENABLERANDLENGTH=$LINE
 			esac
 			LNUM=$((LNUM + 1))
 		done < $FILE 
