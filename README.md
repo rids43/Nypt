@@ -36,8 +36,12 @@ Key Transmission:
 
 Random Number Encryption Layer:
 
-There is a layer of random number encryption before the message gets encrypted with OpenSSL. The way this works is that every character is given a total of 10,110 different 6-digit combinations, and a 6-digit number is chosen randomly from this list for each character in a message. This ensures that every encrypted message, even if the same character is encrypted over and over again, will look different but decode to the same result.
-
+There is a random number layer of encryption before the message gets encrypted with OpenSSL. 
+The way this works is that every character is given a total of 10,110 different 6-digit combinations, and a 6-digit number is chosen randomly from this list for each character in a message. 
+This ensures that every encrypted message, even if the same characters are encrypted multiple times, will have a different looking output but decode to the same deciphered text.
+Dummy characters are then placed into the message, further obscuring any attempts at word pattern recognition.
+Finally a random amount of random padding is added the start and end of the message. 
+The settings for dummy placement and random padding can be found in the keys config file.
 
 Nypt can be used as an additional layer under PGP encryption in your emails. 
 We recommend the Thunderbird email client with enigmail addon for easy PGP use with your email account:
