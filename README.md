@@ -2,17 +2,6 @@
  
 NOTE: V.1.37 is incompatible with previous versions
 
-Changelog:
-1.37
-
-Added Dummy characters feature in Random Number Layer
-
-
-Custom wrapper for OpenSSL
-
-Nypt uses a custom random number symmetric encryption layer and five layers of customizable OpenSSL encryption to encrypt messages, files and keys for transmission across the internet. The secret keys are stored locally on the drive, and so passwords are not needed to encrypt/decrypt messages or files. The passwords for the layers are generated from urandom, have a variable possible length and are unique to each layer and key. All openssl layers are salted. Nypt uses symmetric encryption, which means that both communicating parties are required to have the same copy of the secret key, in order to read each others messages. Config files are located in each keys directory that can be edited to customize ciphers used for the openssl layers.
-
-
 Use:
 
 Nypt is a command line and menu based bash script that is designed to be as user friendly as possible, thereby allowing new users of encryption to get access to strong encryption as quickly as possible.
@@ -22,6 +11,17 @@ Nypt also accepts message files saved into the 0_Encrypted_Messages directory in
 
 Video: http://www.youtube.com/watch?v=gQ0teiUdJjU
 
+Custom wrapper for OpenSSL
+
+Nypt uses a custom random number symmetric encryption layer and five layers of customizable OpenSSL encryption to encrypt messages, files and keys for transmission across the internet. The secret keys are stored locally on the drive, and so passwords are not needed to encrypt/decrypt messages or files. The passwords for the layers are generated from urandom, have a variable possible length and are unique to each layer and key. All openssl layers are salted. Nypt uses symmetric encryption, which means that both communicating parties are required to have the same copy of the secret key, in order to read each others messages. Config files are located in each keys directory that can be edited to customize ciphers used for the openssl layers.
+
+Changelog:
+1.37
+
+Added Random Padding feature in Random Number Layer
+Added Dummy characters feature in Random Number Layer
+Dummy character placement random for each key
+Padding amounts random for each key
 
 Key Transmission:
 
@@ -39,7 +39,7 @@ Random Number Encryption Layer:
 There is a layer of random number encryption before the message gets encrypted with OpenSSL. The way this works is that every character is given a total of 10,110 different 6-digit combinations, and a 6-digit number is chosen randomly from this list for each character in a message. This ensures that every encrypted message, even if the same character is encrypted over and over again, will look different but decode to the same result.
 
 
-Nypt can/should be used as an additional layer under PGP encryption in your emails. 
+Nypt can be used as an additional layer under PGP encryption in your emails. 
 We recommend the Thunderbird email client with enigmail addon for easy PGP use with your email account:
 
 Thunderbird: http://www.mozilla.org/projects/thunderbird/
