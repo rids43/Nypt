@@ -214,7 +214,7 @@ fkeygen()																																#Generate keys
 			DIRNUM=10
 			DIRNUMB=11
 																		
-			while [ $LNUM -le 900000 ]																				###Custom###
+			while [ $LNUM -le 900000 ]																				
 				do 
 					echo -n $(head -"$LNUM" $KEY/list | tail -10110) > $KEY/$DIRNUM/$DIRNUM
 					sed -e 's/\s/\n/g' $KEY/$DIRNUM/$DIRNUM > $KEY/$DIRNUM/$DIRNUMB	
@@ -226,7 +226,7 @@ fkeygen()																																#Generate keys
 					LNUM=$(( LNUM + 10110 ))							
 				done
 																																				##Openssl Cipher keys
-																																				#Random password lengths are generated from urandom
+																																				#Random password lengths are generated
 			RANDLENTH=$(strings /dev/urandom | grep -o '[1-9]' | head -n 45 | tr -d '\n'; echo)
 			RAND1=${RANDLENTH:0:3}																						###Custom###
 			RAND2=${RANDLENTH:3:3}
@@ -267,7 +267,7 @@ fkeygen()																																#Generate keys
 			fi
 			
 			mkdir $KEY/meta/
-																																				#Passwords for openssl layers are generated from urandom
+																																				#Passwords for openssl layers are generated
 																																				###Custom###
 			echo $(strings /dev/urandom | grep -o '[[:alnum:]]' | head -n $RAND1 | tr -d '\n'; echo) > $KEY/meta/meta
 			echo $(strings /dev/urandom | grep -o '[[:alnum:]]' | head -n $RAND2 | tr -d '\n'; echo) >> $KEY/meta/meta
@@ -276,7 +276,8 @@ fkeygen()																																#Generate keys
 			echo $(strings /dev/urandom | grep -o '[[:alnum:]]' | head -n $RAND5 | tr -d '\n'; echo) >> $KEY/meta/meta
 
 			shred -zfun 3 $KEY/list																						#Write config file
-			
+																																				#Random padding lengths are generated
+																																				###Custom###
 			PADDINGL=$(strings /dev/urandom | grep -o '[0-9]' | head -n 4 | tr -d '\n'; echo)
 			PADDING1=${PADDINGL:0:2}
 			PADDING2=${PADDINGL:2:2}
@@ -304,8 +305,8 @@ fkeygen()																																#Generate keys
 			CIPHER3=${CIPHERL:2:1}
 			CIPHER4=${CIPHERL:3:1}
 			CIPHER5=${CIPHERL:4:1}
-			case $CIPHER1 in
-				1)CIPHER1="aes-256-cbc";;
+			case $CIPHER1 in																									#Random ciphers are generated for openssl layers
+				1)CIPHER1="aes-256-cbc";;																				###Custom###
 				2)CIPHER1="aes-256-ecb";;
 				3)CIPHER1="camellia-256-cbc";;
 				4)CIPHER1="camellia-256-ecb";;
@@ -475,14 +476,14 @@ fencryptmsg()																														#Encrypt messages
 			
 			DUMCNT=0
 			while read LINE																										#Random 6 digit number line is chosen from the character file
-				do
+				do																															###Custom###
 					RAND=$(strings /dev/urandom | grep -o '[0-9]' | head -n 5 | tr -d '\n'; echo)
 					if [ $RAND -gt "10110" ] 2> /dev/null
 						then
 							RAND=${RAND:0:4}
 					fi
-					if [ $ENABLEDUMMY = "1" ] 2> /dev/null												#Dummy characters are added
-						then
+					if [ $ENABLEDUMMY = "1" ] 2> /dev/null												#Random dummy characters are added
+						then																												###Custom###
 							if [ $DUMCNT = "$DUMMYPOSITION" ] 2> /dev/null
 								then
 									echo $(strings /dev/urandom | grep -o '[0-9]' | head -n 6 | tr -d '\n'; echo) >> tmp2
@@ -495,18 +496,18 @@ fencryptmsg()																														#Encrypt messages
 						else
 							echo $(cat $KEY/$LINE/$LINE | sed -n "$RAND"p) >> tmp2
 					fi
-				done <$FILE																											###Custom###
+				done <$FILE																											
 		
 				echo $(tr '\n' ' ' < tmp2 | sed -e 's/\s//g') > tmp3						#Newlines are removed leaving a continuous stream of numbers
 				if [ $ENABLEPADDING = "1" ] 2> /dev/null												#Random padding is added
-					then
+					then																													###Custom###
 							FPAD=$(strings /dev/urandom | grep -o '[0-9]' | head -n $PADDING1 | tr -d '\n'; echo)
 							LPAD=$(strings /dev/urandom | grep -o '[0-9]' | head -n $PADDING2 | tr -d '\n'; echo)
 							CATMSG=$(cat tmp3)
 							MSG=$FPAD$CATMSG$LPAD
 							echo $MSG > tmp3
 							if [ $ENABLERANDLENGTH = "1" ] 2> /dev/null								#Random padding length is acheived by reading from $FPAD
-								then
+								then																										###Custom###
 									ADD=${FPAD:0:2}
 									ADD=$(strings /dev/urandom | grep -o '[0-9]' | head -n $ADD | tr -d '\n'; echo)
 									MSG=$(cat tmp3)
@@ -530,7 +531,7 @@ fencryptmsg()																														#Encrypt messages
 		
 			LNUM=$(( LNUM + 1 ))
 		done <"$FILE"
-																																				###Custom###
+																																				
 	openssl enc $CIPHER1 -salt -in tmp3 -out tmp01 -k "$PASS1" 2> /dev/null
 	openssl enc $CIPHER2 -salt -in tmp01 -out tmp02 -k "$PASS2" 2> /dev/null
 	openssl enc $CIPHER3 -salt -in tmp02 -out tmp03 -k "$PASS3" 2> /dev/null
@@ -659,7 +660,7 @@ fdecryptmsg()																														#Decrypt messages
 		
 			LNUM=$(( LNUM + 1 ))
 		done <"$FILE"
-																																				###Custom###
+																																				
 	openssl enc $CIPHER5 -d -a -salt -in tmp01 -out tmp02 -k "$PASS5" 2> /dev/null	
 	openssl enc $CIPHER4 -d -salt -in tmp02 -out tmp03 -k "$PASS4" 2> /dev/null
 	openssl enc $CIPHER3 -d -salt -in tmp03 -out tmp04 -k "$PASS3" 2> /dev/null
@@ -673,14 +674,14 @@ fdecryptmsg()																														#Decrypt messages
 			if [ $ENABLEPADDING = "1" ] 2> /dev/null													
 				then
 					if [ $ENABLERANDLENGTH = "1" ] 2> /dev/null										#Remove random padding length
-					then
+					then																													###Custom###
 						ENCCMSG=$(cat tmf)
 						REMOVE=${ENCCMSG:0:2}
 						echo ${ENCCMSG:0:-$REMOVE} > tmf
 					fi
 					ENCCMSG=$(cat tmf)
-					echo ${ENCCMSG:$PADDING1:-$PADDING2} > tmf										#Remove padding
-			fi
+					echo ${ENCCMSG:$PADDING1:-$PADDING2} > tmf										#Remove random padding
+			fi																																###Custom###
 			ENCCLEN=$(wc -c tmf)																							
 			ENCCMSG=$(cat tmf)
 			CHARCNT=0
@@ -695,9 +696,9 @@ fdecryptmsg()																														#Decrypt messages
 			CHARCNT=$(( CHARCNT - 1 ))
 			ENLEN=${ENCCLEN:0:$CHARCNT} 
 	
-			while [ $DECCNT -le $ENLEN ]																			###Custom###
+			while [ $DECCNT -le $ENLEN ]																			
 				do																															#Add newlines every 6 characters
-					CHAR=${ENCCMSG:$DECCNT:6}
+					CHAR=${ENCCMSG:$DECCNT:6}																			###Custom###
 					echo $CHAR >> tmp01			
 					DECCNT=$(( DECCNT + 6 ))
 				done
@@ -706,11 +707,11 @@ fdecryptmsg()																														#Decrypt messages
 			if [ $ENABLEDUMMY = "1" ] 2> /dev/null
 				then
 					REMOVEDUM=$( awk NR%$DUMMYREMOVE tmp01 )											#Remove dummy characters
-					echo "$REMOVEDUM" > tmp01
+					echo "$REMOVEDUM" > tmp01																			###Custom###
 			fi
 
 			while read LINE																										#6 digit number is located using grep from the character files
-				do
+				do																															###Custom###
 					LONGLET=$(grep -rl $LINE $KEY/)
 					echo ${LONGLET: -2} >> tmp02
 				done <$FILE
@@ -809,7 +810,7 @@ fencryptfile()																													#Encrypt files
 			esac
 		LNUM=$(( LNUM + 1 ))
 		done <$FILE
-																																				###Custom###
+																																				
 	openssl enc $CIPHER1 -salt -in $INFILE -out tmp01 -k "$PASS1" 2> /dev/null	
 	openssl enc $CIPHER2 -salt -in tmp01 -out tmp02 -k "$PASS2" 2> /dev/null
 	openssl enc $CIPHER3 -salt -in tmp02 -out tmp03 -k "$PASS3" 2> /dev/null
@@ -878,7 +879,7 @@ fdecryptfile()																													#Decrypt files
 		
 			LNUM=$(( LNUM + 1 ))
 		done <$FILE
-																																				###Custom###
+																																				
 	openssl enc $CIPHER5 -d -a -salt -in $INFILE -out tmp01 -k "$PASS5" 2> /dev/null
 	openssl enc $CIPHER4 -d -salt -in tmp01 -out tmp02 -k "$PASS4" 2> /dev/null
 	openssl enc $CIPHER3 -d -salt -in tmp02  -out tmp03 -k "$PASS3" 2> /dev/null
@@ -1014,7 +1015,7 @@ fkeylock()																															#Lock local keys by encrypting $KEY/met
 					LPASS=$(echo $MPASS$MPASS | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum)
 					LPASS=$(echo $LPASS$LPASS | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum)
 							
-					clear																													###Custom###
+					clear																													
 					$COLOR 4;echo " [*] Encrypting "$KEY", Please wait...";$COLOR 9
 					openssl enc -aes-256-cbc -salt -in $KEY/meta/meta -out tmp01 -k "$FPASS" 2> /dev/null
 					openssl enc -camellia-256-cbc -salt -in tmp01 -out tmp02 -k "$NPASS" 2> /dev/null
@@ -1073,7 +1074,7 @@ fkeyunlock()																														#Unlock local keys
 	MPASS=$(echo $MPASS$MPASS | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum)
 	LPASS=$(echo $MPASS$MPASS | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum)
 	LPASS=$(echo $LPASS$LPASS | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum)
-																																				###Custom###
+																																				
 	openssl enc -aes-256-cbc -d -a -salt -in $KEY/meta/lmeta -out tmp01 -k "$LPASS" 2> /dev/null
 	openssl enc -camellia-256-cbc -d -salt -in tmp01 -out tmp02 -k "$MPASS" 2> /dev/null
 	openssl enc -aes-256-cbc -d -salt -in tmp02 -out tmp03 -k "$GPASS" 2> /dev/null
@@ -1141,7 +1142,7 @@ fexportkey()																														#Export keys
 							shred -zfun 3 $WHSAV/$KEY
 					fi
 					zip -reP $ZPASS $KEY.zip $KEY
-					clear																													###Custom###
+					clear																													
 					$COLOR 4;echo " [*] Encrypting "$KEY", Please wait...";$COLOR 9
 					openssl enc -aes-256-cbc -salt -in $KEY.zip -out tmp01 -k "$FPASS" 2> /dev/null
 					openssl enc -camellia-256-cbc -salt -in tmp01 -out tmp02 -k "$NPASS" 2> /dev/null
@@ -1237,7 +1238,7 @@ fimportkey()																														#Import keys
 			MPASS=$(echo $MPASS$MPASS | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum)
 			LPASS=$(echo $MPASS$MPASS | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum)
 			LPASS=$(echo $LPASS$LPASS | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum)
-																																				###Custom###
+																																				
 			openssl enc -aes-256-cbc -d -a -salt -in $KEYLOC -out tmp01 -k "$LPASS" 2> /dev/null
 			openssl enc -camellia-256-cbc -d -salt -in tmp01 -out tmp02 -k "$MPASS" 2> /dev/null
 			openssl enc -aes-256-cbc -d -salt -in tmp02 -out tmp03 -k "$GPASS" 2> /dev/null
