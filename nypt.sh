@@ -297,7 +297,63 @@ fkeygen()																																#Generate keys
 					PADDING2=${PADDING2:1:1}
 			fi
 			PLACEMENT=$(strings /dev/urandom | grep -o '[2-9]' | head -n 1 | tr -d '\n'; echo)
-					
+			CIPHERL=$(strings /dev/urandom | grep -o '[1-8]' | head -n 5 | tr -d '\n'; echo)
+			CIPHER1=${CIPHERL:0:1}
+			CIPHER2=${CIPHERL:1:1}
+			CIPHER3=${CIPHERL:2:1}
+			CIPHER4=${CIPHERL:3:1}
+			CIPHER5=${CIPHERL:4:1}
+			case $CIPHER1 in
+				1)CIPHER1="aes-256-cbc";;
+				2)CIPHER1="aes-256-ecb";;
+				3)CIPHER1="camellia-256-cbc";;
+				4)CIPHER1="camellia-256-ecb";;
+				5)CIPHER1="bf-cbc";;
+				6)CIPHER1="cast5-cbc";;
+				7)CIPHER1="aes-192-cbc";;
+				8)CIPHER1="desx"
+			esac
+			case $CIPHER2 in
+				1)CIPHER2="aes-256-cbc";;
+				2)CIPHER2="aes-256-ecb";;
+				3)CIPHER2="camellia-256-cbc";;
+				4)CIPHER2="camellia-256-ecb";;
+				5)CIPHER2="bf-cbc";;
+				6)CIPHER2="cast5-cbc";;
+				7)CIPHER2="aes-192-cbc";;
+				8)CIPHER2="desx"
+			esac
+			case $CIPHER3 in
+				1)CIPHER3="aes-256-cbc";;
+				2)CIPHER3="aes-256-ecb";;
+				3)CIPHER3="camellia-256-cbc";;
+				4)CIPHER3="camellia-256-ecb";;
+				5)CIPHER3="bf-cbc";;
+				6)CIPHER3="cast5-cbc";;
+				7)CIPHER3="aes-192-cbc";;
+				8)CIPHER3="desx"
+			esac
+			case $CIPHER4 in
+				1)CIPHER4="aes-256-cbc";;
+				2)CIPHER4="aes-256-ecb";;
+				3)CIPHER4="camellia-256-cbc";;
+				4)CIPHER4="camellia-256-ecb";;
+				5)CIPHER4="bf-cbc";;
+				6)CIPHER4="cast5-cbc";;
+				7)CIPHER4="aes-192-cbc";;
+				8)CIPHER4="desx"
+			esac
+			case $CIPHER5 in
+				1)CIPHER5="aes-256-cbc";;
+				2)CIPHER5="aes-256-ecb";;
+				3)CIPHER5="camellia-256-cbc";;
+				4)CIPHER5="camellia-256-ecb";;
+				5)CIPHER5="bf-cbc";;
+				6)CIPHER5="cast5-cbc";;
+				7)CIPHER5="aes-192-cbc";;
+				8)CIPHER5="desx"
+			esac
+			
 			echo """#Cipher commands to be used with openssl  layers: CIPHER(1-5)							
 #aes-128-cbc       aes-128-ecb       aes-192-cbc       aes-192-ecb       
 #aes-256-cbc       aes-256-ecb       base64            bf                
@@ -315,19 +371,19 @@ fkeygen()																																#Generate keys
 #seed-ofb          zlib  
 
 #CIPHER1 Variable
-aes-256-cbc
+$CIPHER1
 
 #CIPHER2 Variable
-camellia-256-cbc
+$CIPHER2
 
 #CIPHER3 Variable 
-aes-256-cbc
+$CIPHER3
 
 #CIPHER4 Variable
-camellia-256-cbc
+$CIPHER4
 
 #CIPHER5 Variable 
-aes-256-cbc
+$CIPHER5
 
 #Enable Random Number Layer cryptography for messages
 1
@@ -635,9 +691,9 @@ fdecryptmsg()																														#Decrypt messages
 			ENLEN=${ENCCLEN:0:$CHARCNT} 
 	
 			while [ $DECCNT -le $ENLEN ]																			###Custom###
-				do
+				do																															#Add newlines every 6 characters
 					CHAR=${ENCCMSG:$DECCNT:6}
-					echo $CHAR >> tmp01
+					echo $CHAR >> tmp01			
 					DECCNT=$(( DECCNT + 6 ))
 				done
 				
