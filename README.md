@@ -13,15 +13,15 @@ Video: http://www.youtube.com/watch?v=gQ0teiUdJjU
 
 Custom wrapper for OpenSSL
 
-Nypt uses a custom random number symmetric encryption layer and five layers of customizable OpenSSL encryption to encrypt messages, files and keys for transmission across the internet. The secret keys are stored locally on the drive, and so passwords are not needed to encrypt/decrypt messages or files. The passwords for the layers are generated from urandom, have a variable possible length and are unique to each layer and key. All openssl layers are salted. Nypt uses symmetric encryption, which means that both communicating parties are required to have the same copy of the secret key, in order to read each others messages. Config files are located in each keys directory that can be edited to customize ciphers used for the openssl layers.
+Nypt uses a custom random based polyalphabetic encryption layer and five layers of customizable OpenSSL encryption to encrypt messages, files and keys for transmission across the internet. The secret keys are stored locally on the drive, and so passwords are not needed to encrypt/decrypt messages or files. The passwords for the layers are generated from urandom, have a variable possible length and are unique to each layer and key. All openssl layers are salted. Nypt uses symmetric encryption, which means that both communicating parties are required to have the same copy of the secret key, in order to read each others messages. Config files are located in each keys directory that can be edited to customize ciphers used for the openssl layers.
 
 Changelog:
 1.37
 
-Added Random Padding feature in Random Number Layer
-Added Dummy characters feature in Random Number Layer
-Dummy character placement random for each key
-Padding amounts random for each key
+Added Random Padding feature in random based polyalphabetic encryption layer.
+Added Dummy characters feature in random based polyalphabetic encryption layer.
+Dummy character placement random for each key.
+Padding amounts random for each key.
 
 Key Transmission:
 
@@ -34,9 +34,9 @@ Key Transmission:
 4. Keys and/or their secret password can be transferred via SSH, PGP, cryptocat private room, or any other suitable encrypted communication method. There is functionality to send files via SSH built into Nypt.
 
 
-Random Number Encryption Layer:
+Random based Polyalphabetic Encryption Layer:
 
-There is a random number layer of encryption before the message gets encrypted with OpenSSL. 
+There is a random based polyalphabetic encryption layer before the message gets encrypted with OpenSSL. 
 The way this works is that every character is given a total of 10,110 different 6-digit combinations, and a 6-digit number is chosen randomly from this list for each character in a message. 
 This ensures that every encrypted message, even if the same characters are encrypted multiple times, will have a different looking output but decode to the same deciphered text.
 Dummy characters are then placed into the message, further obscuring any attempts at word pattern recognition.

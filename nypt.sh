@@ -2,8 +2,9 @@
 
 ## Nypt 1.37 Copyright 2013, Rids43 (rids@tormail.org)
 #
-## Crypt files, messages and keys using a layer of custom random number  
-## encryption and five layers of custom openssl encryption.
+## Crypt files, messages and keys using a layer of custom Random based 
+## Polyalphabetic encryption and five layers of custom openssl 
+## encryption.
 ## Uses SSH to transfer data.
 #
 ## This program is free software: you can redistribute it and/or modify
@@ -199,7 +200,7 @@ fkeygen()																																#Generate keys
 			mkdir $KEY/$DECDIR
 			mkdir $KEY/$ENCDIR/0_Encrypted_Files
 			mkdir $KEY/$DECDIR/0_Decrypted_Files
-																																				##Random number key
+																																				##Random based Polyalphabetic Cipher Key
 			sort -R list > $KEY/list																					#List of 6-digit numbers is sorted randomly
 			DIRNUM=10
 																																				#Create directories for each character
@@ -224,7 +225,7 @@ fkeygen()																																#Generate keys
 					DIRNUMB=$(( DIRNUMB + 1 ))
 					LNUM=$(( LNUM + 10110 ))							
 				done
-																																				##Openssl keys
+																																				##Openssl Cipher keys
 																																				#Random password lengths are generated from urandom
 			RANDLENTH=$(strings /dev/urandom | grep -o '[1-9]' | head -n 45 | tr -d '\n'; echo)
 			RAND1=${RANDLENTH:0:3}																						###Custom###
@@ -297,7 +298,7 @@ fkeygen()																																#Generate keys
 					PADDING2=${PADDING2:1:1}
 			fi
 			PLACEMENT=$(strings /dev/urandom | grep -o '[2-9]' | head -n 1 | tr -d '\n'; echo)
-			CIPHERL=$(strings /dev/urandom | grep -o '[1-8]' | head -n 5 | tr -d '\n'; echo)
+			CIPHERL=$(strings /dev/urandom | grep -o '[1-9]' | head -n 5 | tr -d '\n'; echo)
 			CIPHER1=${CIPHERL:0:1}
 			CIPHER2=${CIPHERL:1:1}
 			CIPHER3=${CIPHERL:2:1}
@@ -311,7 +312,8 @@ fkeygen()																																#Generate keys
 				5)CIPHER1="bf-cbc";;
 				6)CIPHER1="cast5-cbc";;
 				7)CIPHER1="aes-192-cbc";;
-				8)CIPHER1="desx"
+				8)CIPHER1="desx";;
+				9)CIPHER1="camellia-192-cbc"
 			esac
 			case $CIPHER2 in
 				1)CIPHER2="aes-256-cbc";;
@@ -321,7 +323,8 @@ fkeygen()																																#Generate keys
 				5)CIPHER2="bf-cbc";;
 				6)CIPHER2="cast5-cbc";;
 				7)CIPHER2="aes-192-cbc";;
-				8)CIPHER2="desx"
+				8)CIPHER2="desx";;
+				9)CIPHER2="camellia-192-cbc"
 			esac
 			case $CIPHER3 in
 				1)CIPHER3="aes-256-cbc";;
@@ -331,7 +334,8 @@ fkeygen()																																#Generate keys
 				5)CIPHER3="bf-cbc";;
 				6)CIPHER3="cast5-cbc";;
 				7)CIPHER3="aes-192-cbc";;
-				8)CIPHER3="desx"
+				8)CIPHER3="desx";;
+				9)CIPHER3="camellia-192-cbc"
 			esac
 			case $CIPHER4 in
 				1)CIPHER4="aes-256-cbc";;
@@ -341,7 +345,8 @@ fkeygen()																																#Generate keys
 				5)CIPHER4="bf-cbc";;
 				6)CIPHER4="cast5-cbc";;
 				7)CIPHER4="aes-192-cbc";;
-				8)CIPHER4="desx"
+				8)CIPHER4="desx";;
+				9)CIPHER4="camellia-192-cbc"
 			esac
 			case $CIPHER5 in
 				1)CIPHER5="aes-256-cbc";;
@@ -351,7 +356,8 @@ fkeygen()																																#Generate keys
 				5)CIPHER5="bf-cbc";;
 				6)CIPHER5="cast5-cbc";;
 				7)CIPHER5="aes-192-cbc";;
-				8)CIPHER5="desx"
+				8)CIPHER5="desx";;
+				9)CIPHER5="camellia-192-cbc"
 			esac
 			
 			echo """#Cipher commands to be used with openssl  layers: CIPHER(1-5)							
@@ -385,7 +391,7 @@ $CIPHER4
 #CIPHER5 Variable 
 $CIPHER5
 
-#Enable Random Number Layer cryptography for messages
+#Enable Random based Polyalphabetic Layer cryptography for messages
 1
 
 #Enable Dummmy characters
@@ -455,7 +461,7 @@ fencryptmsg()																														#Encrypt messages
 	clear
 	$COLOR 4;echo " [*] Encrypting "$EMSGFILE", Please wait..";$COLOR 9
 	if [ $ENABLERAND = "1" ] 2> /dev/null
-		then																																##Random number layer##
+		then																																##Random based Polyalphabetic layer##
 			while [ $MSGCNT -lt $MSGLEN ]																			#Each character is assigned a number
 				do																															###Custom###
 					CHAR=${MSG:$MSGCNT:1}
@@ -499,13 +505,13 @@ fencryptmsg()																														#Encrypt messages
 							CATMSG=$(cat tmp3)
 							MSG=$FPAD$CATMSG$LPAD
 							echo $MSG > tmp3
-				fi
-				if [ $ENABLERANDLENGTH = "1" ] 2> /dev/null											#Random length is acheived by reading from $FPAD
-					then
-						ADD=${FPAD:0:2}
-						ADD=$(strings /dev/urandom | grep -o '[0-9]' | head -n $ADD | tr -d '\n'; echo)
-						MSG=$(cat tmp3)
-						echo $MSG$ADD > tmp3																				#Add random length to message
+							if [ $ENABLERANDLENGTH = "1" ] 2> /dev/null								#Random padding length is acheived by reading from $FPAD
+								then
+									ADD=${FPAD:0:2}
+									ADD=$(strings /dev/urandom | grep -o '[0-9]' | head -n $ADD | tr -d '\n'; echo)
+									MSG=$(cat tmp3)
+									echo $MSG$ADD > tmp3																	#Add random padding length to message
+							fi
 				fi
 		else
 			echo $MSG > tmp3
@@ -662,19 +668,18 @@ fdecryptmsg()																														#Decrypt messages
 
 	shred -zfun 3 tmp* 2> /dev/null
 	
-	if [ $ENABLERAND = "1" ] 2> /dev/null																	##Random number layer##
+	if [ $ENABLERAND = "1" ] 2> /dev/null																	##Random based Polyalphabetic layer##
 		then
-		
-			if [ $ENABLERANDLENGTH = "1" ] 2> /dev/null												#Remove extra random length
+			if [ $ENABLEPADDING = "1" ] 2> /dev/null													
+				then
+					if [ $ENABLERANDLENGTH = "1" ] 2> /dev/null										#Remove random padding length
 					then
 						ENCCMSG=$(cat tmf)
 						REMOVE=${ENCCMSG:0:2}
 						echo ${ENCCMSG:0:-$REMOVE} > tmf
-			fi
-			if [ $ENABLEPADDING = "1" ] 2> /dev/null													#Remove padding
-				then
+					fi
 					ENCCMSG=$(cat tmf)
-					echo ${ENCCMSG:$PADDING1:-$PADDING2} > tmf				
+					echo ${ENCCMSG:$PADDING1:-$PADDING2} > tmf										#Remove padding
 			fi
 			ENCCLEN=$(wc -c tmf)																							
 			ENCCMSG=$(cat tmf)
