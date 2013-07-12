@@ -1,6 +1,6 @@
 #!/bin/bash
 
-## Nypt 1.37 Copyright 2013, Rids43 (rids@tormail.org)
+## Nypt 1.38 Copyright 2013, Rids43 (rids@tormail.org)
 #
 ## Crypt files, messages and keys using a layer of custom Random based 
 ## Polyalphabetic encryption and five layers of custom openssl 
@@ -107,7 +107,7 @@ fmenu()																																	#Main menu
 	clear
 	SSHSEND=0
 	fdisplaymenu
-	$COLOR 5;echo " [*] Nypt 1.37 [*] ";$COLOR 9															
+	$COLOR 5;echo " [*] Nypt 1.38 [*] ";$COLOR 9															
 	read -e -p """      ~~~~~~~~
  [1] Encryption
  [2] Decryption
@@ -265,15 +265,13 @@ fkeygen()																																#Generate keys
 				then
 					RAND5=$(( RAND5 + RANDA5 ))
 			fi
-			
-			mkdir $KEY/meta/
 																																				#Passwords for openssl layers are generated
 																																				###Custom###
-			echo $(strings /dev/urandom | grep -o '[[:alnum:]]' | head -n $RAND1 | tr -d '\n'; echo) > $KEY/meta/meta
-			echo $(strings /dev/urandom | grep -o '[[:alnum:]]' | head -n $RAND2 | tr -d '\n'; echo) >> $KEY/meta/meta
-			echo $(strings /dev/urandom | grep -o '[[:alnum:]]' | head -n $RAND3 | tr -d '\n'; echo) >> $KEY/meta/meta
-			echo $(strings /dev/urandom | grep -o '[[:alnum:]]' | head -n $RAND4 | tr -d '\n'; echo) >> $KEY/meta/meta
-			echo $(strings /dev/urandom | grep -o '[[:alnum:]]' | head -n $RAND5 | tr -d '\n'; echo) >> $KEY/meta/meta
+			PASS1=$(strings /dev/urandom | grep -o '[[:alnum:]]' | head -n $RAND1 | tr -d '\n'; echo)
+			PASS2=$(strings /dev/urandom | grep -o '[[:alnum:]]' | head -n $RAND2 | tr -d '\n'; echo)
+			PASS3=$(strings /dev/urandom | grep -o '[[:alnum:]]' | head -n $RAND3 | tr -d '\n'; echo)
+			PASS4=$(strings /dev/urandom | grep -o '[[:alnum:]]' | head -n $RAND4 | tr -d '\n'; echo)
+			PASS5=$(strings /dev/urandom | grep -o '[[:alnum:]]' | head -n $RAND5 | tr -d '\n'; echo)
 
 			shred -zfun 3 $KEY/list																						#Write config file
 																																				#Random padding lengths are generated
@@ -411,7 +409,23 @@ $PADDING1
 $PADDING2
 
 #Enable Random Padding length
-1""" > $KEY/config
+1
+
+#OpenSSL Passwords
+#Layer 1
+$PASS1
+
+#Layer 2
+$PASS2
+
+#Layer 3
+$PASS3
+
+#Layer 4
+$PASS4
+
+#Layer 5
+$PASS5""" > $KEY/config
 			clear
 			$COLOR 5;echo " [*] Do you want to lock $KEY? [Y/n]";$COLOR 9;read -p " >" LOCK
 			case $LOCK in
@@ -517,21 +531,8 @@ fencryptmsg()																														#Encrypt messages
 		else
 			echo $MSG > tmp3
 	fi
-	FILE=$KEY/meta/meta
-	LNUM=1																																##Openssl layer##
-	while read LINE																												#Passwords for openssl layers are imported from $KEY/meta/meta
-		do																																	###Custom###
-			case $LNUM in
-					1)PASS1="$LINE";;
-					2)PASS2="$LINE";;
-					3)PASS3="$LINE";;
-					4)PASS4="$LINE";;
-					5)PASS5="$LINE"
-			esac
-		
-			LNUM=$(( LNUM + 1 ))
-		done <"$FILE"
-																																				
+																																				##Openssl layer##
+																																				###Custom###
 	openssl enc $CIPHER1 -salt -in tmp3 -out tmp01 -k "$PASS1" 2> /dev/null
 	openssl enc $CIPHER2 -salt -in tmp01 -out tmp02 -k "$PASS2" 2> /dev/null
 	openssl enc $CIPHER3 -salt -in tmp02 -out tmp03 -k "$PASS3" 2> /dev/null
@@ -645,22 +646,8 @@ fdecryptmsg()																														#Decrypt messages
 		"f") cat $KEY/$ENCDIR/$DMSGFILE  > tmp01;;
 		"F") cat $KEY/$ENCDIR/$DMSGFILE  > tmp01
 	esac
-	
-	FILE=$DIRR$KEY"/meta/meta"
-	LNUM=1																																##Openssl layer##
-	while read LINE																												#Passwords for openssl layers are imported from $KEY/meta/meta
-		do																																	###Custom###
-			case $LNUM in
-					1)PASS1="$LINE";;
-					2)PASS2="$LINE";;
-					3)PASS3="$LINE";;
-					4)PASS4="$LINE";;
-					5)PASS5="$LINE"
-			esac
-		
-			LNUM=$(( LNUM + 1 ))
-		done <"$FILE"
-																																				
+																																				##Openssl layer##
+																																				###Custom###				
 	openssl enc $CIPHER5 -d -a -salt -in tmp01 -out tmp02 -k "$PASS5" 2> /dev/null	
 	openssl enc $CIPHER4 -d -salt -in tmp02 -out tmp03 -k "$PASS4" 2> /dev/null
 	openssl enc $CIPHER3 -d -salt -in tmp03 -out tmp04 -k "$PASS3" 2> /dev/null
@@ -796,21 +783,7 @@ fencryptfile()																													#Encrypt files
 		then
 			mkdir $KEY/$ENCDIR/0_Encrypted_Files
 	fi
-	FILE=$KEY/meta/meta
-	LNUM=1
-	
-	while read LINE																												#Passwords for openssl layers are imported from $KEY/meta/meta
-		do																																	###Custom###
-			case $LNUM in
-					1)PASS1=$LINE;;
-					2)PASS2=$LINE;;
-					3)PASS3=$LINE;;
-					4)PASS4=$LINE;;
-					5)PASS5=$LINE
-			esac
-		LNUM=$(( LNUM + 1 ))
-		done <$FILE
-																																				
+
 	openssl enc $CIPHER1 -salt -in $INFILE -out tmp01 -k "$PASS1" 2> /dev/null	
 	openssl enc $CIPHER2 -salt -in tmp01 -out tmp02 -k "$PASS2" 2> /dev/null
 	openssl enc $CIPHER3 -salt -in tmp02 -out tmp03 -k "$PASS3" 2> /dev/null
@@ -864,21 +837,6 @@ fdecryptfile()																													#Decrypt files
 		then
 			mkdir $KEY/$DECDIR/0_Decrypted_Files
 	fi
-	FILE=$KEY/meta/meta
-	LNUM=1
-	
-	while read LINE  																											#Passwords for openssl layers are imported from $KEY/meta/meta
-		do																																	###Custom###
-			case $LNUM in
-					1)PASS1=$LINE;;
-					2)PASS2=$LINE;;
-					3)PASS3=$LINE;;
-					4)PASS4=$LINE;;
-					5)PASS5=$LINE
-			esac
-		
-			LNUM=$(( LNUM + 1 ))
-		done <$FILE
 																																				
 	openssl enc $CIPHER5 -d -a -salt -in $INFILE -out tmp01 -k "$PASS5" 2> /dev/null
 	openssl enc $CIPHER4 -d -salt -in tmp01 -out tmp02 -k "$PASS4" 2> /dev/null
@@ -975,7 +933,7 @@ fopendir()																															#Open message folder
 	fmenu
 }
 
-fkeylock()																															#Lock local keys by encrypting $KEY/meta/meta and $KEY/config
+fkeylock()																															#Lock local keys by encrypting $KEY/config
 {
 	if [ $DOLOCK = "1" ] 2> /dev/null
 		then
@@ -1017,14 +975,6 @@ fkeylock()																															#Lock local keys by encrypting $KEY/met
 							
 					clear																													
 					$COLOR 4;echo " [*] Encrypting "$KEY", Please wait...";$COLOR 9
-					openssl enc -aes-256-cbc -salt -in $KEY/meta/meta -out tmp01 -k "$FPASS" 2> /dev/null
-					openssl enc -camellia-256-cbc -salt -in tmp01 -out tmp02 -k "$NPASS" 2> /dev/null
-					openssl enc -aes-256-cbc -salt -in tmp02 -out tmp03 -k "$GPASS" 2> /dev/null
-					openssl enc -camellia-256-cbc -salt -in tmp03 -out tmp04 -k "$MPASS" 2> /dev/null
-					openssl enc -aes-256-cbc -a -salt -in tmp04 -out $KEY/meta/lmeta -k "$LPASS" 2> /dev/null
-					
-					shred -zfun 3 tmp* 2> /dev/null
-					shred -zfun 3 $KEY/meta/meta 2> /dev/null
 					
 					openssl enc -aes-256-cbc -salt -in $KEY/config -out tmp01 -k "$FPASS" 2> /dev/null
 					openssl enc -camellia-256-cbc -salt -in tmp01 -out tmp02 -k "$NPASS" 2> /dev/null
@@ -1074,26 +1024,17 @@ fkeyunlock()																														#Unlock local keys
 	MPASS=$(echo $MPASS$MPASS | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum)
 	LPASS=$(echo $MPASS$MPASS | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum)
 	LPASS=$(echo $LPASS$LPASS | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum | sha512sum)
-																																				
-	openssl enc -aes-256-cbc -d -a -salt -in $KEY/meta/lmeta -out tmp01 -k "$LPASS" 2> /dev/null
-	openssl enc -camellia-256-cbc -d -salt -in tmp01 -out tmp02 -k "$MPASS" 2> /dev/null
-	openssl enc -aes-256-cbc -d -salt -in tmp02 -out tmp03 -k "$GPASS" 2> /dev/null
-	openssl enc -camellia-256-cbc -d -salt -in tmp03 -out tmp04 -k "$NPASS" 2> /dev/null
-	openssl enc -aes-256-cbc -d -salt -in tmp04 -out $KEY/meta/meta -k "$FPASS" 2> /dev/null
-	
-	if [ $(cat tmp03) -z ] 2> /dev/null
-		then
-			DISPERRORUNLOCKKEY=1;shred -zfun 3 $KEY/meta/meta;shred -zfun 3 tmp* 2> /dev/null; sleep 2;fmenu
-	fi
-	
-	shred -zfun 3 tmp* 2> /dev/null
-	shred -zfun 3 $KEY/meta/lmeta 2> /dev/null
-		
+																																			
 	openssl enc -aes-256-cbc -d -a -salt -in $KEY/lconfig -out tmp01 -k "$LPASS" 2> /dev/null
 	openssl enc -camellia-256-cbc -d -salt -in tmp01 -out tmp02 -k "$MPASS" 2> /dev/null
 	openssl enc -aes-256-cbc -d -salt -in tmp02 -out tmp03 -k "$GPASS" 2> /dev/null
 	openssl enc -camellia-256-cbc -d -salt -in tmp03 -out tmp04 -k "$NPASS" 2> /dev/null
 	openssl enc -aes-256-cbc -d -salt -in tmp04 -out $KEY/config -k "$FPASS" 2> /dev/null
+	
+	if [ $(cat tmp03) -z ] 2> /dev/null
+		then
+			DISPERRORUNLOCKKEY=1;shred -zfun 3 $KEY/config;shred -zfun 3 tmp* 2> /dev/null;fmenu
+	fi
 			
 	shred -zfun 3 tmp* 2> /dev/null
 	shred -zfun 3 $KEY/lconfig 2> /dev/null
@@ -1555,7 +1496,7 @@ finputkey()																															#Select key to use
 	FILE=$KEY/config 
 	LNUM=1
 	while read LINE 																											#Assign config variables from $KEY/config file
-		do
+		do																																	###Custom###
 			case $LNUM in
 				18)CIPHER1="-"$LINE;;
 				21)CIPHER2="-"$LINE;;
@@ -1568,7 +1509,12 @@ finputkey()																															#Select key to use
 				42)ENABLEPADDING=$LINE;;
 				45)PADDING1=$LINE;;
 				48)PADDING2=$LINE;;
-				51)ENABLERANDLENGTH=$LINE
+				51)ENABLERANDLENGTH=$LINE;;
+				55)PASS1=$LINE;;
+				58)PASS2=$LINE;;
+				61)PASS3=$LINE;;
+				64)PASS4=$LINE;;
+				67)PASS5=$LINE
 			esac
 			LNUM=$((LNUM + 1))
 		done < $FILE 
