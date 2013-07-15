@@ -1,6 +1,6 @@
- Nypt 1.38
+ Nypt 1.39
  
-NOTE: V.1.38 is incompatible with previous versions
+NOTE: V.1.39 is incompatible with previous versions
 
 Use:
 
@@ -16,6 +16,10 @@ Custom wrapper for OpenSSL
 Nypt uses a custom random based polyalphabetic encryption layer and five layers of customizable OpenSSL encryption to encrypt messages, files and keys for transmission across the internet. The secret keys are stored locally on the drive, and so passwords are not needed to encrypt/decrypt messages or files. The passwords for the layers are generated from urandom, have a variable possible length and are unique to each layer and key. All openssl layers are salted. Nypt uses symmetric encryption, which means that both communicating parties are required to have the same copy of the secret key, in order to read each others messages. Config files are located in each keys directory that can be edited to customize ciphers used for the openssl layers.
 
 Changelog:
+
+1.39
+Improved Random Padding Length for random based polyalphabetic encryption layer.
+
 1.38
 
 Consoladated config file
