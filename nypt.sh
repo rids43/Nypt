@@ -1,6 +1,6 @@
 #!/bin/bash
 
-## Nypt 1.38 Copyright 2013, Rids43 (rids@tormail.org)
+## Nypt 1.39 Copyright 2013, Rids43 (rids@tormail.org)
 #
 ## Crypt files, messages and keys using a layer of custom Random based 
 ## Polyalphabetic encryption and five layers of custom openssl 
@@ -107,7 +107,7 @@ fmenu()																																	#Main menu
 	clear
 	SSHSEND=0
 	fdisplaymenu
-	$COLOR 5;echo " [*] Nypt 1.38 [*] ";$COLOR 9															
+	$COLOR 5;echo " [*] Nypt 1.39 [*] ";$COLOR 9															
 	read -e -p """      ~~~~~~~~
  [1] Encryption
  [2] Decryption
@@ -225,7 +225,7 @@ fkeygen()																																#Generate keys
 					DIRNUMB=$(( DIRNUMB + 1 ))
 					LNUM=$(( LNUM + 10110 ))							
 				done
-																																				##Openssl Cipher keys
+																																				##Openssl Cipher Keys
 																																				#Random password lengths are generated
 			RANDLENTH=$(strings /dev/urandom | grep -o '[1-9]' | head -n 45 | tr -d '\n'; echo)
 			RAND1=${RANDLENTH:0:3}																						###Custom###
@@ -274,7 +274,7 @@ fkeygen()																																#Generate keys
 			PASS5=$(strings /dev/urandom | grep -o '[[:alnum:]]' | head -n $RAND5 | tr -d '\n'; echo)
 
 			shred -zfun 3 $KEY/list																						#Write config file
-																																				#Random padding lengths are generated
+																																				#Random padding lengths are generated for RPL
 																																				###Custom###
 			PADDINGL=$(strings /dev/urandom | grep -o '[0-9]' | head -n 4 | tr -d '\n'; echo)
 			PADDING1=${PADDINGL:0:2}
@@ -296,22 +296,22 @@ fkeygen()																																#Generate keys
 				then
 					PADDING2=${PADDING2:1:1}
 			fi
-			PLACEMENT=$(strings /dev/urandom | grep -o '[2-9]' | head -n 1 | tr -d '\n'; echo)
+			PLACEMENT=$(strings /dev/urandom | grep -o '[2-6]' | head -n 1 | tr -d '\n'; echo)
 			CIPHERL=$(strings /dev/urandom | grep -o '[1-9]' | head -n 5 | tr -d '\n'; echo)
-			CIPHER1=${CIPHERL:0:1}
-			CIPHER2=${CIPHERL:1:1}
+			CIPHER1=${CIPHERL:0:1}																						#Random ciphers are generated for openssl layers
+			CIPHER2=${CIPHERL:1:1}																						###Custom###
 			CIPHER3=${CIPHERL:2:1}
 			CIPHER4=${CIPHERL:3:1}
 			CIPHER5=${CIPHERL:4:1}
-			case $CIPHER1 in																									#Random ciphers are generated for openssl layers
-				1)CIPHER1="aes-256-cbc";;																				###Custom###
+			case $CIPHER1 in																									
+				1)CIPHER1="aes-256-cbc";;																				
 				2)CIPHER1="aes-256-ecb";;
 				3)CIPHER1="camellia-256-cbc";;
 				4)CIPHER1="camellia-256-ecb";;
 				5)CIPHER1="bf-cbc";;
 				6)CIPHER1="cast5-cbc";;
 				7)CIPHER1="aes-192-cbc";;
-				8)CIPHER1="desx";;
+				8)CIPHER1="bf-ecb";;
 				9)CIPHER1="camellia-192-cbc"
 			esac
 			case $CIPHER2 in
@@ -322,7 +322,7 @@ fkeygen()																																#Generate keys
 				5)CIPHER2="bf-cbc";;
 				6)CIPHER2="cast5-cbc";;
 				7)CIPHER2="aes-192-cbc";;
-				8)CIPHER2="desx";;
+				8)CIPHER2="bf-ecb";;
 				9)CIPHER2="camellia-192-cbc"
 			esac
 			case $CIPHER3 in
@@ -333,7 +333,7 @@ fkeygen()																																#Generate keys
 				5)CIPHER3="bf-cbc";;
 				6)CIPHER3="cast5-cbc";;
 				7)CIPHER3="aes-192-cbc";;
-				8)CIPHER3="desx";;
+				8)CIPHER3="bf-ecb";;
 				9)CIPHER3="camellia-192-cbc"
 			esac
 			case $CIPHER4 in
@@ -344,7 +344,7 @@ fkeygen()																																#Generate keys
 				5)CIPHER4="bf-cbc";;
 				6)CIPHER4="cast5-cbc";;
 				7)CIPHER4="aes-192-cbc";;
-				8)CIPHER4="desx";;
+				8)CIPHER4="bf-ecb";;
 				9)CIPHER4="camellia-192-cbc"
 			esac
 			case $CIPHER5 in
@@ -355,7 +355,7 @@ fkeygen()																																#Generate keys
 				5)CIPHER5="bf-cbc";;
 				6)CIPHER5="cast5-cbc";;
 				7)CIPHER5="aes-192-cbc";;
-				8)CIPHER5="desx";;
+				8)CIPHER5="bf-ecb";;
 				9)CIPHER5="camellia-192-cbc"
 			esac
 			
@@ -375,56 +375,56 @@ fkeygen()																																#Generate keys
 #seed              seed-cbc          seed-cfb          seed-ecb          
 #seed-ofb          zlib  
 
-#CIPHER1 Variable
+#CIPHER1 Variable:
 $CIPHER1
 
-#CIPHER2 Variable
+#CIPHER2 Variable:
 $CIPHER2
 
-#CIPHER3 Variable 
+#CIPHER3 Variable:
 $CIPHER3
 
-#CIPHER4 Variable
+#CIPHER4 Variable:
 $CIPHER4
 
-#CIPHER5 Variable 
+#CIPHER5 Variable:
 $CIPHER5
 
-#Enable Random based Polyalphabetic Layer cryptography for messages
+#Enable Random based Polyalphabetic Layer for messages:
 1
 
-#Enable Dummmy characters
+#Enable Dummmy characters:
 1
 
-#Dummy character placement (every n characters)
+#Dummy character placement (every n characters):
 $PLACEMENT
 
-#Enable Random Padding
+#Enable Random Padding:
 1
 
-#Padding at start of message
+#Padding at start of message:
 $PADDING1
 
-#Padding at end of message
+#Padding at end of message:
 $PADDING2
 
-#Enable Random Padding length
+#Enable Random Padding length:
 1
 
-#OpenSSL Passwords
-#Layer 1
+#OpenSSL Passwords:
+#Layer 1:
 $PASS1
 
-#Layer 2
+#Layer 2:
 $PASS2
 
-#Layer 3
+#Layer 3:
 $PASS3
 
-#Layer 4
+#Layer 4:
 $PASS4
 
-#Layer 5
+#Layer 5:
 $PASS5""" > $KEY/config
 			clear
 			$COLOR 5;echo " [*] Do you want to lock $KEY? [Y/n]";$COLOR 9;read -p " >" LOCK
@@ -443,12 +443,12 @@ fencryptmsg()																														#Encrypt messages
 	finputkey
 	flockcheck
 	clear
-	$COLOR 5;echo " [>] Please Enter your message or press p and Enter to paste from clipboard";$COLOR 9
+	$COLOR 5;echo " [>] Enter your message or press p and Enter to paste from clipboard ";$COLOR 9
 	read -e -p " >" MSG
-	if [ $MSG = "p" ] 2> /dev/null
-		then
-			MSG=$(xclip -sel clip -o)
-	fi
+	case $MSG in
+		"p")MSG=$(xclip -sel clip -o);;
+		"P")MSG=$(xclip -sel clip -o)
+	esac
 	MSGLEN=${#MSG}
 	MSGCNT=0	
 	FILE=tmp1
@@ -520,11 +520,21 @@ fencryptmsg()																														#Encrypt messages
 							CATMSG=$(cat tmp3)
 							MSG=$FPAD$CATMSG$LPAD
 							echo $MSG > tmp3
-							if [ $ENABLERANDLENGTH = "1" ] 2> /dev/null								#Random padding length is acheived by reading from $FPAD
+							if [ $ENABLERANDLENGTH = "1" ] 2> /dev/null								#Random padding length is acheived by reading from end of $FPAD
 								then																										###Custom###
-									ADD=${FPAD:0:2}
-									ADD=$(strings /dev/urandom | grep -o '[0-9]' | head -n $ADD | tr -d '\n'; echo)
+									PLACERAND=$(( PADDING1 - 2 ))
+									ADD=${FPAD:$PLACERAND:2}
 									MSG=$(cat tmp3)
+									while [ $ADD = "00" ]
+										do
+											PLACERAND $(( PLACERAND - 1 ))
+											ADD=${FPAD:$PLACERAND:2}
+										done
+									if [ ${ADD:0:1} = "0" ] 2> /dev/null
+										then
+											ADD=${ADD:1:1}
+									fi
+									ADD=$(strings /dev/urandom | grep -o '[0-9]' | head -n $ADD | tr -d '\n'; echo)
 									echo $MSG$ADD > tmp3																	#Add random padding length to message
 							fi
 				fi
@@ -572,6 +582,8 @@ fdecryptmsg()																														#Decrypt messages
 	flockcheck
 	ISDONE=0
 	TMPCHK=0
+	DATER=$( date +%m_%Y_%d_%H%M%S )
+	DATEFILE=$DIRR$KEY/$ENCDIR/$DATER
 	
 	while [ $ISDONE = "0" ]
 		do
@@ -579,59 +591,59 @@ fdecryptmsg()																														#Decrypt messages
 			$COLOR 5;echo " [>] Paste your message from clipboard or read message file from 0_Encrypted_Messages? [P/f]:";$COLOR 9
 			read -e -p " >" DODEC
 			case $DODEC in
-				"P") fdecpaste;;
-				"p") fdecpaste;;
-				"") fdecpaste;;
+				"P") xclip -sel clip -o > $DATEFILE;ISDONE=1;;
+				"p") xclip -sel clip -o > $DATEFILE;ISDONE=1;;
+				"") xclip -sel clip -o > $DATEFILE;ISDONE=1;;
 				"f") clear; LSS=$(ls $KEY/$ENCDIR)
-				if [ $LSS -z ] 2> /dev/null
-					then
-						$COLOR 1;echo " [*] There are no files in $DIRR$KEY/$ENCDIR";$COLOR 9
-						sleep 2
-						fmenu
+					if [ $LSS -z ] 2> /dev/null
+						then
+							$COLOR 1;echo " [*] There are no files in $DIRR$KEY/$ENCDIR";$COLOR 9
+							sleep 2
+							fmenu
 
-				elif [ $LSS = "0_Encrypted_Files" ] 2> /dev/null
-					then
-						$COLOR 1;echo " [*] There are no message files in $DIRR$KEY/$ENCDIR";$COLOR 9
-						sleep 1.5
-						fmenu
-				fi
+					elif [ $LSS = "0_Encrypted_Files" ] 2> /dev/null
+						then
+							$COLOR 1;echo " [*] There are no message files in $DIRR$KEY/$ENCDIR";$COLOR 9
+							sleep 1.5
+							fmenu
+					fi
 				
-				echo $LSS	
-				cd $KEY/$ENCDIR
-				read -e -p " >" DMSGFILE
+					echo $LSS	
+					cd $KEY/$ENCDIR
+					read -e -p " >" DMSGFILE
 
-				if [ ! -f $DMSGFILE ]
-					then
-						$COLOR 1;echo " [*] $DMSGFILE is not a valid file, try again...";$COLOR 9
-						sleep 2
-				else
-					ISDONE=1
-				fi;;
+					if [ ! -f $DMSGFILE ] 2> /dev/null
+						then
+							$COLOR 1;echo " [*] $DMSGFILE is not a valid file, try again...";$COLOR 9
+							sleep 2
+					else
+						ISDONE=1
+					fi;;
 				"F") clear; LSS=$(ls $KEY/$ENCDIR)
-				if [ $LSS -z ] 2> /dev/null
-					then
-						$COLOR 1;echo " [*] There are no files in $DIRR$KEY/$ENCDIR";$COLOR 9
-						sleep 2
-						fmenu
+					if [ $LSS -z ] 2> /dev/null
+						then
+							$COLOR 1;echo " [*] There are no files in $DIRR$KEY/$ENCDIR";$COLOR 9
+							sleep 2
+							fmenu
 
-				elif [ $LSS = "0_Encrypted_Files" ] 2> /dev/null
-					then
-						$COLOR 1;echo " [*] There are no message files in $DIRR$KEY/$ENCDIR";$COLOR 9
-						sleep 1.5
-						fmenu
-				fi
+					elif [ $LSS = "0_Encrypted_Files" ] 2> /dev/null
+						then
+							$COLOR 1;echo " [*] There are no message files in $DIRR$KEY/$ENCDIR";$COLOR 9
+							sleep 1.5
+							fmenu
+					fi
 				
-				echo $LSS	
-				cd $KEY/$ENCDIR
-				read -e -p " >" DMSGFILE
+					echo $LSS	
+					cd $KEY/$ENCDIR
+					read -e -p " >" DMSGFILE
 
-				if [ ! -f $DMSGFILE ]
-					then
-						$COLOR 1;echo " [*] $DMSGFILE is not a valid file, try again...";$COLOR 9
-						sleep 2
-				else
-					ISDONE=1
-				fi
+					if [ ! -f $DMSGFILE ] 2> /dev/null
+						then
+							$COLOR 1;echo " [*] $DMSGFILE is not a valid file, try again...";$COLOR 9
+							sleep 2
+						else
+						ISDONE=1
+					fi
 			esac
 		done
 		
@@ -656,15 +668,25 @@ fdecryptmsg()																														#Decrypt messages
 
 	shred -zfun 3 tmp* 2> /dev/null
 	
-	if [ $ENABLERAND = "1" ] 2> /dev/null																	##Random based Polyalphabetic layer##
+	if [ $ENABLERAND = "1" ] 2> /dev/null																	##Random based Polyalphabetic Layer##
 		then
 			if [ $ENABLEPADDING = "1" ] 2> /dev/null													
 				then
 					if [ $ENABLERANDLENGTH = "1" ] 2> /dev/null										#Remove random padding length
-					then																													###Custom###
-						ENCCMSG=$(cat tmf)
-						REMOVE=${ENCCMSG:0:2}
-						echo ${ENCCMSG:0:-$REMOVE} > tmf
+						then																												###Custom###
+							ENCCMSG=$(cat tmf)
+							PLACERAND=$(( PADDING1 - 2 ))
+							REMOVE=${ENCCMSG:$PLACERAND:2}
+							while [ $REMOVE = "00" ]
+								do
+									PLACERAND $(( PLACERAND - 1 ))
+									REMOVE=${ENCCMSG:$PLACERAND:2}
+								done
+							if [ ${REMOVE:0:1} = "0" ] 2> /dev/null
+								then
+									REMOVE=${REMOVE:1:1}
+							fi
+							echo ${ENCCMSG:0:-$REMOVE} > tmf
 					fi
 					ENCCMSG=$(cat tmf)
 					echo ${ENCCMSG:$PADDING1:-$PADDING2} > tmf										#Remove random padding
@@ -697,7 +719,7 @@ fdecryptmsg()																														#Decrypt messages
 					echo "$REMOVEDUM" > tmp01																			###Custom###
 			fi
 
-			while read LINE																										#6 digit number is located using grep from the character files
+			while read LINE																										#6 digit number is located using grep from the character key files
 				do																															###Custom###
 					LONGLET=$(grep -rl $LINE $KEY/)
 					echo ${LONGLET: -2} >> tmp02
@@ -744,14 +766,6 @@ fdecryptmsg()																														#Decrypt messages
 			esac
 	fi
 	
-}
-
-fdecpaste()																															#Paste messages into fdecryptmsg from the clipboard																
-{
-	DATER=$( date +%Y_%d_%m_%H_%M_%S )
-	DATEFILE="$DIRR""$KEY"/"$ENCDIR"/"$DATER"
-	xclip -sel clip -o > $DATEFILE
-	ISDONE=1
 }
 
 fencryptfile()																													#Encrypt files
