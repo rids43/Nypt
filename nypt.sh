@@ -152,7 +152,7 @@ fmenu()																																	#Main menu
  [6] Lock/Unlock a Key
  [7] Back
  >""" MENU 
-		case $MENU in 1)fkeygen;;2)fexportkey;;3)fimportkey;;4)SHREDDIR="KEY";fshreddir;;5)finputkey;flockcheck;gedit $KEY/config 2> /dev/null;;6)fkeylock;;7)fmenu;esac
+		case $MENU in 1)fkeygen;;2)fexportkey;;3)fimportkey;;4)SHREDDIR="KEY";fshreddir;;5)finputkey;flockcheck;gedit $KEY/config 2> /dev/null &;;6)fkeylock;;7)fmenu;esac
 	;;
 	4)	clear
 		$COLOR 5;echo " [*] SSH Menu [*] ";$COLOR 9
@@ -223,25 +223,25 @@ fkeygen()																																#Generate keys
 
 					DIRNUM=$(( DIRNUM + 1 ))
 					DIRNUMB=$(( DIRNUMB + 1 ))
-					LNUM=$(( LNUM + 10110 ))							
+					LNUM=$(( LNUM + 10110 ))	
 				done
 																																				##Openssl Cipher Keys
 																																				#Random password lengths are generated
-			RANDLENTH=$(strings /dev/urandom | grep -o '[1-9]' | head -n 45 | tr -d '\n'; echo)
+			RANDLENTH=$(strings /dev/urandom | grep -o '[1-9]' | head -n 45 | tr -d '\n')
 			RAND1=${RANDLENTH:0:3}																						###Custom###
 			RAND2=${RANDLENTH:3:3}
 			RAND3=${RANDLENTH:6:3}
 			RAND4=${RANDLENTH:9:3}
 			RAND5=${RANDLENTH:12:3}
-			RANDL1=${RANDLENTH:15:3}	
+			RANDL1=${RANDLENTH:15:3}
 			RANDL2=${RANDLENTH:18:3}
 			RANDL3=${RANDLENTH:21:3}
 			RANDL4=${RANDLENTH:24:3}
 			RANDL5=${RANDLENTH:27:3}
-			RANDA1=${RANDLENTH:30:3}	
+			RANDA1=${RANDLENTH:30:3}
 			RANDA2=${RANDLENTH:33:3}
 			RANDA3=${RANDLENTH:36:3}
-			RANDA4=${RANDLENTH:39:3}									
+			RANDA4=${RANDLENTH:39:3}
 			RANDA5=${RANDLENTH:42:3}
 
 																																				#Make passwords randomly longer
@@ -267,21 +267,21 @@ fkeygen()																																#Generate keys
 			fi
 																																				#Passwords for openssl layers are generated
 																																				###Custom###
-			PASS1=$(strings /dev/urandom | grep -o '[[:alnum:]]' | head -n $RAND1 | tr -d '\n'; echo)
-			PASS2=$(strings /dev/urandom | grep -o '[[:alnum:]]' | head -n $RAND2 | tr -d '\n'; echo)
-			PASS3=$(strings /dev/urandom | grep -o '[[:alnum:]]' | head -n $RAND3 | tr -d '\n'; echo)
-			PASS4=$(strings /dev/urandom | grep -o '[[:alnum:]]' | head -n $RAND4 | tr -d '\n'; echo)
-			PASS5=$(strings /dev/urandom | grep -o '[[:alnum:]]' | head -n $RAND5 | tr -d '\n'; echo)
+			PASS1=$(strings /dev/urandom | grep -o '[[:alnum:]]' | head -n $RAND1 | tr -d '\n')
+			PASS2=$(strings /dev/urandom | grep -o '[[:alnum:]]' | head -n $RAND2 | tr -d '\n')
+			PASS3=$(strings /dev/urandom | grep -o '[[:alnum:]]' | head -n $RAND3 | tr -d '\n')
+			PASS4=$(strings /dev/urandom | grep -o '[[:alnum:]]' | head -n $RAND4 | tr -d '\n')
+			PASS5=$(strings /dev/urandom | grep -o '[[:alnum:]]' | head -n $RAND5 | tr -d '\n')
 
 			shred -zfun 3 $KEY/list																						#Write config file
 																																				#Random padding lengths are generated for RPL
 																																				###Custom###
-			PADDINGL=$(strings /dev/urandom | grep -o '[0-9]' | head -n 4 | tr -d '\n'; echo)
+			PADDINGL=$(strings /dev/urandom | grep -o '[0-9]' | head -n 4 | tr -d '\n')
 			PADDING1=${PADDINGL:0:2}
 			PADDING2=${PADDINGL:2:2}
 			while [ $PADDING1 = "00" ]
 				do
-					PADDING1=$(strings /dev/urandom | grep -o '[0-9]' | head -n 2 | tr -d '\n'; echo)
+					PADDING1=$(strings /dev/urandom | grep -o '[0-9]' | head -n 2 | tr -d '\n')
 				done
 			if [ ${PADDING1:0:1} = "0" ] 2> /dev/null
 				then
@@ -290,14 +290,14 @@ fkeygen()																																#Generate keys
 
 			while [ $PADDING2 = "00" ]
 				do
-					PADDING2=$(strings /dev/urandom | grep -o '[0-9]' | head -n 2 | tr -d '\n'; echo)
+					PADDING2=$(strings /dev/urandom | grep -o '[0-9]' | head -n 2 | tr -d '\n')
 				done
 			if [ ${PADDING2:0:1} = "0" ] 2> /dev/null
 				then
 					PADDING2=${PADDING2:1:1}
 			fi
-			PLACEMENT=$(strings /dev/urandom | grep -o '[2-6]' | head -n 1 | tr -d '\n'; echo)
-			CIPHERL=$(strings /dev/urandom | grep -o '[1-9]' | head -n 5 | tr -d '\n'; echo)
+			PLACEMENT=$(strings /dev/urandom | grep -o '[2-6]' | head -n 1 | tr -d '\n')
+			CIPHERL=$(strings /dev/urandom | grep -o '[1-9]' | head -n 5 | tr -d '\n')
 			CIPHER1=${CIPHERL:0:1}																						#Random ciphers are generated for openssl layers
 			CIPHER2=${CIPHERL:1:1}																						###Custom###
 			CIPHER3=${CIPHERL:2:1}
@@ -491,7 +491,7 @@ fencryptmsg()																														#Encrypt messages
 			DUMCNT=0
 			while read LINE																										#Random 6 digit number line is chosen from the character file
 				do																															###Custom###
-					RAND=$(strings /dev/urandom | grep -o '[0-9]' | head -n 5 | tr -d '\n'; echo)
+					RAND=$(strings /dev/urandom | grep -o '[0-9]' | head -n 5 | tr -d '\n')
 					if [ $RAND -gt "10110" ] 2> /dev/null
 						then
 							RAND=${RAND:0:4}
@@ -500,7 +500,7 @@ fencryptmsg()																														#Encrypt messages
 						then																												###Custom###
 							if [ $DUMCNT = "$DUMMYPOSITION" ] 2> /dev/null
 								then
-									echo $(strings /dev/urandom | grep -o '[0-9]' | head -n 6 | tr -d '\n'; echo) >> tmp2
+									echo $(strings /dev/urandom | grep -o '[0-9]' | head -n 6 | tr -d '\n') >> tmp2
 									echo $(cat $KEY/$LINE/$LINE | sed -n "$RAND"p) >> tmp2
 									DUMCNT=1
 								else
@@ -515,27 +515,39 @@ fencryptmsg()																														#Encrypt messages
 				echo $(tr '\n' ' ' < tmp2 | sed -e 's/\s//g') > tmp3						#Newlines are removed leaving a continuous stream of numbers
 				if [ $ENABLEPADDING = "1" ] 2> /dev/null												#Random padding is added
 					then																													###Custom###
-							FPAD=$(strings /dev/urandom | grep -o '[0-9]' | head -n $PADDING1 | tr -d '\n'; echo)
-							LPAD=$(strings /dev/urandom | grep -o '[0-9]' | head -n $PADDING2 | tr -d '\n'; echo)
+							FPAD=$(strings /dev/urandom | grep -o '[0-9]' | head -n $PADDING1 | tr -d '\n')
+							LPAD=$(strings /dev/urandom | grep -o '[0-9]' | head -n $PADDING2 | tr -d '\n')
 							CATMSG=$(cat tmp3)
 							MSG=$FPAD$CATMSG$LPAD
 							echo $MSG > tmp3
 							if [ $ENABLERANDLENGTH = "1" ] 2> /dev/null								#Random padding length is acheived by reading from end of $FPAD
 								then																										###Custom###
 									PLACERAND=$(( PADDING1 - 2 ))
-									ADD=${FPAD:$PLACERAND:2}
+									RLPAD=${FPAD:$PLACERAND:2}
 									MSG=$(cat tmp3)
-									while [ $ADD = "00" ]
+									while [ $RLPAD = "00" ]
 										do
 											PLACERAND $(( PLACERAND - 1 ))
-											ADD=${FPAD:$PLACERAND:2}
+											RLPAD=${FPAD:$PLACERAND:2}
 										done
-									if [ ${ADD:0:1} = "0" ] 2> /dev/null
+									if [ ${RLPAD:0:1} = "0" ] 2> /dev/null
 										then
-											ADD=${ADD:1:1}
+											RLPAD=${RLPAD:1:1}
 									fi
-									ADD=$(strings /dev/urandom | grep -o '[0-9]' | head -n $ADD | tr -d '\n'; echo)
-									echo $MSG$ADD > tmp3																	#Add random padding length to message
+									PLACERAND=$(( PADDING1 - 4 ))
+									RFPAD=${FPAD:$PLACERAND:2}
+									while [ $RFPAD = "00" ]
+										do
+											PLACERAND $(( PLACERAND - 1 ))
+											RFPAD=${FPAD:$PLACERAND:2}
+										done
+									if [ ${RFPAD:0:1} = "0" ] 2> /dev/null
+										then
+											RFPAD=${RFPAD:1:1}
+									fi
+									RLPAD=$(strings /dev/urandom | grep -o '[0-9]' | head -n $RLPAD | tr -d '\n')
+									RFPAD=$(strings /dev/urandom | grep -o '[0-9]' | head -n $RFPAD | tr -d '\n')
+									echo $RFPAD$MSG$RLPAD > tmp3																	#Add random padding length to message
 							fi
 				fi
 		else
@@ -676,17 +688,28 @@ fdecryptmsg()																														#Decrypt messages
 						then																												###Custom###
 							ENCCMSG=$(cat tmf)
 							PLACERAND=$(( PADDING1 - 2 ))
-							REMOVE=${ENCCMSG:$PLACERAND:2}
-							while [ $REMOVE = "00" ]
+							RLPAD=${ENCCMSG:$PLACERAND:2}
+							while [ $RLPAD = "00" ]
 								do
 									PLACERAND $(( PLACERAND - 1 ))
-									REMOVE=${ENCCMSG:$PLACERAND:2}
+									RLPAD=${ENCCMSG:$PLACERAND:2}
 								done
-							if [ ${REMOVE:0:1} = "0" ] 2> /dev/null
+							if [ ${RLPAD:0:1} = "0" ] 2> /dev/null
 								then
-									REMOVE=${REMOVE:1:1}
+									RLPAD=${RLPAD:1:1}
 							fi
-							echo ${ENCCMSG:0:-$REMOVE} > tmf
+							PLACERAND=$(( PADDING1 - 4 ))
+							RFPAD=${ENCCMSG:$PLACERAND:2}
+							while [ $RFPAD = "00" ]
+								do
+									PLACERAND $(( PLACERAND - 1 ))
+									RFPAD=${ENCCMSG:$PLACERAND:2}
+								done
+							if [ ${RFPAD:0:1} = "0" ] 2> /dev/null
+								then
+									RFPAD=${RFPAD:1:1}
+							fi
+							echo ${ENCCMSG:$RFPAD:-$RLPAD} > tmf
 					fi
 					ENCCMSG=$(cat tmf)
 					echo ${ENCCMSG:$PADDING1:-$PADDING2} > tmf										#Remove random padding
@@ -715,8 +738,8 @@ fdecryptmsg()																														#Decrypt messages
 			FILE=tmp01
 			if [ $ENABLEDUMMY = "1" ] 2> /dev/null
 				then
-					REMOVEDUM=$( awk NR%$DUMMYREMOVE tmp01 )											#Remove dummy characters
-					echo "$REMOVEDUM" > tmp01																			###Custom###
+					RLPADDUM=$( awk NR%$DUMMYREMOVE tmp01 )											#Remove dummy characters
+					echo "$RLPADDUM" > tmp01																			###Custom###
 			fi
 
 			while read LINE																										#6 digit number is located using grep from the character key files
