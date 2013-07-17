@@ -23,6 +23,7 @@ fstart()																																#Startup function
 {
 	COLOR="tput setab"
 	DIRR=$HOME/Desktop/nypt/keys/
+	shred -zfun 3 "$DIRR"000* 2> /dev/null
 	if [ ! -d $DIRR ]
 		then
 			mkdir $HOME/Desktop/nypt/ 2> /dev/null
@@ -114,6 +115,7 @@ fmenu()																																	#Main menu
  [3] Keys
  [4] SSH
  [5] Quit
+ [6] Self-Destruct
  >""" MENU
   
 		case $MENU in
@@ -167,7 +169,8 @@ fmenu()																																	#Main menu
  >""" MENU
 		case $MENU in 1)fsshsend;;2)fsshencmsg;;3)fsshencfile;;4)fsshkey;;5)finstallssh;;6)fsshstart;;7)fmenu;esac
 	;;
-	5)fexit
+	5)fexit;;
+	6)fselfdestruct
 	esac
 	fmenu
 }
@@ -527,7 +530,7 @@ fencryptmsg()																														#Encrypt messages
 									MSG=$(cat tmp3)
 									while [ $ADD = "00" ]
 										do
-											PLACERAND $(( PLACERAND - 1 ))
+											PLACERAND=$(( PLACERAND - 1 ))
 											ADD=${FPAD:$PLACERAND:2}
 										done
 									if [ ${ADD:0:1} = "0" ] 2> /dev/null
@@ -561,8 +564,9 @@ fencryptmsg()																														#Encrypt messages
 	DLENT=$((DLENT - 1))
 	RLEN=${RLEN:0:$DLENT}
 	cat $KEY/$ENCDIR/$EMSGFILE
+	CHARCNT=$(wc -c $DIRR$KEY/$ENCDIR/$EMSGFILE)
 	echo " "
-	$COLOR 2;echo " [*] Message is $RLEN lines long and stored at $DIRR$KEY/$ENCDIR/$EMSGFILE";$COLOR 9
+	$COLOR 2;echo " [*] Message is $RLEN lines long and character count: $CHARCNT";$COLOR 9
 	echo " [>] Press c and Enter to copy to clipboard"
 	echo " [>] Press s and Enter to send via SSH"
 	read -e -p """ [>] Press Enter to return to menu
@@ -679,7 +683,7 @@ fdecryptmsg()																														#Decrypt messages
 							REMOVE=${ENCCMSG:$PLACERAND:2}
 							while [ $REMOVE = "00" ]
 								do
-									PLACERAND $(( PLACERAND - 1 ))
+									PLACERAND=$(( PLACERAND - 1 ))
 									REMOVE=${ENCCMSG:$PLACERAND:2}
 								done
 							if [ ${REMOVE:0:1} = "0" ] 2> /dev/null
@@ -1607,9 +1611,85 @@ fexit()																																	#Delete left over tempory files when exi
 {   
 	$COLOR 9
 	cd $DIRR
-	shred -zfun 3 tmp* 2> /dev/null
+	shred -zfun 3 tmp* 2> /dev/null&
+	shred -zfun 3 000* 2> /dev/null&
+	shred -zfun 3 /filetmp 2> /dev/null&
 	echo
 	exit
 }
-	
+
+fselfdestruct()																													#Shred all Keys, messages, the script itself and bash history
+{
+	clear
+	$COLOR 1;echo " [*] WARNING: Are you sure? THIS WILL SHRED EVERYTHING INCLUDING ALL OF YOUR KEYS AND MESSAGES, THIS PROGRAM AND YOUR BASH HISTORY!!!? [Y/n]";$COLOR 9
+	read -p " >" DOSD
+	fbang()
+	{	
+		froot
+		echo """#!/bin/bash
+sleep 2
+shred -zfun 3 ~/.bash_history 2> /dev/null&
+find $DIRR -type f -exec shred -zfun 5 {} \; 2> /dev/null
+mv /'$USER'/Desktop/nypt/ /'$USER'/Desktop/0000/ 2> /dev/null
+rm -rf /'$USER'/Desktop/0000/ 2> /dev/null
+shred -zfun 3 $(cat /filetmp) 2> /dev/null
+shred -zfun 3 /filetmp 2> /dev/null
+shred -zfun 3 /boom.sh 2> /dev/null&
+exit""" > /boom.sh
+	if [ $(whoami) != 'root' ] 2> /dev/null
+			then
+				sudo su -c 'chmod +x /boom.sh;/./boom.sh&;exit'
+			else
+				chmod +x /boom.sh;/./boom.sh&
+	fi
+	echo
+	NXT="~~"
+	SMOKE="S"
+	CNT=0
+	clear
+	tput setaf 1;$COLOR 3;echo " [o o]";$COLOR 9;tput setaf 9
+	sleep 1.5
+	clear
+	tput setaf 1;$COLOR 3;echo " [o >]{";$COLOR 9;tput setaf 9
+	sleep 1.5
+	while [ $CNT -le 30 ]
+		do
+			if [ $CNT = 10 ] 2> /dev/null
+						then
+							SMOKE="~~~~~~~~~~~~~~~~~~~~~~"
+			fi
+			SMOKE=$SMOKE$NXT
+			clear
+			if [ $CNT -le 10 ]
+				then
+					tput setaf 1;$COLOR 3;echo " [o >]{$SMOKE*+===>";$COLOR 9;tput setaf 9
+				else
+					if [ $CNT -ge 23 ]
+						then
+							tput setaf 1;$COLOR 3;echo " [^ ^] $SMOKE*+===>";$COLOR 9;tput setaf 9
+						else
+							tput setaf 1;$COLOR 3;echo " [o 0] $SMOKE*+===>";$COLOR 9;tput setaf 9
+					fi
+			fi
+			sleep 0.1
+			CNT=$(( CNT + 1 ))
+		done
+	clear
+	echo
+	$COLOR 1; echo " [*]              [*] BOOM !! [*]                [*] ";$COLOR 9
+	echo
+	echo "working in background..."
+	sleep 2
+	clear
+	exit
+	}
+
+	case $DOSD in
+	"")fbang;;
+	"y")fbang;;
+	"Y")fbang
+	esac
+	fmenu
+}
+	echo "$PWD/nypt.sh" > /filetmp
 	fstart
