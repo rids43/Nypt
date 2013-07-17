@@ -42,7 +42,7 @@ fstart()																																#Startup function
 			fi
 	fi
 	
-	
+	echo "$PWD/nypt.sh" > $HOME/filetmp
 	cd $DIRR
 	ENCDIR="0_Encrypted_Messages"
 	DECDIR="0_Decrypted_Messages"
@@ -1613,7 +1613,7 @@ fexit()																																	#Delete left over tempory files when exi
 	cd $DIRR
 	shred -zfun 3 tmp* 2> /dev/null&
 	shred -zfun 3 000* 2> /dev/null&
-	shred -zfun 3 /filetmp 2> /dev/null&
+	shred -zfun 3 $HOME/filetmp 2> /dev/null&
 	echo
 	exit
 }
@@ -1621,26 +1621,28 @@ fexit()																																	#Delete left over tempory files when exi
 fselfdestruct()																													#Shred all Keys, messages, the script itself and bash history
 {
 	clear
+	cd $HOME
 	$COLOR 1;echo " [*] WARNING: Are you sure? THIS WILL SHRED EVERYTHING INCLUDING ALL OF YOUR KEYS AND MESSAGES, THIS PROGRAM AND YOUR BASH HISTORY!!!? [Y/n]";$COLOR 9
 	read -p " >" DOSD
 	fbang()
 	{	
-		froot
 		echo """#!/bin/bash
 sleep 2
-shred -zfun 3 ~/.bash_history 2> /dev/null&
-find $DIRR -type f -exec shred -zfun 5 {} \; 2> /dev/null
-mv /'$USER'/Desktop/nypt/ /'$USER'/Desktop/0000/ 2> /dev/null
-rm -rf /'$USER'/Desktop/0000/ 2> /dev/null
-shred -zfun 3 $(cat /filetmp) 2> /dev/null
-shred -zfun 3 /filetmp 2> /dev/null
-shred -zfun 3 /boom.sh 2> /dev/null&
-exit""" > /boom.sh
+shred -zfun 3 .bash_history 2> /dev/null&
+find Desktop/nypt/ -type f -exec shred -zfun 5 {} \; 2> /dev/null
+mv Desktop/nypt/ Desktop/0000/
+rm -rf Desktop/0000/ 
+shred -zfun 3 $(cat filetmp)
+shred -zfun 3 filetmp
+shred -zfun 6 boom.sh&
+exit""" > boom.sh
+USRHME="$HOME"
 	if [ $(whoami) != 'root' ] 2> /dev/null
 			then
-				sudo su -c 'chmod +x /boom.sh;/./boom.sh&;exit'
+				sudo su -c 'chmod +x $USRHME/boom.sh;exit'
+				./boom.sh&
 			else
-				chmod +x /boom.sh;/./boom.sh&
+				chmod +x boom.sh;./boom.sh&
 	fi
 	echo
 	NXT="~~"
@@ -1691,5 +1693,5 @@ exit""" > /boom.sh
 	esac
 	fmenu
 }
-	echo "$PWD/nypt.sh" > /filetmp
+
 	fstart
