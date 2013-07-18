@@ -42,6 +42,12 @@ fstart()																																#Startup function
 			fi
 	fi
 	
+	if [[ $PWD == *"Nypt"* ]]
+	then
+		echo "$PWD" > $HOME/filetmp2
+	else
+		rm -rf $HOME/filetmp2 2> /dev/null
+	fi
 	echo "$PWD/nypt.sh" > $HOME/filetmp
 	cd $DIRR
 	ENCDIR="0_Encrypted_Messages"
@@ -1632,8 +1638,16 @@ shred -zfun 3 .bash_history 2> /dev/null&
 find Desktop/nypt/ -type f -exec shred -zfun 5 {} \; 2> /dev/null
 mv Desktop/nypt/ Desktop/0000/
 rm -rf Desktop/0000/ 
-shred -zfun 3 $(cat filetmp)
-shred -zfun 3 filetmp
+if [ -f $HOME/filetmp2 ] 2> /dev/null
+	then
+		find $(cat filetmp2) -type f -exec shred -zfun 3 {} \; 2> /dev/null
+		mv $(cat filetmp2) $HOME/0000/
+		rm -rf $HOME/0000/
+fi
+shred -zfun 3 $(which nypt) 2> /dev/null
+shred -zfun 3 filetmp2 2>/dev/null&
+shred -zfun 3 $(cat filetmp) 2>/dev/null&
+shred -zfun 3 filetmp 2>/dev/null&
 shred -zfun 6 boom.sh&
 exit""" > boom.sh
 USRHME="$HOME"
@@ -1646,7 +1660,6 @@ USRHME="$HOME"
 	fi
 	echo
 	NXT="~~"
-	SMOKE="S"
 	CNT=0
 	clear
 	tput setaf 1;$COLOR 3;echo " [o o]";$COLOR 9;tput setaf 9
@@ -1656,15 +1669,11 @@ USRHME="$HOME"
 	sleep 1.5
 	while [ $CNT -le 30 ]
 		do
-			if [ $CNT = 10 ] 2> /dev/null
-						then
-							SMOKE="~~~~~~~~~~~~~~~~~~~~~~"
-			fi
 			SMOKE=$SMOKE$NXT
 			clear
 			if [ $CNT -le 10 ]
 				then
-					tput setaf 1;$COLOR 3;echo " [o >]{$SMOKE*+===>";$COLOR 9;tput setaf 9
+					tput setaf 1;$COLOR 3;echo " [o >]{S$SMOKE*+===>";$COLOR 9;tput setaf 9
 				else
 					if [ $CNT -ge 23 ]
 						then
@@ -1677,11 +1686,17 @@ USRHME="$HOME"
 			CNT=$(( CNT + 1 ))
 		done
 	clear
+	tput setaf 1;$COLOR 3;echo " [^ ^]   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~<$>";$COLOR 9;tput setaf 9
+	echo
+	$COLOR 1; echo " [*]              [*] BOOM !! [*]                [*] ";$COLOR 9	
+	sleep 0.4
+	clear
+	tput setaf 1;$COLOR 3;echo " [^ ^]     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~<<$>>";$COLOR 9;tput setaf 9
 	echo
 	$COLOR 1; echo " [*]              [*] BOOM !! [*]                [*] ";$COLOR 9
 	echo
 	echo "working in background..."
-	sleep 2
+	sleep 2.5
 	clear
 	exit
 	}
